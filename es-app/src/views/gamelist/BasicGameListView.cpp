@@ -225,18 +225,12 @@ std::vector<HelpPrompt> BasicGameListView::getHelpPrompts()
 {
 	std::vector<HelpPrompt> prompts;
 
-	if(Settings::getInstance()->getBool("QuickSystemSelect"))
-		prompts.push_back(HelpPrompt("left/right", _("SYSTEM")));
-
-	prompts.push_back(HelpPrompt("up/down", _("CHOOSE")));
-	prompts.push_back(HelpPrompt(BUTTON_OK, _("LAUNCH")));
-	prompts.push_back(HelpPrompt(BUTTON_BACK, _("BACK")));
-
+	// R36S Text UI: only Select, Start, Y, X (ordered so the left pill reads
+	// Options/Menu and the right pill reads Favorite/Random). No Choose/Launch/Back.
 	if(!UIModeController::getInstance()->isUIModeKid())
 		prompts.push_back(HelpPrompt("select", _("OPTIONS")));
-	
-	if(mRoot->getSystem()->isGameSystem())
-		prompts.push_back(HelpPrompt("x", _("RANDOM")));
+
+	prompts.push_back(HelpPrompt("start", _("MENU")));
 
 	if(mRoot->getSystem()->isGameSystem() && !UIModeController::getInstance()->isUIModeKid())
 	{
@@ -246,6 +240,10 @@ std::vector<HelpPrompt> BasicGameListView::getHelpPrompts()
 
 		prompts.push_back(HelpPrompt("y", prompt));
 	}
+
+	if(mRoot->getSystem()->isGameSystem())
+		prompts.push_back(HelpPrompt("x", _("RANDOM")));
+
 	return prompts;
 }
 

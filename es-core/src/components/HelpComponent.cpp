@@ -5,6 +5,7 @@
 #include "components/ImageComponent.h"
 #include "components/TextComponent.h"
 #include "resources/TextureResource.h"
+#include "renderers/Renderer.h"
 #include "utils/StringUtil.h"
 #include "Log.h"
 #include "Settings.h"
@@ -52,25 +53,22 @@ void HelpComponent::setStyle(const HelpStyle& style)
 	updateGrid();
 }
 
-void HelpComponent::updateGrid()
+// build one grid (icon+label row) from a subset of prompts; caller positions it
+std::shared_ptr<ComponentGrid> HelpComponent::buildGrid(const std::vector<HelpPrompt>& prompts)
 {
-	if(!Settings::getInstance()->getBool("ShowHelpPrompts") || mPrompts.empty())
-	{
-		mGrid.reset();
-		return;
-	}
-
 	std::shared_ptr<Font>& font = mStyle.font;
 
-	mGrid = std::make_shared<ComponentGrid>(mWindow, Vector2i((int)mPrompts.size() * 4, 1));
+	auto grid = std::make_shared<ComponentGrid>(mWindow, Vector2i((int)prompts.size() * 4, 1));
 	// [icon] [spacer1] [text] [spacer2]
 
 	std::vector< std::shared_ptr<ImageComponent> > icons;
 	std::vector< std::shared_ptr<TextComponent> > labels;
 
 	float width = 0;
-	const float height = Math::round(font->getLetterHeight() * 1.25f);
-	for(auto it = mPrompts.cbegin(); it != mPrompts.cend(); it++)
+	const float rowHeight = Math::round(font->getLetterHeight() * 1.25f);
+	const float iconH = (mStyle.iconSize > 0.0f) ? mStyle.iconSize : rowHeight; // themeable icon size
+	const float gridH = Math::max(rowHeight, iconH);
+	for(auto it = prompts.cbegin(); it != prompts.cend(); it++)
 	{
 		auto icon = std::make_shared<ImageComponent>(mWindow);
 
@@ -80,30 +78,87 @@ void HelpComponent::updateGrid()
 			icon->setImage(getIconTexture(it->first.c_str()));
 
 		icon->setColorShift(mStyle.iconColor);
-		icon->setResize(0, height);
+		icon->setResize(0, iconH);
 		icons.push_back(icon);
 
-		auto lbl = std::make_shared<TextComponent>(mWindow, Utils::String::toUpper(it->second), font, mStyle.textColor);
+		// theme label override (verbatim) if provided, else the system label (case-transformed)
+		std::string labelText;
+		auto lm = mStyle.labelMap.find(it->first);
+		if(lm != mStyle.labelMap.end())
+			labelText = lm->second;
+		else
+			labelText = mStyle.uppercase ? Utils::String::toUpper(it->second) : it->second;
+
+		auto lbl = std::make_shared<TextComponent>(mWindow, labelText, font, mStyle.textColor);
 		labels.push_back(lbl);
 
-		width += icon->getSize().x() + lbl->getSize().x() + ICON_TEXT_SPACING + ENTRY_SPACING;
+		width += icon->getSize().x() + lbl->getSize().x() + mStyle.iconTextSpacing + mStyle.entrySpacing;
 	}
 
-	mGrid->setSize(width, height);
+	grid->setSize(width, gridH);
 	for(unsigned int i = 0; i < icons.size(); i++)
 	{
 		const int col = i*4;
-		mGrid->setColWidthPerc(col, icons.at(i)->getSize().x() / width);
-		mGrid->setColWidthPerc(col + 1, ICON_TEXT_SPACING / width);
-		mGrid->setColWidthPerc(col + 2, labels.at(i)->getSize().x() / width);
+		grid->setColWidthPerc(col, icons.at(i)->getSize().x() / width);
+		grid->setColWidthPerc(col + 1, mStyle.iconTextSpacing / width);
+		grid->setColWidthPerc(col + 2, labels.at(i)->getSize().x() / width);
 
-		mGrid->setEntry(icons.at(i), Vector2i(col, 0), false, false);
-		mGrid->setEntry(labels.at(i), Vector2i(col + 2, 0), false, false);
+		grid->setEntry(icons.at(i), Vector2i(col, 0), false, false);
+		grid->setEntry(labels.at(i), Vector2i(col + 2, 0), false, false);
+	}
+	return grid;
+}
+
+void HelpComponent::updateGrid()
+{
+	if(!Settings::getInstance()->getBool("ShowHelpPrompts") || !mStyle.visible || mPrompts.empty())
+	{
+		mGrid.reset();
+		mGridRight.reset();
+		return;
 	}
 
-	mGrid->setPosition(Vector3f(mStyle.position.x(), mStyle.position.y(), 0.0f));
-	//mGrid->setPosition(OFFSET_X, Renderer::getScreenHeight() - mGrid->getSize().y() - OFFSET_Y);
-	mGrid->setOrigin(mStyle.origin);
+	// Split into a left group (system / navigation) and a right group (action
+	// buttons), each rendered as its own pill.
+	std::vector<HelpPrompt> leftPrompts, rightPrompts;
+	for(const auto& p : mPrompts)
+	{
+		const std::string& b = p.first;
+		bool action = (b == "a" || b == "b" || b == "x" || b == "y" || b == "l" || b == "r");
+		if(action)
+			rightPrompts.push_back(p);
+		else
+			leftPrompts.push_back(p);
+	}
+
+	mGrid = leftPrompts.empty() ? nullptr : buildGrid(leftPrompts);
+	mGridRight = rightPrompts.empty() ? nullptr : buildGrid(rightPrompts);
+
+	// Explicit left-aligned positioning (origin 0) so nothing relies on grid
+	// origin-anchoring. Left pill hugs the left margin; right pill hugs the
+	// right margin. 'margin' (theme pos.x) is used on both sides.
+	const float screenW = Renderer::getScreenWidth();
+	const float margin  = mStyle.position.x();
+	const float posY    = mStyle.position.y();
+	const float padX    = mStyle.backgroundPadding.x();
+	const float W       = mStyle.backgroundWidth;   // fixed pill width (px); 0 => content
+
+	const float padY = mStyle.backgroundPadding.y();
+	if(mGrid)
+	{
+		mGrid->setOrigin(0.0f, 0.0f);
+		// fixed-pill mode: bottom-anchor so the pill's bottom edge sits at pos.y
+		float y = (W > 0.0f) ? (posY - mGrid->getSize().y() - padY) : posY;
+		mGrid->setPosition(Vector3f((W > 0.0f) ? (margin + padX) : margin, y, 0.0f));
+	}
+	if(mGridRight)
+	{
+		mGridRight->setOrigin(0.0f, 0.0f);
+		float x = (W > 0.0f) ? (screenW - margin - W + padX)
+		                     : (screenW - margin - mGridRight->getSize().x());
+		float y = (W > 0.0f) ? (posY - mGridRight->getSize().y() - padY) : posY;
+		mGridRight->setPosition(Vector3f(x, y, 0.0f));
+	}
 }
 
 std::shared_ptr<TextureResource> HelpComponent::getIconTexture(const char* name)
@@ -133,9 +188,13 @@ void HelpComponent::setOpacity(unsigned char opacity)
 {
 	GuiComponent::setOpacity(opacity);
 
-	for(unsigned int i = 0; i < mGrid->getChildCount(); i++)
+	std::shared_ptr<ComponentGrid> grids[2] = { mGrid, mGridRight };
+	for(auto& g : grids)
 	{
-		mGrid->getChild(i)->setOpacity(opacity);
+		if(!g)
+			continue;
+		for(unsigned int i = 0; i < g->getChildCount(); i++)
+			g->getChild(i)->setOpacity(opacity);
 	}
 }
 
@@ -143,6 +202,45 @@ void HelpComponent::render(const Transform4x4f& parentTrans)
 {
 	Transform4x4f trans = parentTrans * getTransform();
 
-	if(mGrid)
-		mGrid->render(trans);
+	const float screenW = Renderer::getScreenWidth();
+	const float margin  = mStyle.position.x();
+	const float W       = mStyle.backgroundWidth;
+	const float padX    = mStyle.backgroundPadding.x();
+	const float padY    = mStyle.backgroundPadding.y();
+	const bool  haveBg  = (mStyle.backgroundColor & 0xFF) != 0;
+
+	// pill color faded with the bar's own opacity
+	unsigned int a  = (mStyle.backgroundColor & 0xFF) * getOpacity() / 255;
+	unsigned int bg = (mStyle.backgroundColor & 0xFFFFFF00) | (a & 0xFF);
+
+	// isRight == false -> left pill hugs the left margin; true -> right margin
+	auto drawGroup = [&](std::shared_ptr<ComponentGrid>& g, bool isRight)
+	{
+		if(!g)
+			return;
+		if(haveBg)
+		{
+			Vector3f gp = g->getPosition();
+			Vector2f gs = g->getSize();
+			float by = gp.y() - padY;
+			float bh = gs.y() + 2.0f * padY;
+			float bx, bw;
+			if(W > 0.0f)
+			{
+				bw = W;
+				bx = isRight ? (screenW - margin - W) : margin;
+			}
+			else
+			{
+				bw = gs.x() + 2.0f * padX;
+				bx = gp.x() - padX;
+			}
+			Renderer::setMatrix(trans);
+			Renderer::drawRoundRect(bx, by, bw, bh, mStyle.backgroundRadius, bg);
+		}
+		g->render(trans);
+	};
+
+	drawGroup(mGrid, false);
+	drawGroup(mGridRight, true);
 }

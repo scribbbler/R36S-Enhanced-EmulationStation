@@ -5,6 +5,9 @@
 #include "components/ComponentGrid.h"
 #include "components/NinePatchComponent.h"
 #include "components/TextComponent.h"
+#include "components/ImageComponent.h"
+#include "resources/Font.h"
+#include "resources/ResourceManager.h"
 #include "EsLocale.h"
 #include "VolumeControl.h"
 #include "Window.h"
@@ -14,59 +17,59 @@
 
 #define VISIBLE_TIME		2650
 #define FADE_TIME			350
-#define BASEOPACITY			100
+#define BASEOPACITY			255
 #define CHECKVOLUMEDELAY	40
 
-VolumeInfoComponent::VolumeInfoComponent(Window* window, bool actionLine)
+VolumeInfoComponent::VolumeInfoComponent(Window* window, const std::string& iconPath, const std::string& fontPath)
 	: GuiComponent(window)
 {
 	mDisplayTime = -1;
 	mVolume = -1;
 	mCheckTime = 0;
 
-	auto theme = ThemeData::getMenuTheme();	
-
-	auto font = theme->TextSmall.font;
-	if (Renderer::isSmallScreen())
-		font = theme->Text.font;
-
-	Vector2f fullSize(
-		2 * PADDING_PX + font->sizeText("100%").x(),
-		2 * PADDING_PX + Renderer::getScreenHeight() * 0.20f);
-	
-	fullSize.y() = fullSize.x() * 2.5f;
-
+	// Figma "Toast / Vertical": 58 x 184 panel (black 64%), % on top,
+	// a 24 x 100 bar (white 32% track / 80% fill, 4px radius), 24 x 24 icon.
+	Vector2f fullSize(58.0f, 184.0f);
 	setSize(fullSize);
 
-	mFrame = new NinePatchComponent(window);
-	mFrame->setImagePath(theme->Background.path);
-	mFrame->setEdgeColor(theme->Background.color);
-	mFrame->setCenterColor(theme->Background.centerColor);
-	mFrame->setCornerSize(theme->Background.cornerSize);
-	mFrame->fitTo(mSize, Vector3f::Zero(), Vector2f(-32, -32));
-	addChild(mFrame);
+	mFrame = nullptr; // background is drawn as a rounded rect in render()
 
-
-	mLabel = new TextComponent(mWindow, "", font, theme->Text.color, ALIGN_CENTER);
-	
-	int h = font->sizeText("100%").y() + PADDING_PX;
-	mLabel->setPosition(0, fullSize.y() - h);
-	mLabel->setSize(fullSize.x(), h);
+	// label (%) at the top: BPreplay-Bold 17px, 24px band at y=10
+	auto font = fontPath.empty() ? Font::get(17) : Font::get(17, fontPath);
+	mLabel = new TextComponent(mWindow, "", font, 0xFFFFFFFF, ALIGN_CENTER);
+	mLabel->setPosition(0, 10);
+	mLabel->setSize(fullSize.x(), 24);
 	addChild(mLabel);
 
+	// bar area (24 x 100 at 17,42)
+	mBarTop = 42.0f;
+	mBarBottom = 142.0f;
 
-	// FCA TopLeft
-	float posX = Renderer::getScreenWidth() * 0.02f;
-	float posY = Renderer::getScreenHeight() * 0.04f;
+	// icon (24 x 24 at 17,150)
+	mIcon = nullptr;
+	if (!iconPath.empty() && ResourceManager::getInstance()->fileExists(iconPath))
+	{
+		mIcon = new ImageComponent(mWindow);
+		mIcon->setImage(iconPath);
+		mIcon->setColorShift(0xFFFFFFFF);
+		mIcon->setMaxSize(24.0f, 24.0f);
+		mIcon->setPosition(17.0f + (24.0f - mIcon->getSize().x()) / 2.0f,
+		                   150.0f + (24.0f - mIcon->getSize().y()) / 2.0f);
+		addChild(mIcon);
+	}
 
-	setPosition(posX, posY, 0);
+	// top-right corner, 12px from the right edge and 12px from the top
+	setPosition(Renderer::getScreenWidth() - fullSize.x() - 12.0f, 12.0f, 0);
 	setOpacity(BASEOPACITY);
 }
 
 VolumeInfoComponent::~VolumeInfoComponent()
 {
 	delete mLabel;
-	delete mFrame;
+	if (mFrame)
+		delete mFrame;
+	if (mIcon)
+		delete mIcon;
 }
 
 void VolumeInfoComponent::update(int deltaTime)
@@ -101,10 +104,7 @@ void VolumeInfoComponent::update(int deltaTime)
 
 		mVolume = volume;
 
-		if (mVolume == 0)
-			mLabel->setText("X");
-		else
-			mLabel->setText(std::to_string(mVolume) + "%");
+		mLabel->setText(std::to_string(mVolume) + "%");
 
 		if (!firstTime)
 		{
@@ -127,20 +127,27 @@ void VolumeInfoComponent::render(const Transform4x4f& parentTrans)
 	int opacity = BASEOPACITY - Math::max(0, (mDisplayTime - VISIBLE_TIME) * BASEOPACITY / FADE_TIME);
 	setOpacity(opacity);
 
-	GuiComponent::render(parentTrans);
-
 	Transform4x4f trans = parentTrans * getTransform();
 	Renderer::setMatrix(trans);
 
-	float x = PADDING_PX + PADDING_BAR;
-	float y = PADDING_PX * 2;
-	float w = getSize().x() - 2 * PADDING_PX - 2 * PADDING_BAR;
-	float h = getSize().y() - mLabel->getSize().y() - PADDING_PX - PADDING_PX;
-	
-	auto theme = ThemeData::getMenuTheme();
+	float f = opacity / 255.0f;
+	// exact Figma colors, faded by the popup opacity
+	auto C = [f](unsigned int rgb, float baseA) -> unsigned int {
+		unsigned int al = (unsigned int)(baseA * 255.0f * f + 0.5f);
+		if (al > 255) al = 255;
+		return (rgb << 8) | (al & 0xFF);
+	};
+	// panel black @ 64%, radius 12; bar track white @ 32%, radius 4; fill white @ 80%, radius 4
+	Renderer::drawRoundRect(0.0f, 0.0f, 58.0f, 184.0f, 12.0f, C(0x000000, 0.80f));
+	Renderer::drawRoundRect(17.0f, 42.0f, 24.0f, 100.0f, 4.0f, C(0xFFFFFF, 0.32f));
 
-	Renderer::drawRect(x, y, w, h, (theme->Text.color & 0xFFFFFF00) | (opacity / 2));
+	int lvl = Math::max(0, Math::min(100, mVolume));
+	float fillH = 100.0f * lvl / 100.0f;
+	if (fillH > 1.0f)
+	{
+		float fr = Math::min(4.0f, fillH * 0.5f);
+		Renderer::drawRoundRect(17.0f, 42.0f + (100.0f - fillH), 24.0f, fillH, fr, C(0xFFFFFF, 0.80f));
+	}
 
-	float px = (h*mVolume) / 100;
-	Renderer::drawRect(x, y + h - px, w, px, (theme->TextSmall.color & 0xFFFFFF00) | opacity);
+	GuiComponent::render(parentTrans); // % label + icon
 }

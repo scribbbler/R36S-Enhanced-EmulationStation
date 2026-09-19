@@ -99,6 +99,9 @@ public:
 
 	void displayNotificationMessage(std::string message, int duration = -1);
 
+	// Large battery splash shown briefly when charging starts
+	void showChargingScreen(const std::string& iconPath, int level);
+
 	void registerNotificationComponent(AsyncNotificationComponent* pc);
 	void unRegisterNotificationComponent(AsyncNotificationComponent* pc);
 
@@ -150,6 +153,12 @@ private:
 	int mClockElapsed;
 	
 	std::shared_ptr<TextComponent> mClock;
+
+	// charging splash
+	std::shared_ptr<ImageComponent> mChargingImage;
+	std::shared_ptr<TextComponent>  mChargingText;
+	int mChargingTimer = 0;   // ms remaining; 0 = inactive
+
 	std::shared_ptr<VolumeInfoComponent> mVolumeInfo;
 	std::shared_ptr<BrightnessInfoComponent> mBrightnessInfo;
 	std::shared_ptr<BatteryIndicatorComponent>	mBatteryIndicator;

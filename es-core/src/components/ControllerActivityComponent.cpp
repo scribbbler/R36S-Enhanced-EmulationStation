@@ -5,6 +5,7 @@
 #include "resources/TextureResource.h"
 #include "utils/StringUtil.h"
 #include "ThemeData.h"
+#include "Window.h"
 #include "InputManager.h"
 #include "Settings.h"
 #include "platform.h"
@@ -14,7 +15,7 @@
 #define PLAYER_PAD_TIME_MS		 150
 #define UPDATE_NETWORK_DELAY 5000
 #define UPDATE_BLUETOOTH_DELAY 5000
-#define UPDATE_BATTERY_DELAY	10000
+#define UPDATE_BATTERY_DELAY	250
 
 ControllerActivityComponent::ControllerActivityComponent(Window* window) : GuiComponent(window)
 {
@@ -542,7 +543,14 @@ void ControllerActivityComponent::updateBatteryInfo()
 		mCurrentBatteryTexture = "";
 	}
 
+	bool wasCharging = mBatteryInfo.isCharging;
+	bool hadBattery  = mBatteryInfo.hasBattery;
+
 	mBatteryInfo = info;
+
+	// Large charging splash the moment charging starts (skip the very first reading).
+	if (hadBattery && !wasCharging && info.isCharging && mWindow != nullptr)
+		mWindow->showChargingScreen(mIncharge, info.level);
 
 	// Notify callback about battery state change
 	if (mBatteryStateCallback && mBatteryInfo.hasBattery)

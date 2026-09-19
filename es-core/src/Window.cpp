@@ -193,6 +193,24 @@ void Window::input(InputConfig* config, Input input)
 		return;
 	}
 
+	// FN + up/down (volume) and FN + left/right (brightness) are handled at the
+	// OS level. Swallow the d-pad here so it doesn't also drive navigation
+	// behind the volume/brightness info popup. (Never swallow the FN button
+	// itself, so its release is still tracked above.)
+	if (mFnHeld && input.id != 16 &&
+		(config->isMappedLike("up", input)    || config->isMappedLike("down", input) ||
+		 config->isMappedLike("left", input)  || config->isMappedLike("right", input)))
+		return;
+
+	// Any button press dismisses the charging splash early (and is swallowed).
+	if (mChargingTimer > 0 && input.value != 0)
+	{
+		mChargingTimer = 0;
+		mChargingImage.reset();
+		mChargingText.reset();
+		return;
+	}
+
 	if (config->isMappedTo("system_hk", input))
 	{
 		if (input.value != 0)
@@ -376,7 +394,18 @@ void Window::update(int deltaTime)
 
 	if (mBatteryIndicator)
 		mBatteryIndicator->update(deltaTime);
-		
+
+	if (mChargingTimer > 0)
+	{
+		mChargingTimer -= deltaTime;
+		if (mChargingTimer <= 0)
+		{
+			mChargingTimer = 0;
+			mChargingImage.reset();
+			mChargingText.reset();
+		}
+	}
+
 	AudioManager::update(deltaTime);
 }
 
@@ -461,6 +490,29 @@ void Window::render()
 	if (mBrightnessInfo)
 		mBrightnessInfo->render(transform);
 
+	// charging splash on top of everything
+	if (mChargingTimer > 0 && mChargingImage)
+	{
+		const float total = 4000.0f, fadeIn = 250.0f, fadeOut = 600.0f;
+		float elapsed = total - mChargingTimer;
+		float op = 1.0f;
+		if (elapsed < fadeIn) op = elapsed / fadeIn;
+		else if (mChargingTimer < fadeOut) op = mChargingTimer / fadeOut;
+		if (op < 0.0f) op = 0.0f; else if (op > 1.0f) op = 1.0f;
+
+		Renderer::setMatrix(Transform4x4f::Identity());
+		Renderer::drawRect(0.0f, 0.0f, (float)Renderer::getScreenWidth(), (float)Renderer::getScreenHeight(),
+			(unsigned int)(0xE0 * op) & 0xFF); // black backdrop, faded
+
+		mChargingImage->setOpacity((unsigned char)(op * 255));
+		mChargingImage->render(transform);
+		if (mChargingText)
+		{
+			mChargingText->setOpacity((unsigned char)(op * 255));
+			mChargingText->render(transform);
+		}
+	}
+
 	if(mTimeSinceLastInput >= screensaverTime && screensaverTime != 0)
 	{
 		if (!isProcessing() && mAllowSleep && (!mScreenSaver || mScreenSaver->allowSleep()))
@@ -472,6 +524,30 @@ void Window::render()
 			}
 		}
 	}
+}
+
+void Window::showChargingScreen(const std::string& iconPath, int level)
+{
+	if (iconPath.empty())
+		return;
+
+	float sw = (float)Renderer::getScreenWidth();
+	float sh = (float)Renderer::getScreenHeight();
+
+	mChargingImage = std::make_shared<ImageComponent>(this);
+	mChargingImage->setImage(iconPath);
+	mChargingImage->setColorShift(0xFFFFFFFF);
+	float sz = sh * 0.4f; // large, centered
+	mChargingImage->setMaxSize(sz, sz);
+	mChargingImage->setPosition((sw - mChargingImage->getSize().x()) / 2.0f,
+	                            sh * 0.5f - mChargingImage->getSize().y() * 0.65f);
+
+	auto font = Font::get((int)(sh * 0.07f));
+	mChargingText = std::make_shared<TextComponent>(this, std::to_string(level) + "%", font, 0xFFFFFFFF, ALIGN_CENTER);
+	mChargingText->setSize(sw, 0.0f);
+	mChargingText->setPosition(0.0f, sh * 0.5f + mChargingImage->getSize().y() * 0.45f);
+
+	mChargingTimer = 4000; // ~4 seconds
 }
 
 void Window::normalizeNextUpdate()
@@ -883,10 +959,26 @@ void Window::onThemeChanged(const std::shared_ptr<ThemeData>& theme)
 	}
 
 	if (Settings::getInstance()->getBool("VolumePopup"))
-		mVolumeInfo = std::make_shared<VolumeInfoComponent>(this);
+	{
+		std::string vicon, vfont;
+		auto el = theme->getElement("screen", "volumeIndicator", "volumeIndicator");
+		if (el && el->has("icon"))
+			vicon = el->get<std::string>("icon");
+		if (el && el->has("fontPath"))
+			vfont = el->get<std::string>("fontPath");
+		mVolumeInfo = std::make_shared<VolumeInfoComponent>(this, vicon, vfont);
+	}
 
 	if (Settings::getInstance()->getBool("BrightnessPopup"))
-		mBrightnessInfo = std::make_shared<BrightnessInfoComponent>(this);
+	{
+		std::string bicon, bfont;
+		auto el = theme->getElement("screen", "brightnessIndicator", "brightnessIndicator");
+		if (el && el->has("icon"))
+			bicon = el->get<std::string>("icon");
+		if (el && el->has("fontPath"))
+			bfont = el->get<std::string>("fontPath");
+		mBrightnessInfo = std::make_shared<BrightnessInfoComponent>(this, bicon, bfont);
+	}
 
 	if (mBatteryIndicator)
 		mBatteryIndicator->applyTheme(theme, "screen", "batteryIndicator", ThemeFlags::ALL);

@@ -22,6 +22,9 @@
 #include "DisplayPanelControl.h"
 #include "AudioManager.h"
 #include "math/Vector2i.h"
+#include "math/Misc.h"
+#include "platform.h"
+#include "resources/ResourceManager.h"
 #include "SystemConf.h"
 
 #define FADE_TIME					(500)
@@ -1019,24 +1022,25 @@ void VideoScreenSaver::update(int deltaTime)
 // CLOCK SCREEN SAVER CLASS
 // ------------------------------------------------------------------------------------------------------------------------
 
-// Format the screensaver clock date like "19th Sep, 2026" (ordinal day, short month, year).
+// Format the screensaver clock time, honoring the same "12-hour clock" toggle
+// as the top-left clock (Settings "ClockMode12"): "3:07:45 PM" vs "15:07:45".
+static std::string formatClockTime(struct tm* t)
+{
+	char out[32];
+	if (Settings::getInstance()->getBool("ClockMode12"))
+		strftime(out, sizeof(out), "%I:%M %p", t); // 12-hour: no seconds
+	else
+		strftime(out, sizeof(out), "%H:%M:%S", t); // 24-hour: with seconds
+	return std::string(out);
+}
+
+// Format the screensaver clock date like "Wed, 31 Jan" (weekday, day, short month).
 static std::string formatClockDate(struct tm* t)
 {
-	int d = t->tm_mday;
-	const char* suffix = "th";
-	if (d < 11 || d > 13)
-	{
-		switch (d % 10)
-		{
-			case 1: suffix = "st"; break;
-			case 2: suffix = "nd"; break;
-			case 3: suffix = "rd"; break;
-		}
-	}
-	char mon[16], yr[8], out[48];
-	strftime(mon, sizeof(mon), "%b", t); // abbreviated month, e.g. "Sep"
-	strftime(yr, sizeof(yr), "%Y", t);
-	snprintf(out, sizeof(out), "%d%s %s, %s", d, suffix, mon, yr);
+	char wd[16], mon[16], out[48];
+	strftime(wd, sizeof(wd), "%a", t);   // abbreviated weekday, e.g. "Wed"
+	strftime(mon, sizeof(mon), "%b", t); // abbreviated month, e.g. "Jan"
+	snprintf(out, sizeof(out), "%s, %d %s", wd, t->tm_mday, mon);
 	return std::string(out);
 }
 
@@ -1065,11 +1069,20 @@ ClockScreenSaver::ClockScreenSaver(Window* window) : GuiComponent(window)
 	auto font = Font::get(sz, ph);
 	int fh = font->getLetterHeight();
 
+	const float W = Renderer::getScreenWidth();
+	const float H = Renderer::getScreenHeight();
+
+	// Layout (top -> bottom, all horizontally centered): lock icon, date, time.
+	// Positions are screen fractions so the stack reads like the mockup.
+	const float lockY = H * 0.27f;
+	const float dateY = H * 0.37f;
+	const float timeY = H * 0.53f;
+
 	// Create time label (large, centered)
 	mLabelTime = new TextComponent(mWindow);
 	mLabelTime->setOrigin(0.5f, 0.5f);
-	mLabelTime->setPosition(Renderer::getScreenWidth() / 2.0f, Renderer::getScreenHeight() / 2.0f - fh * 0.4f);
-	mLabelTime->setSize(Renderer::getScreenWidth(), fh);
+	mLabelTime->setPosition(W / 2.0f, timeY);
+	mLabelTime->setSize(W, fh);
 	mLabelTime->setHorizontalAlignment(ALIGN_CENTER);
 	mLabelTime->setVerticalAlignment(ALIGN_CENTER);
 	mLabelTime->setColor(0xFFFFFFFF);
@@ -1077,27 +1090,102 @@ ClockScreenSaver::ClockScreenSaver(Window* window) : GuiComponent(window)
 	mLabelTime->setGlowSize(4);
 	mLabelTime->setFont(font);
 
-	// Create date label (smaller, below time)
+	// Create date label (smaller, above the time)
 	mLabelDate = new TextComponent(mWindow);
 	mLabelDate->setOrigin(0.5f, 0.5f);
-	mLabelDate->setPosition(Renderer::getScreenWidth() / 2.0f, Renderer::getScreenHeight() / 2.0f + fh * 0.5f);
-	mLabelDate->setSize(Renderer::getScreenWidth(), fh * 0.5f);
+	mLabelDate->setPosition(W / 2.0f, dateY);
+	mLabelDate->setSize(W, fh * 0.5f);
 	mLabelDate->setHorizontalAlignment(ALIGN_CENTER);
 	mLabelDate->setVerticalAlignment(ALIGN_CENTER);
-	mLabelDate->setColor(0xD0D0D0FF);
+	mLabelDate->setColor(0xFFFFFFFF);
 	mLabelDate->setGlowColor(0x00000060);
 	mLabelDate->setGlowSize(2);
 	mLabelDate->setFont(ph, sz * 0.4f);
+
+	// Lock icon, centered above the date. Themeable via
+	// <view name="screen"><image name="screensaverLock"><path>.
+	mLockImage = nullptr;
+	{
+		std::string lockPath;
+		if (ThemeData* dt = ThemeData::getDefaultTheme())
+		{
+			const ThemeData::ThemeElement* el = dt->getElement("screen", "screensaverLock", "image");
+			if (el != nullptr && el->has("path"))
+				lockPath = el->get<std::string>("path");
+		}
+		if (!lockPath.empty() && ResourceManager::getInstance()->fileExists(lockPath))
+		{
+			float lockSz = H * 0.05f; // ~24px on a 480px panel
+			mLockImage = new ImageComponent(mWindow);
+			mLockImage->setMaxSize(lockSz, lockSz);
+			mLockImage->setImage(lockPath, false, MaxSizeInfo(lockSz, lockSz));
+			mLockImage->setColorShift(0xFFFFFFFF);
+			mLockImage->setOrigin(0.5f, 0.5f);
+			mLockImage->setPosition(W / 2.0f, lockY);
+		}
+	}
 
 	// Initialize with current time
 	time_t now = time(NULL);
 	struct tm* timeinfo = localtime(&now);
 
-	char timeBuffer[64];
-	strftime(timeBuffer, sizeof(timeBuffer), "%H:%M:%S", timeinfo);
-
-	mLabelTime->setText(std::string(timeBuffer));
+	mLabelTime->setText(formatClockTime(timeinfo));
 	mLabelDate->setText(formatClockDate(timeinfo));
+
+	// --- charging overlay ---------------------------------------------------
+	// The theme can supply the charging icon via
+	// <view name="screen"><image name="screensaverBattery"><path>. Default to
+	// the battery indicator's shared charging resource.
+	mBattIconPath = ResourceManager::getInstance()->getResourcePath(":/battery/incharge.svg");
+	if (ThemeData* dt = ThemeData::getDefaultTheme())
+	{
+		const ThemeData::ThemeElement* el = dt->getElement("screen", "screensaverBattery", "image");
+		if (el != nullptr && el->has("path"))
+			mBattIconPath = el->get<std::string>("path");
+	}
+
+	mCharging = false;
+	mBattLevel = -1;
+	mBattCheckAccumulator = 0;
+
+	// Large centered battery icon (sized to a fraction of the screen height,
+	// matching the visual weight of the clock it replaces).
+	float iconH = Renderer::getScreenHeight() * 0.22f;
+	float iconW = iconH * 1.6f;
+	mBattImage = new ImageComponent(mWindow);
+	mBattImage->setMaxSize(iconW, iconH);
+	// Rasterize the SVG at the display size so it stays crisp instead of
+	// scaling up a tiny default raster.
+	if (!mBattIconPath.empty())
+		mBattImage->setImage(mBattIconPath, false, MaxSizeInfo(iconW, iconH));
+	mBattImage->setColorShift(0xFFFFFFFF);
+	mBattImage->setOrigin(0.5f, 0.5f);
+	mBattImage->setPosition(Renderer::getScreenWidth() / 2.0f,
+	                        Renderer::getScreenHeight() / 2.0f - fh * 0.35f);
+
+	mBattLabel = new TextComponent(mWindow);
+	mBattLabel->setOrigin(0.5f, 0.5f);
+	mBattLabel->setPosition(Renderer::getScreenWidth() / 2.0f, Renderer::getScreenHeight() / 2.0f + fh * 0.55f);
+	mBattLabel->setSize(Renderer::getScreenWidth(), fh * 0.5f);
+	mBattLabel->setHorizontalAlignment(ALIGN_CENTER);
+	mBattLabel->setVerticalAlignment(ALIGN_CENTER);
+	mBattLabel->setColor(0xFFFFFFFF);
+	mBattLabel->setGlowColor(0x00000060);
+	mBattLabel->setGlowSize(2);
+	mBattLabel->setFont(ph, sz * 0.4f);
+
+	refreshBattery();
+}
+
+void ClockScreenSaver::refreshBattery()
+{
+	BatteryInformation info = queryBatteryInformation(false);
+	mCharging = info.hasBattery && info.isCharging;
+	if (info.level != mBattLevel)
+	{
+		mBattLevel = info.level;
+		mBattLabel->setText(std::to_string(Math::max(0, Math::min(100, mBattLevel))) + "%");
+	}
 }
 
 ClockScreenSaver::~ClockScreenSaver()
@@ -1113,6 +1201,24 @@ ClockScreenSaver::~ClockScreenSaver()
 		delete mLabelDate;
 		mLabelDate = nullptr;
 	}
+
+	if (mLockImage != nullptr)
+	{
+		delete mLockImage;
+		mLockImage = nullptr;
+	}
+
+	if (mBattImage != nullptr)
+	{
+		delete mBattImage;
+		mBattImage = nullptr;
+	}
+
+	if (mBattLabel != nullptr)
+	{
+		delete mBattLabel;
+		mBattLabel = nullptr;
+	}
 }
 
 void ClockScreenSaver::render(const Transform4x4f& transform)
@@ -1120,6 +1226,23 @@ void ClockScreenSaver::render(const Transform4x4f& transform)
 	// Draw black background
 	Renderer::setMatrix(Transform4x4f::Identity());
 	Renderer::drawRect(0.0f, 0.0f, Renderer::getScreenWidth(), Renderer::getScreenHeight(), 0x000000FF);
+
+	// Lock icon sits at the top of the stack in every state (the clock always
+	// locks input while it is showing).
+	if (mLockImage)
+		mLockImage->render(transform);
+
+	// While charging, replace the clock/date with a battery icon + charge %.
+	if (mCharging)
+	{
+		if (mBattImage)
+			mBattImage->render(transform);
+
+		if (mBattLabel)
+			mBattLabel->render(transform);
+
+		return;
+	}
 
 	// Render time and date
 	if (mLabelTime)
@@ -1133,6 +1256,14 @@ void ClockScreenSaver::update(int deltaTime)
 {
 	GuiComponent::update(deltaTime);
 
+	// Poll charging state / level roughly once per second.
+	mBattCheckAccumulator += deltaTime;
+	if (mBattCheckAccumulator >= 1000)
+	{
+		mBattCheckAccumulator = 0;
+		refreshBattery();
+	}
+
 	mDateTimeUpdateAccumulator += deltaTime;
 	if (mDateTimeUpdateAccumulator >= DATE_TIME_UPDATE_INTERVAL)
 	{
@@ -1145,11 +1276,8 @@ void ClockScreenSaver::update(int deltaTime)
 
 			struct tm* timeinfo = localtime(&now);
 
-			char timeBuffer[64];
-			strftime(timeBuffer, sizeof(timeBuffer), "%H:%M:%S", timeinfo);
-
 			if (mLabelTime)
-				mLabelTime->setText(std::string(timeBuffer));
+				mLabelTime->setText(formatClockTime(timeinfo));
 
 			if (mLabelDate)
 				mLabelDate->setText(formatClockDate(timeinfo));

@@ -66,14 +66,61 @@ The selected row gets a left-hugging white pill with black text.
     </view>
     </feature>
 
-    <view name="system,detailed,video,basic">	
+    <!-- Carousel help bar: Clock (Select) / Menu (Start)  |  Search (Y) / Random (X) -->
+    <view name="system">
         <helpsystem name="help">
         <fontPath>./fonts/BPreplay-Regular.otf</fontPath>
-	<fontSize>0.035</fontSize>
+	<pos>0.0125 0.9875</pos><!-- 8px side margins; pill BOTTOM 6px above screen bottom (474/480) -->
+	<origin>0 0</origin>
+	<fontSize>0.0333333</fontSize><!-- 16px, matches the top bar -->
 	<textColor>FFFFFF</textColor>
 	<iconColor>FFFFFF</iconColor>
+	<iconSize>0.05</iconSize><!-- 24px button icons -->
+	<iconTextSpacing>0.009375</iconTextSpacing><!-- 6px icon-to-label gap -->
+	<entrySpacing>0.025</entrySpacing><!-- 16px between entries -->
+	<textUppercase>true</textUppercase><!-- applies to system labels only; overrides below are verbatim -->
+	<labelSelect>Clock</labelSelect>
+	<labelStart>Menu</labelStart>
+	<labelY>Search</labelY>
+	<labelX>Random</labelX>
+	<backgroundColor>2A2A2AFF</backgroundColor>
+	<backgroundWidth>0.375</backgroundWidth><!-- 240px per pill -->
+	<backgroundRadius>0.0375</backgroundRadius><!-- full pill (half of 36px) -->
+	<backgroundPadding>0.015 0.0125</backgroundPadding><!-- 9.6px x, 6px y -->
+	<iconX>./art/buttons/x.png</iconX>
+	<iconY>./art/buttons/y.png</iconY>
+	<iconStart>./art/buttons/start.png</iconStart>
+	<iconSelect>./art/buttons/select.png</iconSelect>
         </helpsystem>
-    </view>  
+    </view>
+
+    <!-- Gamelist help bar: Options (Select) / Menu (Start)  |  Favorite (Y) / Random (X) -->
+    <view name="basic, detailed, video">
+        <helpsystem name="help">
+        <fontPath>./fonts/BPreplay-Regular.otf</fontPath>
+	<pos>0.0125 0.9875</pos>
+	<origin>0 0</origin>
+	<fontSize>0.0333333</fontSize>
+	<textColor>FFFFFF</textColor>
+	<iconColor>FFFFFF</iconColor>
+	<iconSize>0.05</iconSize>
+	<iconTextSpacing>0.009375</iconTextSpacing>
+	<entrySpacing>0.025</entrySpacing>
+	<textUppercase>true</textUppercase>
+	<labelSelect>Options</labelSelect>
+	<labelStart>Menu</labelStart>
+	<labelY>Favorite</labelY>
+	<labelX>Random</labelX>
+	<backgroundColor>2A2A2AFF</backgroundColor>
+	<backgroundWidth>0.375</backgroundWidth>
+	<backgroundRadius>0.0375</backgroundRadius>
+	<backgroundPadding>0.015 0.0125</backgroundPadding>
+	<iconX>./art/buttons/x.png</iconX>
+	<iconY>./art/buttons/y.png</iconY>
+	<iconStart>./art/buttons/start.png</iconStart>
+	<iconSelect>./art/buttons/select.png</iconSelect>
+        </helpsystem>
+    </view>
    
     <view name="basic">
     <text name="description" extra="true">
@@ -248,6 +295,20 @@ If a file is missing, that key falls back to its built-in Unicode glyph.
 </view>
 
 <!--
+Icons for the volume / brightness pop-up overlays.
+-->
+   <view name="screen">
+	<volumeIndicator name="volumeIndicator">
+	<icon>./art/icons/volume.svg</icon>
+	<fontPath>./fonts/BPreplay-Bold.otf</fontPath>
+    </volumeIndicator>
+	<brightnessIndicator name="brightnessIndicator">
+	<icon>./art/icons/brightness.svg</icon>
+	<fontPath>./fonts/BPreplay-Bold.otf</fontPath>
+    </brightnessIndicator>
+</view>
+
+<!--
 Screensaver clock font (idle time/date display).
 Requires the custom EmulationStation build that reads screensaverClock.
 -->
@@ -255,6 +316,14 @@ Requires the custom EmulationStation build that reads screensaverClock.
 	<text name="screensaverClock">
 	<fontPath>./fonts/BPreplay-Bold.otf</fontPath>
     </text>
+	<!-- While charging, the clock/date are replaced by this battery icon + charge %. -->
+	<image name="screensaverBattery">
+	<path>./art/battery/battery-charging.svg</path>
+    </image>
+	<!-- Small padlock shown above the date (the clock locks all input but Select). -->
+	<image name="screensaverLock">
+	<path>./art/icons/lock.svg</path>
+    </image>
 </view>
 
 <!--

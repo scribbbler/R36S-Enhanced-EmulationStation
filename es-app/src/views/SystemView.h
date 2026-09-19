@@ -82,6 +82,12 @@ public:
 	std::vector<HelpPrompt> getHelpPrompts() override;
 	virtual HelpStyle getHelpStyle() override;
 
+	// Clock screensaver (Select toggles it). While active every button is
+	// locked except Select; ViewController enforces the lock so it also
+	// catches Start (which it handles before delegating to the view).
+	bool isClockSaverActive() const { return mClockSaverActive; }
+	void setClockSaverActive(bool active);
+
 protected:
 	void onCursorChanged(const CursorState& state) override;
 

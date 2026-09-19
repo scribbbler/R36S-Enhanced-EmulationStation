@@ -86,10 +86,24 @@ public:
 	void update(int deltaTime) override;
 
 private:
+	void refreshBattery();
+
 	TextComponent*		mLabelTime;
 	TextComponent*		mLabelDate;
 	int 				mDateTimeUpdateAccumulator;
 	time_t				mDateTimeLastUpdate;
+
+	// Small padlock icon shown centered above the date (the clock locks input).
+	ImageComponent*		mLockImage;
+
+	// When the device is plugged in, the clock/date are replaced by a large
+	// battery icon + charge %.
+	ImageComponent*		mBattImage;
+	TextComponent*		mBattLabel;
+	std::string			mBattIconPath;
+	bool				mCharging;
+	int					mBattLevel;
+	int					mBattCheckAccumulator;
 };
 
 // Screensaver implementation for main window

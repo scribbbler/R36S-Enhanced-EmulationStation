@@ -11,6 +11,17 @@ HelpStyle::HelpStyle()
 	textColor = 0x777777FF;
 	font = nullptr;
 
+	// classic-behavior defaults
+	iconTextSpacing = 8.0f;
+	entrySpacing = 16.0f;
+	iconSize = 0.0f;               // auto (from font height)
+	uppercase = true;
+	backgroundColor = 0x00000000;  // no background
+	backgroundRadius = 0.0f;
+	backgroundPadding = Vector2f(0.0f, 0.0f);
+	backgroundWidth = 0.0f;        // content width
+	visible = true;
+
 	if (FONT_SIZE_SMALL != 0)
 		font = Font::get(FONT_SIZE_SMALL);
 }
@@ -35,6 +46,35 @@ void HelpStyle::applyTheme(const std::shared_ptr<ThemeData>& theme, const std::s
 
 	if(elem->has("fontPath") || elem->has("fontSize"))
 		font = Font::getFromTheme(elem, ThemeFlags::ALL, font);
+
+	// extended look (fractions of the screen, like other theme sizes)
+	if(elem->has("iconTextSpacing"))
+		iconTextSpacing = elem->get<float>("iconTextSpacing") * Renderer::getScreenWidth();
+
+	if(elem->has("entrySpacing"))
+		entrySpacing = elem->get<float>("entrySpacing") * Renderer::getScreenWidth();
+
+	if(elem->has("iconSize"))
+		iconSize = elem->get<float>("iconSize") * Renderer::getScreenHeight();
+
+	if(elem->has("textUppercase"))
+		uppercase = elem->get<bool>("textUppercase");
+
+	if(elem->has("backgroundColor"))
+		backgroundColor = elem->get<unsigned int>("backgroundColor");
+
+	if(elem->has("backgroundRadius"))
+		backgroundRadius = elem->get<float>("backgroundRadius") * Renderer::getScreenHeight();
+
+	if(elem->has("backgroundPadding"))
+		backgroundPadding = elem->get<Vector2f>("backgroundPadding") *
+			Vector2f((float)Renderer::getScreenWidth(), (float)Renderer::getScreenHeight());
+
+	if(elem->has("backgroundWidth"))
+		backgroundWidth = elem->get<float>("backgroundWidth") * Renderer::getScreenWidth();
+
+	if(elem->has("visible"))
+		visible = elem->get<bool>("visible");
 
 	if (elem->has("iconUpDown"))
 		iconMap["up/down"] = elem->get<std::string>("iconUpDown");
@@ -68,4 +108,17 @@ void HelpStyle::applyTheme(const std::shared_ptr<ThemeData>& theme, const std::s
 
 	if (elem->has("iconSelect"))
 		iconMap["select"] = elem->get<std::string>("iconSelect");
+
+	// per-button label overrides (used verbatim; fall back to the system label)
+	if (elem->has("labelA"))          labelMap["a"] = elem->get<std::string>("labelA");
+	if (elem->has("labelB"))          labelMap["b"] = elem->get<std::string>("labelB");
+	if (elem->has("labelX"))          labelMap["x"] = elem->get<std::string>("labelX");
+	if (elem->has("labelY"))          labelMap["y"] = elem->get<std::string>("labelY");
+	if (elem->has("labelL"))          labelMap["l"] = elem->get<std::string>("labelL");
+	if (elem->has("labelR"))          labelMap["r"] = elem->get<std::string>("labelR");
+	if (elem->has("labelStart"))      labelMap["start"] = elem->get<std::string>("labelStart");
+	if (elem->has("labelSelect"))     labelMap["select"] = elem->get<std::string>("labelSelect");
+	if (elem->has("labelUpDown"))     labelMap["up/down"] = elem->get<std::string>("labelUpDown");
+	if (elem->has("labelLeftRight"))  labelMap["left/right"] = elem->get<std::string>("labelLeftRight");
+	if (elem->has("labelUpDownLeftRight")) labelMap["up/down/left/right"] = elem->get<std::string>("labelUpDownLeftRight");
 }

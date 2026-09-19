@@ -494,6 +494,22 @@ bool ViewController::input(InputConfig* config, Input input)
 		return true;
 	}
 	
+	// While the clock screensaver is showing on the system view, lock every
+	// button. Only Select is honored, and only to dismiss it. This must run
+	// before the Start->menu handling below, otherwise Start would open the
+	// menu from behind the clock.
+	if (mCurrentView && mCurrentView->isKindOf<SystemView>())
+	{
+		SystemView* sv = (SystemView*)mCurrentView.get();
+		if (sv->isClockSaverActive())
+		{
+			if (input.value != 0 && !UIModeController::getInstance()->isUIModeKid()
+				&& config->isMappedTo("select", input))
+				sv->setClockSaverActive(false); // dismiss, back to carousel
+			return true; // swallow start / d-pad / a / b / x / y / etc.
+		}
+	}
+
 	// open menu
 	if(!UIModeController::getInstance()->isUIModeKid() && config->isMappedTo("start", input) && input.value != 0)
 	{
@@ -760,7 +776,14 @@ std::vector<HelpPrompt> ViewController::getHelpPrompts()
 		return prompts;
 
 	prompts = mCurrentView->getHelpPrompts();
-	if(!UIModeController::getInstance()->isUIModeKid())
+
+	// While the clock screensaver locks input, keep the help bar fully empty.
+	// (The view already returns no prompts; don't force the Start=MENU prompt
+	// back in, or a lone "Menu" pill would stay on screen.)
+	bool clockLocked = mCurrentView->isKindOf<SystemView>()
+		&& ((SystemView*)mCurrentView.get())->isClockSaverActive();
+
+	if(!UIModeController::getInstance()->isUIModeKid() && !clockLocked)
 		prompts.push_back(HelpPrompt("start", _("MENU")));
 
 	return prompts;

@@ -29,7 +29,9 @@ private:
 	std::shared_ptr<TextureResource> getIconTexture(const char* name);
 	std::map< std::string, std::shared_ptr<TextureResource> > mIconCache;
 
-	std::shared_ptr<ComponentGrid> mGrid;
+	std::shared_ptr<ComponentGrid> mGrid;       // left group (system / navigation)
+	std::shared_ptr<ComponentGrid> mGridRight;  // right group (action buttons)
+	std::shared_ptr<ComponentGrid> buildGrid(const std::vector<HelpPrompt>& prompts);
 	void updateGrid();
 
 	std::vector<HelpPrompt> mPrompts;

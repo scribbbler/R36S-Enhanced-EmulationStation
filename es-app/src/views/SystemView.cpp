@@ -363,10 +363,46 @@ void SystemView::showQuickSearch()
 	}
 }
 
+void SystemView::setClockSaverActive(bool active)
+{
+	if (active == mClockSaverActive)
+		return;
+
+	if (active && mClockScreenSaver == nullptr)
+		mClockScreenSaver = new ClockScreenSaver(mWindow);
+
+	mClockSaverActive = active;
+
+	// Silence the frontend background music while the clock is up; resume a
+	// (fresh random) track when returning to the carousel. stopMusic() unhooks
+	// the finished-callback so nothing auto-restarts; playRandomMusic() re-hooks.
+	if (active)
+		AudioManager::getInstance()->stopMusic();
+	else
+		AudioManager::getInstance()->playRandomMusic(false);
+
+	// Refresh through the ViewController: SystemView has no parent in the
+	// gui-stack, so its own updateHelpPrompts() would fail the peekGui()==this
+	// check and never reach the Window. The ViewController IS the peeked gui.
+	ViewController::get()->updateHelpPrompts();
+}
+
 bool SystemView::input(InputConfig* config, Input input)
 {
+	// Note: while the clock screensaver is active, ViewController::input()
+	// intercepts and locks all buttons (except Select) BEFORE delegating here,
+	// so this handler only runs when the clock is not showing.
+
 	if(input.value != 0)
 	{
+		// Select turns the clock screensaver ON (toggle off is handled by the
+		// ViewController lock). Do it on the key press, not release.
+		if(!UIModeController::getInstance()->isUIModeKid() && config->isMappedTo("select", input))
+		{
+			setClockSaverActive(true);
+			return true;
+		}
+
 		if (config->isMappedTo("y", input))
 		{
 			showQuickSearch();
@@ -523,21 +559,6 @@ bool SystemView::input(InputConfig* config, Input input)
 			config->isMappedLike("pagedown", input) ||
 			config->isMappedLike("pageup", input))
 			listInput(0);
-		if(!UIModeController::getInstance()->isUIModeKid() && config->isMappedTo("select", input))
-		{
-			// Toggle clock screensaver
-			if (mClockSaverActive)
-			{
-				mClockSaverActive = false;
-			}
-			else
-			{
-				if (mClockScreenSaver == nullptr)
-					mClockScreenSaver = new ClockScreenSaver(mWindow);
-				mClockSaverActive = true;
-			}
-			return true;
-		}
 	}
 
 	return GuiComponent::input(config, input);
@@ -845,23 +866,16 @@ std::vector<HelpPrompt> SystemView::getHelpPrompts()
 	std::vector<HelpPrompt> prompts;
 
 	if (mClockSaverActive)
-	{
-		prompts.push_back(HelpPrompt("select", _("EXIT CLOCK")));
-		return prompts;
-	}
+		return prompts; // no help bar while the clock screensaver is showing
 
-	if (mCarousel.type == VERTICAL || mCarousel.type == VERTICAL_WHEEL)
-		prompts.push_back(HelpPrompt("up/down", _("CHOOSE")));
-	else
-		prompts.push_back(HelpPrompt("left/right", _("CHOOSE")));
-
-	prompts.push_back(HelpPrompt(BUTTON_OK, _("SELECT")));
-	prompts.push_back(HelpPrompt("x", _("RANDOM")));
-	if (SystemData::getSystem("all") != nullptr)
-		prompts.push_back(HelpPrompt("y", _("SEARCH"))); // QUICK
-
+	// R36S Text UI: only Select, Start, Y, X (ordered so the left pill reads
+	// Clock/Menu and the right pill reads Search/Random). No Choose / A-launch.
 	if (!UIModeController::getInstance()->isUIModeKid())
 		prompts.push_back(HelpPrompt("select", _("CLOCK SCREENSAVER")));
+	prompts.push_back(HelpPrompt("start", _("MENU")));
+	if (SystemData::getSystem("all") != nullptr)
+		prompts.push_back(HelpPrompt("y", _("SEARCH"))); // QUICK
+	prompts.push_back(HelpPrompt("x", _("RANDOM")));
 
 	return prompts;
 }

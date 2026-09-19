@@ -7,12 +7,13 @@
 class ComponentGrid;
 class NinePatchComponent;
 class TextComponent;
+class ImageComponent;
 class Window;
 
 class VolumeInfoComponent : public GuiComponent
 {
 public:
-	VolumeInfoComponent(Window* window, bool actionLine = true);
+	VolumeInfoComponent(Window* window, const std::string& iconPath = "", const std::string& fontPath = "");
 	~VolumeInfoComponent();
 
 	void render(const Transform4x4f& parentTrans) override;
@@ -23,6 +24,9 @@ public:
 private:
 	NinePatchComponent* mFrame;
 	TextComponent*		mLabel;
+	ImageComponent*		mIcon;
+	float				mBarTop;
+	float				mBarBottom;
 
 	int mVolume;
 
