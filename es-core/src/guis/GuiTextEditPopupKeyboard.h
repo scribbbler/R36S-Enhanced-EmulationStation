@@ -52,7 +52,21 @@ private:
 	std::function<void(const std::string&)> mOkCallback;
 
 	bool mMultiLine;
-	bool mShift = false;	
+	bool mShift = false;
 	bool mAlt = false;
+
+	// Themed SVG icon paths for the special keys (empty => use built-in Unicode glyph)
+	std::string mIconBackspace;
+	std::string mIconEnter;
+	std::string mIconShift;
+	std::string mIconAlt;
+	float mIconSizePx = 0.0f; // fixed on-screen icon side length (px); theme 'iconSize' fraction * screen height
+	float mKbWidthPx = 0.0f;  // fixed key-grid width (px); theme 'width' fraction * screen width. <=0 => default padding-based width
+	bool mHasKeyFill = false;      // theme provided a 'keyColor' => give unfocused keys a solid fill
+	unsigned int mKeyFillColor = 0; // unfocused key background color
+	float mKbTopPx = 0.0f;        // fixed key-grid top from screen top (px); theme 'posY' * screen height. <=0 => auto
+	float mPopupOffsetY = 0.0f;   // the popup's own y offset, so an absolute key-grid top can be converted to local
+	float mKeyPadPx = -1.0f;      // per-side key padding (px) => gap between keys is 2x this; theme 'keySpacing'. <0 => default
+	float mKeyRadiusPx = 0.0f;    // key corner radius (px); theme 'keyRadius' * screen height
 };
 

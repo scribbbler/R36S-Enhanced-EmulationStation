@@ -1,6 +1,7 @@
 #include <string>
 #include "components/ComponentList.h"
 #include "components/TextComponent.h"
+#include "Log.h"
 
 #define TOTAL_HORIZONTAL_PADDING_PX 20
 
@@ -237,8 +238,20 @@ void ComponentList::render(const Transform4x4f& parentTrans)
 		
 		if (entry.data.selectable)
 		{
-			if ((selectorColor != bgColor) && ((selectorColor & 0xFF) != 0x00)) {
-
+			float menuRadius = menuTheme->Text.selectorRadius;
+			if (menuRadius > 0.0f && ((selectorColor & 0xFF) != 0x00))
+			{
+				// Theme opted into a pill: draw a SOLID rounded highlight (single
+				// pass, like the gamelist/carousel). Note we do NOT gate on
+				// selectorColor != bgColor here -- a white pill on a white-tinted
+				// menu background is valid and the old guard skipped it entirely.
+				float pillMargin = selectedRowHeight * 0.12f;
+				float pillW = mSize.x() - 2.0f * pillMargin;
+				Renderer::drawRoundRect(pillMargin, mSelectorBarOffset, pillW, selectedRowHeight, menuRadius, selectorColor);
+			}
+			else if ((selectorColor != bgColor) && ((selectorColor & 0xFF) != 0x00))
+			{
+				// Original two-pass inversion bar (sharp), for themes without a radius.
 				Renderer::drawRect(0.0f, mSelectorBarOffset, mSize.x(), selectedRowHeight, bgColor, Renderer::Blend::ZERO, Renderer::Blend::ONE_MINUS_SRC_COLOR);
 				Renderer::drawRect(0.0f, mSelectorBarOffset, mSize.x(), selectedRowHeight, selectorColor, selectorGradientColor, selectorGradientHorz, Renderer::Blend::ONE, Renderer::Blend::ONE);
 			}

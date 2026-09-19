@@ -718,7 +718,20 @@ int main(int argc, char* argv[])
 
 		window.update(deltaTime);
 		window.render();
-		
+
+		// FN+B screenshot: capture the freshly-rendered frame before the swap.
+		if (window.consumeScreenshotRequest())
+		{
+			std::string ssDir = "/roms/screenshots";
+			Utils::FileSystem::createDirectory(ssDir);
+			time_t nowT = time(nullptr);
+			struct tm* lt = localtime(&nowT);
+			char ssName[64];
+			strftime(ssName, sizeof(ssName), "SS-%Y%m%d-%H%M%S.png", lt);
+			bool ssOk = Renderer::captureScreenshot(ssDir + "/" + std::string(ssName));
+			window.displayNotificationMessage(ssOk ? ("Screenshot saved: " + std::string(ssName)) : "Screenshot failed", 3000);
+		}
+
 		Log::flush();
 
 		int processDuration = SDL_GetTicks() - processStart;

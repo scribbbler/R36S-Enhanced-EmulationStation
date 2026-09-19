@@ -31,7 +31,7 @@ std::vector<CollectionSystemDecl> CollectionSystemManager::getSystemDecls()
 {
 	CollectionSystemDecl systemDecls[] = {
 		//type                  name            long name            //default sort              // theme folder            // isCustom
-		{ AUTO_ALL_GAMES,       "all",          "all games",         "filename, ascending",      "auto-allgames",           false,		true },
+		{ AUTO_ALL_GAMES,       "all",          "All Games",         "filename, ascending",      "auto-allgames",           false,		true },
 		{ AUTO_LAST_PLAYED,     "recent",       "last played",       "last played, descending",  "auto-lastplayed",         false,		true },
 		{ AUTO_FAVORITES,       "favorites",    "favorites",         "filename, ascending",      "auto-favorites",          false,		true },
 		{ AUTO_AT2PLAYERS,      "2players",	    "2 players",         "filename, ascending",    "auto-at2players",         false,       true },
@@ -822,7 +822,17 @@ SystemData* CollectionSystemManager::createNewCollectionEntry(std::string name, 
 {
 	SystemMetadata md;
 	md.name = name;
-	md.fullName = sysDecl.longName;
+	// Title-case the collection display name ("all games" -> "All Games").
+	{
+		std::string tc = sysDecl.longName;
+		bool cap = true;
+		for (char& c : tc)
+		{
+			if (cap && c >= 'a' && c <= 'z') c = (char)(c - 32);
+			cap = (c == ' ');
+		}
+		md.fullName = tc;
+	}
 	md.themeFolder = sysDecl.themeFolder;
 	md.manufacturer = "Collections";
 	md.hardwareType = sysDecl.isCustom ? "custom collection" : "auto collection";

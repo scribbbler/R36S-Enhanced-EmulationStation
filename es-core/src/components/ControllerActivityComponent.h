@@ -135,6 +135,8 @@ protected:
 	std::shared_ptr<TextureResource> mBatteryImage;
 	std::shared_ptr<Font>            mBatteryFont;
 	std::shared_ptr<TextCache>       mBatteryText;
+	std::string                      mBatteryFontPath; // theme override for the % font
+	float                            mBatteryFontSize = 0.0f; // px; 0 = auto (height*0.55)
 
 	std::string mCurrentBatteryTexture;
 	

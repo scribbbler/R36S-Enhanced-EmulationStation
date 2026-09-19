@@ -118,6 +118,7 @@ struct MenuElement
 	bool selectorGradientType;
 	std::string path;
 	std::shared_ptr<Font> font;
+	float selectorRadius; // menu pill corner radius in px; 0 = sharp (flat bar)
 };
 
 struct MenuBackground

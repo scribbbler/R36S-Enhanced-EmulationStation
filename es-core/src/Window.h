@@ -66,6 +66,11 @@ public:
 	void update(int deltaTime);
 	void render();
 
+	// Screenshot (FN+B): input sets the request; the main loop captures the
+	// rendered frame before the buffer swap, then consumes the request.
+	void requestScreenshot() { mScreenshotRequested = true; }
+	bool consumeScreenshotRequest() { bool r = mScreenshotRequested; mScreenshotRequested = false; return r; }
+
 	bool init(bool initRenderer);
 	void deinit(bool deinitRenderer);
 
@@ -158,6 +163,8 @@ private:
 	bool mRenderedHelpPrompts;
 
 	bool mIgnoreKeys;
+	bool mScreenshotRequested = false;
+	bool mFnHeld = false;
 };
 
 #endif // ES_CORE_WINDOW_H

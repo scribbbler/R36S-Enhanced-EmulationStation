@@ -181,6 +181,18 @@ void Window::textInput(const char* text)
 
 void Window::input(InputConfig* config, Input input)
 {
+	// The physical FN button on this device is raw joystick button id 16
+	// (it is NOT mapped to system_hk in es_input.cfg), so track it directly.
+	if (input.type == TYPE_BUTTON && input.id == 16)
+		mFnHeld = (input.value != 0);
+
+	// FN + B => take a screenshot (and swallow the B so it doesn't also go "back").
+	if (mFnHeld && input.value != 0 && config->isMappedTo("b", input))
+	{
+		requestScreenshot();
+		return;
+	}
+
 	if (config->isMappedTo("system_hk", input))
 	{
 		if (input.value != 0)
@@ -409,7 +421,7 @@ void Window::render()
 
 
         // clock // batocera
-	if (Settings::getInstance()->getBool("DrawClock") && mClock && (mGuiStack.size() < 2 || !Renderer::isSmallScreen()))
+	if (Settings::getInstance()->getBool("DrawClock") && mClock)
 	{
 		mClock->render(transform);
 	//	Renderer::setMatrix(Transform4x4f::Identity());
@@ -420,7 +432,7 @@ void Window::render()
 		mClockFont->renderTextCache(mClockText.get());*/
 	}
 
-	if (mBatteryIndicator != nullptr && (mGuiStack.size() < 2 || !Renderer::isSmallScreen()))
+	if (mBatteryIndicator != nullptr)
 		mBatteryIndicator->render(transform);
 
 	// pads // batocera

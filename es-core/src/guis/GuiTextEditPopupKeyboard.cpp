@@ -6,6 +6,8 @@
 #include "EsLocale.h"
 #include "SystemConf.h"
 #include "Settings.h"
+#include "ThemeData.h"
+#include "resources/ResourceManager.h"
 
 #define OSK_WIDTH (Renderer::isSmallScreen() ? Renderer::getScreenWidth() : Renderer::getScreenWidth() * 0.78f)
 #define OSK_HEIGHT (Renderer::isSmallScreen() ? Renderer::getScreenHeight() : Renderer::getScreenHeight() * 0.60f)
@@ -16,32 +18,37 @@
 #define BUTTON_GRID_HORIZ_PADDING (Renderer::getScreenWidth()*0.0052083333)
 #define BUTTON_LAYER_SIZE (4)
 
+// Simplified search keyboard: two layers only (lowercase + SHIFT for uppercase).
+// No ALT/accent layers. SHIFT lives at the bottom-right of the grid; ENTER is a
+// 2-wide key on the a-row; the footer is RESET / SPACE / CANCEL with gamepad hints.
+// (The 3rd/4th rows of each group are the unused ALT layers, kept == the base rows
+//  so BUTTON_LAYER_SIZE stays 4 and the FR/KR layouts below are unaffected.)
 std::vector<std::vector<const char*>> kbUs {
 
-	{ "1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "_", "+", "DEL" },
-	{ "!", "@", "#", "$", "%", "^", "&", "*", "(", ")", "-", "=", "DEL" },
-	{ "1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "_", "+", "DEL" },
-	{ "!", "@", "#", "$", "%", "^", "&", "*", "(", ")", "-", "=", "DEL" },
+	{ "1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "-", "=", "DEL" },
+	{ "!", "@", "#", "$", "%", "^", "&", "*", "(", ")", "_", "+", "DEL" },
+	{ "1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "-", "=", "DEL" },
+	{ "!", "@", "#", "$", "%", "^", "&", "*", "(", ")", "_", "+", "DEL" },
 
-	{ "q", "w", "e", "r", "t", "y", "u", "i", "o", "p", "{", "}", "OK" },
-	{ "Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P", "[", "]", "OK" },
-	{ "à", "ä", "è", "ë", "ì", "ï", "ò", "ö", "ù", "ü", "¨", "¿", "OK" },
-	{ "à", "ä", "è", "ë", "ì", "ï", "ò", "ö", "ù", "ü", "¨", "¿", "OK" },
+	{ "q", "w", "e", "r", "t", "y", "u", "i", "o", "p", "[", "]", "\\" },
+	{ "Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P", "{", "}", "|" },
+	{ "q", "w", "e", "r", "t", "y", "u", "i", "o", "p", "[", "]", "\\" },
+	{ "Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P", "{", "}", "|" },
 
-	{ "a", "s", "d", "f", "g", "h", "j", "k", "l", ";", "\"", "|", "-rowspan-" },
-	{ "A", "S", "D", "F", "G", "H", "J", "K", "L", ":", "'", "\\", "-rowspan-" },
-	{ "á", "â", "é", "ê", "í", "î", "ó", "ô", "ú", "û", "ñ", "¡", "-rowspan-" },
-	{ "á", "â", "é", "ê", "í", "î", "ó", "ô", "ú", "û", "ñ", "¡", "-rowspan-" },
+	{ "a", "s", "d", "f", "g", "h", "j", "k", "l", ";", "'", "OK", "-colspan-" },
+	{ "A", "S", "D", "F", "G", "H", "J", "K", "L", ":", "\"", "OK", "-colspan-" },
+	{ "a", "s", "d", "f", "g", "h", "j", "k", "l", ";", "'", "OK", "-colspan-" },
+	{ "A", "S", "D", "F", "G", "H", "J", "K", "L", ":", "\"", "OK", "-colspan-" },
 
-	{ "~", "z", "x", "c", "v", "b", "n", "m", ",", ".", "?", "ALT", "-colspan-" },
-	{ "`", "Z", "X", "C", "V", "B", "N", "M", "<", ">", "/", "ALT", "-colspan-" },
-	{ "€", "", "", "", "", "", "", "", "", "", "", "ALT", "-colspan-" },
-	{ "€", "", "", "", "", "", "", "", "", "", "", "ALT", "-colspan-" },
+	{ "~", "z", "x", "c", "v", "b", "n", "m", ",", ".", "/", "SHIFT", "-colspan-" },
+	{ "~", "Z", "X", "C", "V", "B", "N", "M", "<", ">", "?", "SHIFT", "-colspan-" },
+	{ "~", "z", "x", "c", "v", "b", "n", "m", ",", ".", "/", "SHIFT", "-colspan-" },
+	{ "~", "Z", "X", "C", "V", "B", "N", "M", "<", ">", "?", "SHIFT", "-colspan-" },
 
-	{ "SHIFT", "-colspan-", "SPACE", "-colspan-", "-colspan-", "-colspan-", "-colspan-", "-colspan-", "-colspan-", "RESET", "-colspan-", "CANCEL", "-colspan-" },
-	{ "SHIFT", "-colspan-", "SPACE", "-colspan-", "-colspan-", "-colspan-", "-colspan-", "-colspan-", "-colspan-", "RESET", "-colspan-", "CANCEL", "-colspan-" },
-	{ "SHIFT", "-colspan-", "SPACE", "-colspan-", "-colspan-", "-colspan-", "-colspan-", "-colspan-", "-colspan-", "RESET", "-colspan-", "CANCEL", "-colspan-" },
-	{ "SHIFT", "-colspan-", "SPACE", "-colspan-", "-colspan-", "-colspan-", "-colspan-", "-colspan-", "-colspan-", "RESET", "-colspan-", "CANCEL", "-colspan-" }
+	{ "RESET (X)", "-colspan-", "-colspan-", "SPACE (R1)", "-colspan-", "-colspan-", "-colspan-", "-colspan-", "-colspan-", "-colspan-", "CANCEL (B)", "-colspan-", "-colspan-" },
+	{ "RESET (X)", "-colspan-", "-colspan-", "SPACE (R1)", "-colspan-", "-colspan-", "-colspan-", "-colspan-", "-colspan-", "-colspan-", "CANCEL (B)", "-colspan-", "-colspan-" },
+	{ "RESET (X)", "-colspan-", "-colspan-", "SPACE (R1)", "-colspan-", "-colspan-", "-colspan-", "-colspan-", "-colspan-", "-colspan-", "CANCEL (B)", "-colspan-", "-colspan-" },
+	{ "RESET (X)", "-colspan-", "-colspan-", "SPACE (R1)", "-colspan-", "-colspan-", "-colspan-", "-colspan-", "-colspan-", "-colspan-", "CANCEL (B)", "-colspan-", "-colspan-" }
 };
 
 std::vector<std::vector<const char*>> kbFr {
@@ -112,6 +119,45 @@ GuiTextEditPopupKeyboard::GuiTextEditPopupKeyboard(Window* window, const std::st
 	mBackground.setCenterColor(theme->Background.centerColor);
 	mBackground.setCornerSize(theme->Background.cornerSize);
 
+	// Optional themed SVG icons for the four special keys (backspace/enter/shift/alt).
+	// Falls back to the built-in Unicode glyphs when the theme doesn't provide them.
+	// Icons render at a FIXED size (same on every key); theme 'iconSize' is a fraction
+	// of screen height, defaulting to ~20px @480 so it reads like the letter keys.
+	mIconSizePx = Renderer::getScreenHeight() * 0.0416666667f;
+	// The popup itself is nudged down slightly for title alignment; remember that offset so a
+	// theme 'posY' (measured from the screen top) can be converted to a popup-local position.
+	mPopupOffsetY = Renderer::getScreenHeight() * 0.0178f;
+	if (ThemeData* defTheme = ThemeData::getDefaultTheme())
+	{
+		const ThemeData::ThemeElement* kb = defTheme->getElement("screen", "keyboard", "keyboard");
+		if (kb)
+		{
+			if (kb->has("backspace") && ResourceManager::getInstance()->fileExists(kb->get<std::string>("backspace")))
+				mIconBackspace = kb->get<std::string>("backspace");
+			if (kb->has("enter") && ResourceManager::getInstance()->fileExists(kb->get<std::string>("enter")))
+				mIconEnter = kb->get<std::string>("enter");
+			if (kb->has("shift") && ResourceManager::getInstance()->fileExists(kb->get<std::string>("shift")))
+				mIconShift = kb->get<std::string>("shift");
+			if (kb->has("alt") && ResourceManager::getInstance()->fileExists(kb->get<std::string>("alt")))
+				mIconAlt = kb->get<std::string>("alt");
+			if (kb->has("iconSize"))
+				mIconSizePx = Renderer::getScreenHeight() * kb->get<float>("iconSize");
+			if (kb->has("width"))
+				mKbWidthPx = Renderer::getScreenWidth() * kb->get<float>("width");
+			if (kb->has("keyColor"))
+			{
+				mKeyFillColor = kb->get<unsigned int>("keyColor");
+				mHasKeyFill = true;
+			}
+			if (kb->has("posY"))
+				mKbTopPx = Renderer::getScreenHeight() * kb->get<float>("posY");
+			if (kb->has("keySpacing"))
+				mKeyPadPx = Renderer::getScreenWidth() * kb->get<float>("keySpacing") / 2.0f; // half each side => full gap between keys
+			if (kb->has("keyRadius"))
+				mKeyRadiusPx = Renderer::getScreenHeight() * kb->get<float>("keyRadius");
+		}
+	}
+
 	addChild(&mBackground);
 	addChild(&mGrid);
 
@@ -153,6 +199,8 @@ GuiTextEditPopupKeyboard::GuiTextEditPopupKeyboard(Window* window, const std::st
 				std::string lower = (*layout)[BUTTON_LAYER_SIZE * i][j];
 				if (lower.empty() || lower == "-rowspan-" || lower == "-colspan-")
 					continue;
+
+				const std::string specialKey = lower; // raw label ("DEL"/"OK"/"SHIFT"/"ALT") for themed-icon lookup
 
 				std::string upper = (*layout)[BUTTON_LAYER_SIZE * i + 1][j];
 				std::string lowerAlted = (*layout)[BUTTON_LAYER_SIZE * i + 2][j];
@@ -196,8 +244,29 @@ GuiTextEditPopupKeyboard::GuiTextEditPopupKeyboard(Window* window, const std::st
 				else
 					button = makeButton(lower, upper, lowerAlted, upperAlted);
 
-				button->setPadding(Vector4f(BUTTON_GRID_HORIZ_PADDING / 4.0f, BUTTON_GRID_HORIZ_PADDING / 4.0f, BUTTON_GRID_HORIZ_PADDING / 4.0f, BUTTON_GRID_HORIZ_PADDING / 4.0f));
+				// Themed SVG icons override the default Unicode glyphs on the four special keys.
+				// All four render at the same fixed size, independent of key width.
+				if (specialKey == "DEL" && !mIconBackspace.empty())
+					button->setIcon(mIconBackspace, mIconSizePx);
+				else if (specialKey == "OK" && !mIconEnter.empty())
+					button->setIcon(mIconEnter, mIconSizePx);
+				else if (specialKey == "SHIFT" && !mIconShift.empty())
+					button->setIcon(mIconShift, mIconSizePx);
+				else if (specialKey == "ALT" && !mIconAlt.empty())
+					button->setIcon(mIconAlt, mIconSizePx);
+
+				float keyPad = (mKeyPadPx >= 0.0f) ? mKeyPadPx : (BUTTON_GRID_HORIZ_PADDING / 4.0f);
+				button->setPadding(Vector4f(keyPad, keyPad, keyPad, keyPad));
 				button->setRenderNonFocusedBackground(false);
+				// When the theme provides a key fill color, give unfocused keys a solid dark fill
+				// (focused key keeps its white pill with black text). The inset creates the gap
+				// between keys and the radius rounds each key's corners. Applies to all keys,
+				// including the footer action keys (RESET/SPACE/CANCEL).
+				if (mHasKeyFill)
+				{
+					float inset = (mKeyPadPx >= 0.0f) ? mKeyPadPx : (BUTTON_GRID_HORIZ_PADDING / 4.0f);
+					button->setKeyFill(mKeyFillColor, inset, mKeyRadiusPx);
+				}
 				buttons.push_back(button);
 
 				int colSpan = 1;
@@ -285,8 +354,11 @@ GuiTextEditPopupKeyboard::GuiTextEditPopupKeyboard(Window* window, const std::st
 	{
 		//setSize(OSK_WIDTH, mTitle->getFont()->getHeight() + textHeight + 40 + (Renderer::getScreenHeight() * 0.085f) * 6);
 		setSize(OSK_WIDTH, OSK_HEIGHT);
-		setPosition((Renderer::getScreenWidth() - mSize.x()) / 2, (Renderer::getScreenHeight() - mSize.y()) / 2);
-		animateTo(Vector2f((Renderer::getScreenWidth() - mSize.x()) / 2, (Renderer::getScreenHeight() - mSize.y()) / 2));
+		// Shift the whole popup down a touch so its title lines up with the
+		// top-anchored menu title (which sits below the popup's flush-top title).
+		float kbYOffset = mPopupOffsetY; // ~8.5px (2px higher than 0.022)
+		setPosition((Renderer::getScreenWidth() - mSize.x()) / 2, (Renderer::getScreenHeight() - mSize.y()) / 2 + kbYOffset);
+		animateTo(Vector2f((Renderer::getScreenWidth() - mSize.x()) / 2, (Renderer::getScreenHeight() - mSize.y()) / 2 + kbYOffset));
 	}
 }
 
@@ -305,8 +377,18 @@ void GuiTextEditPopupKeyboard::onSizeChanged()
 	auto pos = mKeyboardGrid->getPosition();
 	auto sz = mKeyboardGrid->getSize();
 
-	mKeyboardGrid->setSize(mSize.x() - OSK_PADDINGX - OSK_PADDINGX, sz.y() - OSK_PADDINGY); // Small margin between buttons
-	mKeyboardGrid->setPosition(OSK_PADDINGX, pos.y());	
+	// Key-grid width: theme 'width' (fixed px) if set, else the default padding-based width.
+	// The grid is horizontally centered, so the side padding is (screen - gridWidth) / 2
+	// (e.g. 624px grid on a 640px screen => 8px each side, 48px per column across 13 columns).
+	float kbWidth = (mKbWidthPx > 0.0f) ? mKbWidthPx : (mSize.x() - OSK_PADDINGX - OSK_PADDINGX);
+	float kbMarginX = (mSize.x() - kbWidth) / 2.0f;
+
+	// Key-grid top: theme 'posY' pins it to an absolute distance from the screen top
+	// (converted to popup-local by subtracting the popup's own offset); else auto-computed.
+	float kbTop = (mKbTopPx > 0.0f) ? (mKbTopPx - mPopupOffsetY) : pos.y();
+
+	mKeyboardGrid->setSize(kbWidth, sz.y() - OSK_PADDINGY); // Small margin between buttons
+	mKeyboardGrid->setPosition(kbMarginX, kbTop);
 }
 
 bool GuiTextEditPopupKeyboard::input(InputConfig* config, Input input)
@@ -352,7 +434,7 @@ bool GuiTextEditPopupKeyboard::input(InputConfig* config, Input input)
 	}
 #else
 
-	// For deleting a chara (Left Top Button)
+	// Delete a char (Left shoulder / L1)
 	if (config->isMappedTo("pageup", input) && input.value) {
 		bool editing = mText->isEditing();
 		if (!editing)
@@ -364,8 +446,8 @@ bool GuiTextEditPopupKeyboard::input(InputConfig* config, Input input)
 			mText->stopEditing();
 	}
 
-	// For Adding a space (Right Top Button)
-	if (config->isMappedTo("pagedown", input) && input.value) 
+	// SPACE (Right shoulder / R1) — matches the on-screen "SPACE (R1)" footer hint
+	if (config->isMappedTo("pagedown", input) && input.value)
 	{
 		bool editing = mText->isEditing();
 		if (!editing)
@@ -376,7 +458,7 @@ bool GuiTextEditPopupKeyboard::input(InputConfig* config, Input input)
 		if (!editing)
 			mText->stopEditing();
 	}
-#endif 
+#endif
 	// For Shifting (Y)
 	if (config->isMappedTo("y", input) && input.value) 
 		shiftKeys();
@@ -391,6 +473,14 @@ bool GuiTextEditPopupKeyboard::input(InputConfig* config, Input input)
 
 		if (!editing)
 			mText->stopEditing();
+	}
+
+	// ENTER / accept the search (Right trigger / R2)
+	if (config->isMappedTo("righttrigger", input) && input.value && mOkCallback != nullptr)
+	{
+		mOkCallback(mText->getValue());
+		delete this;
+		return true;
 	}
 
 	return false;
@@ -472,19 +562,19 @@ std::shared_ptr<ButtonComponent> GuiTextEditPopupKeyboard::makeButton(const std:
 			mText->startEditing(); mText->textInput("\b"); mText->stopEditing();
 			return;
 		}
-		else if (key == _("SPACE") || key == " ")
+		else if (key.find("SPACE") != std::string::npos || key == " ")
 		{
 			mText->startEditing(); mText->textInput(" "); mText->stopEditing();
 			return;
 		}
-		else if (key == _("RESET"))
+		else if (key.find("RESET") != std::string::npos)
 		{
 			mText->startEditing();
 			mText->setValue("");
 			mText->stopEditing();
             return;
 		}
-		else if (key == _("CANCEL"))
+		else if (key.find("CANCEL") != std::string::npos)
 		{
 			delete this;
 			return;

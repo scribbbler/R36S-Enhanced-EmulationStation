@@ -947,6 +947,62 @@ void SystemView::renderCarousel(const Transform4x4f& trans)
 	Renderer::setMatrix(carouselTrans);
 	Renderer::drawRect(0.0f, 0.0f, mCarousel.size.x(), mCarousel.size.y(), mCarousel.color, mCarousel.colorEnd, mCarousel.colorGradientHorizontal);
 
+	// Pill-shaped selector behind the centered (selected) system, if the theme
+	// enabled it via <selectorColor>. The selected item always sits at the
+	// carousel center, so the pill is a fixed centered container.
+	if ((mCarousel.selectorColor & 0xFF) != 0x00)
+	{
+		bool vertical = (mCarousel.type == VERTICAL || mCarousel.type == VERTICAL_WHEEL);
+		// pill height: themeable via <selectorHeight>; else wrap the scaled logo.
+		float pillH = mCarousel.selectorHeight >= 0.0f ? mCarousel.selectorHeight
+			: (mCarousel.logoSize.y() * mCarousel.logoScale);
+		float itemH = mCarousel.logoSize.y() * mCarousel.logoScale;
+		float pillW, pillX, pillY;
+		if (mCarousel.selectorWidth > 0.0f)
+		{
+			// Fixed pill width: centered (or at logoPos.x), tracking the selected row.
+			pillW = mCarousel.selectorWidth;
+			pillX = (mCarousel.logoPos.x() >= 0) ? mCarousel.logoPos.x()
+				: (mCarousel.size.x() - pillW) / 2.0f;
+			float selTop = (vertical && mCarousel.logoPos.y() >= 0) ? mCarousel.logoPos.y()
+				: (mCarousel.size.y() - itemH) / 2.0f;
+			pillY = selTop + (itemH - pillH) / 2.0f;
+		}
+		else if (mCarousel.selectorFitContent)
+		{
+			// Left-aligned list pill hugging the selected item. Measure the
+			// selected text's actual width so the pill varies per system.
+			float pad = pillH * 0.30f; // horizontal breathing room around the text
+			float contentW = mCarousel.logoSize.x() * mCarousel.logoScale; // fallback (box width)
+			if (!mEntries.empty())
+			{
+				int sel = (int)Math::round(mCamOffset);
+				int n = (int)mEntries.size();
+				sel = ((sel % n) + n) % n;
+				if (TextComponent* tc = dynamic_cast<TextComponent*>(mEntries.at(sel).data.logo.get()))
+					if (tc->getFont())
+						contentW = tc->getFont()->sizeText(tc->getText()).x() * mCarousel.logoScale;
+			}
+			pillW = contentW + 2.0f * pad;
+			// left-aligned list when logoPos.x is set, else centered
+			pillX = (mCarousel.logoPos.x() >= 0) ? (mCarousel.logoPos.x() - pad)
+				: (mCarousel.size.x() - pillW) / 2.0f;
+			float selTop = (vertical && mCarousel.logoPos.y() >= 0) ? mCarousel.logoPos.y()
+				: (mCarousel.size.y() - itemH) / 2.0f;
+			pillY = selTop + (itemH - pillH) / 2.0f;
+		}
+		else
+		{
+			float margin = pillH * 0.15f;
+			float pW = vertical ? (mCarousel.size.x()) : (mCarousel.logoSize.x() * mCarousel.logoScale);
+			pillW = vertical ? (pW - 2.0f * margin) : pW;
+			pillX = vertical ? margin : (mCarousel.size.x() - pillW) / 2.0f;
+			pillY = (mCarousel.size.y() - pillH) / 2.0f;
+		}
+		float radius = mCarousel.selectorRadius >= 0.0f ? mCarousel.selectorRadius : pillH * 0.5f;
+		Renderer::drawRoundRect(pillX, pillY, pillW, pillH, radius, mCarousel.selectorColor);
+	}
+
 	// draw logos
 	Vector2f logoSpacing(0.0, 0.0); // NB: logoSpacing will include the size of the logo itself as well!
 	float xOff = 0.0;
@@ -1033,13 +1089,33 @@ void SystemView::renderCarousel(const Transform4x4f& trans)
 		scale = Math::min(mCarousel.logoScale, Math::max(1.0f, scale));
 		scale /= mCarousel.logoScale;
 
-		int opacity = (int)Math::round(0x80 + ((0xFF - 0x80) * (1.0f - fabs(distance))));
-		opacity = Math::max((int) 0x80, opacity);
+		int opacity;
+		if (mCarousel.selectorFitContent)
+			opacity = 0xFF; // uniform brightness for the text-list style
+		else
+		{
+			opacity = (int)Math::round(0x80 + ((0xFF - 0x80) * (1.0f - fabs(distance))));
+			opacity = Math::max((int) 0x80, opacity);
+		}
 
 		const std::shared_ptr<GuiComponent> &comp = mEntries.at(index).data.logo;
 		if (mCarousel.type == VERTICAL_WHEEL || mCarousel.type == HORIZONTAL_WHEEL) {
 			comp->setRotationDegrees(mCarousel.logoRotation * distance);
 			comp->setRotationOrigin(mCarousel.logoRotationOrigin);
+		}
+		// Tint the selected (centered) logo differently, if the theme opted in.
+		// Use the ImageComponent color-shift directly for image logos (SVG/PNG
+		// recolor cleanly); fall back to the generic setColor for text logos.
+		if (mCarousel.logoSelectedColor != 0x00000000)
+		{
+			unsigned int tint = (fabs(distance) < 0.5f) ? mCarousel.logoSelectedColor : mCarousel.logoColor;
+			if (ImageComponent* img = dynamic_cast<ImageComponent*>(comp.get()))
+			{
+				img->setColorShift(tint);
+				img->setColorShiftEnd(tint);
+			}
+			else
+				comp->setColor(tint);
 		}
 		comp->setScale(scale);
 		comp->setOpacity((unsigned char)opacity);
@@ -1298,6 +1374,13 @@ void  SystemView::getDefaultElements(void)
 	mCarousel.systemInfoDelay = 2000;
 	mCarousel.scrollSound = "";
 	mCarousel.defaultTransition = "";
+	mCarousel.selectorColor = 0x00000000; // disabled unless the theme sets it
+	mCarousel.selectorRadius = -1.0f;     // auto (half height)
+	mCarousel.selectorHeight = -1.0f;     // auto (logoSize.y * logoScale)
+	mCarousel.selectorFitContent = false; // full-width centered pill by default
+	mCarousel.selectorWidth = -1.0f;      // auto width
+	mCarousel.logoColor = 0xFFFFFFFF;     // white (no change) unless the theme tints
+	mCarousel.logoSelectedColor = 0x00000000; // 0 = logo tinting disabled
 
 	// System Info Bar
 	mSystemInfo.setSize(mSize.x(), mSystemInfo.getFont()->getLetterHeight()*2.2f);
@@ -1358,6 +1441,20 @@ void SystemView::getCarouselFromTheme(const ThemeData::ThemeElement* elem)
 		mCarousel.logoPos = elem->get<Vector2f>("logoPos") * mSize;
 	if (elem->has("maxLogoCount"))
 		mCarousel.maxLogoCount = (int)Math::round(elem->get<float>("maxLogoCount"));
+	if (elem->has("selectorColor"))
+		mCarousel.selectorColor = elem->get<unsigned int>("selectorColor");
+	if (elem->has("selectorRadius"))
+		mCarousel.selectorRadius = elem->get<float>("selectorRadius") * mSize.y();
+	if (elem->has("selectorHeight"))
+		mCarousel.selectorHeight = elem->get<float>("selectorHeight") * mSize.y();
+	if (elem->has("selectorFitContent"))
+		mCarousel.selectorFitContent = elem->get<bool>("selectorFitContent");
+	if (elem->has("selectorWidth"))
+		mCarousel.selectorWidth = elem->get<float>("selectorWidth") * mSize.x();
+	if (elem->has("logoColor"))
+		mCarousel.logoColor = elem->get<unsigned int>("logoColor");
+	if (elem->has("logoSelectedColor"))
+		mCarousel.logoSelectedColor = elem->get<unsigned int>("logoSelectedColor");
 	if (elem->has("zIndex"))
 		mCarousel.zIndex = elem->get<float>("zIndex");
 	if (elem->has("logoRotation"))

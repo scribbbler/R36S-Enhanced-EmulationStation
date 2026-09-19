@@ -100,6 +100,7 @@ private:
 	float mLineSpacing;
 	float mSelectorHeight;
 	float mSelectorOffsetY;
+	float mCornerRadius = 0.0f; // pill selector corner radius in px; 0 = auto (height/2)
 	unsigned int mSelectorColor;
 	unsigned int mSelectorColorEnd;
 	bool mSelectorColorGradientHorizontal = true;
@@ -187,8 +188,19 @@ void TextListComponent<T>::render(const Transform4x4f& parentTrans)
 			mSelectorImage.render(trans);
 		} else {
 			Renderer::setMatrix(trans);
-			Renderer::drawRect(0.0f, (mCursor - startEntry)*entrySize + mSelectorOffsetY, mSize.x(),
-					mSelectorHeight, mSelectorColor, mSelectorColorEnd, mSelectorColorGradientHorizontal);
+			float selY = (mCursor - startEntry)*entrySize + mSelectorOffsetY;
+			if (mCornerRadius > 0.0f)
+			{
+				// Theme opted in to a pill-shaped selector (rounded, inset a little).
+				float pillMargin = mSelectorHeight * 0.15f;
+				Renderer::drawRoundRect(pillMargin, selY, mSize.x() - 2.0f * pillMargin,
+						mSelectorHeight, mCornerRadius, mSelectorColor);
+			}
+			else
+			{
+				Renderer::drawRect(0.0f, selY, mSize.x(), mSelectorHeight,
+						mSelectorColor, mSelectorColorEnd, mSelectorColorGradientHorizontal);
+			}
 		}
 	}
 
@@ -445,6 +457,8 @@ void TextListComponent<T>::applyTheme(const std::shared_ptr<ThemeData>& theme, c
 		} else {
 			setSelectorOffsetY(0.0);
 		}
+		if(elem->has("selectorRadius"))
+			mCornerRadius = elem->get<float>("selectorRadius") * Renderer::getScreenHeight();
 	}
 
 	if (elem->has("selectorImagePath"))

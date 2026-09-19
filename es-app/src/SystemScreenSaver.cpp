@@ -1019,6 +1019,27 @@ void VideoScreenSaver::update(int deltaTime)
 // CLOCK SCREEN SAVER CLASS
 // ------------------------------------------------------------------------------------------------------------------------
 
+// Format the screensaver clock date like "19th Sep, 2026" (ordinal day, short month, year).
+static std::string formatClockDate(struct tm* t)
+{
+	int d = t->tm_mday;
+	const char* suffix = "th";
+	if (d < 11 || d > 13)
+	{
+		switch (d % 10)
+		{
+			case 1: suffix = "st"; break;
+			case 2: suffix = "nd"; break;
+			case 3: suffix = "rd"; break;
+		}
+	}
+	char mon[16], yr[8], out[48];
+	strftime(mon, sizeof(mon), "%b", t); // abbreviated month, e.g. "Sep"
+	strftime(yr, sizeof(yr), "%Y", t);
+	snprintf(out, sizeof(out), "%d%s %s, %s", d, suffix, mon, yr);
+	return std::string(out);
+}
+
 ClockScreenSaver::ClockScreenSaver(Window* window) : GuiComponent(window)
 {
 	mDateTimeUpdateAccumulator = 0;
@@ -1026,6 +1047,21 @@ ClockScreenSaver::ClockScreenSaver(Window* window) : GuiComponent(window)
 
 	auto ph = ThemeData::getMenuTheme()->Text.font->getPath();
 	auto sz = Renderer::getScreenHeight() / 6.f;
+
+	// Allow the active theme to override the screensaver clock font/size via
+	// <view name="screen"><text name="screensaverClock"><fontPath>/<fontSize>.
+	if (ThemeData* dt = ThemeData::getDefaultTheme())
+	{
+		const ThemeData::ThemeElement* el = dt->getElement("screen", "screensaverClock", "text");
+		if (el != nullptr)
+		{
+			if (el->has("fontPath"))
+				ph = el->get<std::string>("fontPath");
+			if (el->has("fontSize"))
+				sz = el->get<float>("fontSize") * Renderer::getScreenHeight();
+		}
+	}
+
 	auto font = Font::get(sz, ph);
 	int fh = font->getLetterHeight();
 
@@ -1058,12 +1094,10 @@ ClockScreenSaver::ClockScreenSaver(Window* window) : GuiComponent(window)
 	struct tm* timeinfo = localtime(&now);
 
 	char timeBuffer[64];
-	char dateBuffer[64];
 	strftime(timeBuffer, sizeof(timeBuffer), "%H:%M:%S", timeinfo);
-	strftime(dateBuffer, sizeof(dateBuffer), "%Y-%m-%d", timeinfo);
 
 	mLabelTime->setText(std::string(timeBuffer));
-	mLabelDate->setText(std::string(dateBuffer));
+	mLabelDate->setText(formatClockDate(timeinfo));
 }
 
 ClockScreenSaver::~ClockScreenSaver()
@@ -1112,15 +1146,13 @@ void ClockScreenSaver::update(int deltaTime)
 			struct tm* timeinfo = localtime(&now);
 
 			char timeBuffer[64];
-			char dateBuffer[64];
 			strftime(timeBuffer, sizeof(timeBuffer), "%H:%M:%S", timeinfo);
-			strftime(dateBuffer, sizeof(dateBuffer), "%Y-%m-%d", timeinfo);
 
 			if (mLabelTime)
 				mLabelTime->setText(std::string(timeBuffer));
 
 			if (mLabelDate)
-				mLabelDate->setText(std::string(dateBuffer));
+				mLabelDate->setText(formatClockDate(timeinfo));
 		}
 	}
 }

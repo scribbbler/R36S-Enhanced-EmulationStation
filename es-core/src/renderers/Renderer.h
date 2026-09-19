@@ -99,6 +99,7 @@ namespace Renderer
 	void         setScissor        (const Rect& _scissor);
 	void         setSwapInterval   ();
 	void         swapBuffers       ();
+	bool         captureScreenshot (const std::string& path);
 
 	// FCA methods
 	bool         isClippingEnabled();

@@ -1,6 +1,7 @@
 #include <string>
 #include "components/ButtonComponent.h"
 
+#include "components/ImageComponent.h"
 #include "resources/Font.h"
 #include "utils/StringUtil.h"
 
@@ -64,6 +65,36 @@ void ButtonComponent::setText(const std::string& text, const std::string& helpTe
 	updateHelpPrompts();
 }
 
+void ButtonComponent::setIcon(const std::string& path, float pixelSize)
+{
+	if (path.empty())
+	{
+		mIcon.reset();
+		return;
+	}
+
+	mIconSize = pixelSize;
+	mIcon = std::make_shared<ImageComponent>(mWindow);
+	mIcon->setImage(path);
+	// tinted to the current label color; sizing/coloring is refreshed each frame in render()
+	mIcon->setColorShift(getCurTextColor());
+}
+
+void ButtonComponent::setKeyFill(unsigned int unfocusedBackColor, float insetPx, float radiusPx)
+{
+	// Give unfocused keys a solid (dark) fill instead of a transparent background,
+	// while the focused key keeps its themed selected fill. Text colors are untouched.
+	// Drawn as a rounded-rect inset by insetPx (so the gap between keys is 2x insetPx),
+	// giving an exact corner radius independent of the ninepatch button art.
+	mColor = unfocusedBackColor;
+	mForceFilledBackground = true;
+	mRoundRectFill = true;
+	mKeyInset = insetPx;
+	mCornerRadius = radiusPx;
+	mRenderNonFocusedBackground = true;
+	updateImage();
+}
+
 void ButtonComponent::onFocusGained()
 {
 	mFocused = true;
@@ -102,7 +133,11 @@ void ButtonComponent::updateImage()
 
 	mBox.setCenterColor(getCurBackColor());
 	mBox.setEdgeColor(getCurBackColor());
-	mBox.setImagePath(mFocused ? ThemeData::getMenuTheme()->Icons.button_filled : ThemeData::getMenuTheme()->Icons.button);	
+	// Force-filled keys use the solid box in both states so the unfocused fill is visible.
+	if (mForceFilledBackground)
+		mBox.setImagePath(ThemeData::getMenuTheme()->Icons.button_filled);
+	else
+		mBox.setImagePath(mFocused ? ThemeData::getMenuTheme()->Icons.button_filled : ThemeData::getMenuTheme()->Icons.button);
 	//mBox.setImagePath(mFocused ? ":/button_filled.png" : ":/button.png");
 }
 
@@ -110,10 +145,35 @@ void ButtonComponent::render(const Transform4x4f& parentTrans)
 {
 	Transform4x4f trans = parentTrans * getTransform();
 
-	if (mRenderNonFocusedBackground || mFocused)
+	if (mRoundRectFill)
+	{
+		// Solid rounded-rect key background (exact radius, real gaps from the inset).
+		// Skip the fill for keys that are blank in the current layer (no text, no icon) —
+		// e.g. accent-layer slots with no character — unless focused, so the cursor stays
+		// visible if you navigate onto one.
+		bool blank = mText.empty() && !mIcon;
+		if (!blank || mFocused)
+		{
+			float pad = mKeyInset;
+			Renderer::setMatrix(trans);
+			Renderer::drawRoundRect(pad, pad, mSize.x() - 2.0f * pad, mSize.y() - 2.0f * pad, mCornerRadius, getCurBackColor());
+		}
+	}
+	else if (mRenderNonFocusedBackground || mFocused)
 		mBox.render(trans);
 
-	if(mTextCache)
+	if(mIcon)
+	{
+		// fixed icon size (identical on every key regardless of the key's width),
+		// aspect-preserved and tinted to the label color
+		float box = (mIconSize > 0.0f) ? mIconSize : (mSize.y() * 0.5f);
+		mIcon->setMaxSize(box, box);
+		mIcon->setColorShift(getCurTextColor());
+		Vector3f centerOffset((mSize.x() - mIcon->getSize().x()) / 2, (mSize.y() - mIcon->getSize().y()) / 2, 0);
+		mIcon->setPosition(centerOffset);
+		mIcon->render(trans);
+	}
+	else if(mTextCache)
 	{
 		Vector3f centerOffset((mSize.x() - mTextCache->metrics.size.x()) / 2, (mSize.y() - mTextCache->metrics.size.y()) / 2, 0);
 		trans = trans.translate(centerOffset);

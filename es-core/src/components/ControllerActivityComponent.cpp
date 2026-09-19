@@ -88,7 +88,15 @@ void ControllerActivityComponent::onSizeChanged()
 	{
 		size_t heightPx = (size_t)Math::round(mSize.y());
 		mPadTexture->rasterizeAt(heightPx, heightPx);
-	}	
+	}
+
+	// Rasterize the battery icon SVG at the integer component height too, so it
+	// renders crisp instead of being scaled up from a low default resolution.
+	if (mSize.y() > 0 && mBatteryImage)
+	{
+		size_t heightPx = (size_t)Math::round(mSize.y());
+		mBatteryImage->rasterizeAt(heightPx, heightPx);
+	}
 }
 
 bool ControllerActivityComponent::input(InputConfig* config, Input input)
@@ -234,7 +242,9 @@ void ControllerActivityComponent::render(const Transform4x4f& parentTrans)
 			if (showControllerBattery && pad.batteryLevel >= 0)
 			{
 				if (mBatteryFont == nullptr)
-					mBatteryFont = Font::get(szH * (Renderer::isSmallScreen() ? 0.55f : 0.70f), FONT_PATH_REGULAR);
+					mBatteryFont = (mBatteryFontSize > 0.0f)
+					? Font::get(mBatteryFontSize, mBatteryFontPath.empty() ? std::string(FONT_PATH_REGULAR) : mBatteryFontPath)
+					: Font::get(szH * (Renderer::isSmallScreen() ? 0.55f : 0.70f), mBatteryFontPath.empty() ? std::string(FONT_PATH_REGULAR) : mBatteryFontPath);
 
 				std::string batteryTextValue = std::to_string(pad.batteryLevel) + "% ";
 
@@ -265,7 +275,9 @@ void ControllerActivityComponent::render(const Transform4x4f& parentTrans)
 		if (Settings::getInstance()->getString("ShowBattery") == "text")
 		{
 			if (mBatteryFont == nullptr)
-				mBatteryFont = Font::get(szH * (Renderer::isSmallScreen() ? 0.55f : 0.70f), FONT_PATH_REGULAR);
+				mBatteryFont = (mBatteryFontSize > 0.0f)
+					? Font::get(mBatteryFontSize, mBatteryFontPath.empty() ? std::string(FONT_PATH_REGULAR) : mBatteryFontPath)
+					: Font::get(szH * (Renderer::isSmallScreen() ? 0.55f : 0.70f), mBatteryFontPath.empty() ? std::string(FONT_PATH_REGULAR) : mBatteryFontPath);
 
 			auto sz = mBatteryFont->sizeText(batteryText, 1.0);
 			itemsWidth += sz.x() + mSpacing;
@@ -404,6 +416,14 @@ void ControllerActivityComponent::applyTheme(const std::shared_ptr<ThemeData>& t
 			mEmpty = elem->get<std::string>("empty");
 	}
 
+	// Themeable battery % font (so it can match the clock instead of the
+	// hardcoded resource font/size).
+	if (elem->has("fontPath"))
+		mBatteryFontPath = elem->get<std::string>("fontPath");
+	if (elem->has("fontSize"))
+		mBatteryFontSize = elem->get<float>("fontSize") * Renderer::getScreenHeight();
+	mBatteryFont = nullptr; // force rebuild with the new font next render
+
 	if (properties & COLOR)
 	{
 		if (elem->has("color"))
@@ -432,6 +452,15 @@ void ControllerActivityComponent::applyTheme(const std::shared_ptr<ThemeData>& t
 				setHorizontalAlignment(ALIGN_CENTER);
 		}
 	}
+
+	// The battery icon was picked during init() using the stock resource paths,
+	// before the theme overrides above were read. Force a re-selection now so it
+	// uses the (possibly themed) mFull/mIncharge/... paths. Invalidate the cached
+	// battery state so updateBatteryInfo() doesn't early-return on unchanged level.
+	mCurrentBatteryTexture = "";
+	mBatteryImage = nullptr;
+	mBatteryInfo = BatteryInformation();
+	updateBatteryInfo();
 
 	onSizeChanged();
 }
@@ -538,6 +567,23 @@ void ControllerActivityComponent::updateBatteryInfo()
 		else
 			txName = mEmpty;
 
+		// Fine-grained 21-state indicator: if per-5% icons (battery-<lvl>.svg)
+		// sit next to the themed battery icons, use the nearest one. Falls back to
+		// the 5-bucket icons above when the fine-grained set isn't present.
+		if (!mBatteryInfo.isCharging && !mFull.empty())
+		{
+			int lvl = ((mBatteryInfo.level + 2) / 5) * 5; // round to nearest 5
+			if (lvl < 0) lvl = 0;
+			if (lvl > 100) lvl = 100;
+			size_t slash = mFull.find_last_of('/');
+			if (slash != std::string::npos)
+			{
+				std::string fine = mFull.substr(0, slash) + "/battery-" + std::to_string(lvl) + ".svg";
+				if (ResourceManager::getInstance()->fileExists(fine))
+					txName = fine;
+			}
+		}
+
 		if (mCurrentBatteryTexture != txName)
 		{
 			mCurrentBatteryTexture = txName;
@@ -545,7 +591,15 @@ void ControllerActivityComponent::updateBatteryInfo()
 			if (mCurrentBatteryTexture.empty())
 				mBatteryImage = nullptr;
 			else
+			{
 				mBatteryImage = TextureResource::get(mCurrentBatteryTexture, false, true);
+				// crisp: rasterize the icon at the integer component height
+				if (mSize.y() > 0 && mBatteryImage)
+				{
+					size_t heightPx = (size_t)Math::round(mSize.y());
+					mBatteryImage->rasterizeAt(heightPx, heightPx);
+				}
+			}
 		}
 	}
 }

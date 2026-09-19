@@ -101,6 +101,7 @@ std::map<std::string, std::map<std::string, ThemeData::ElementPropertyType>> The
 		{ "origin", NORMALIZED_PAIR },
 		{ "selectorHeight", FLOAT },
 		{ "selectorOffsetY", FLOAT },
+		{ "selectorRadius", FLOAT },
 		{ "selectorColor", COLOR },
 		{ "selectorColorEnd", COLOR },
 		{ "selectorGradientType", STRING },
@@ -180,9 +181,11 @@ std::map<std::string, std::map<std::string, ThemeData::ElementPropertyType>> The
 		{ "zIndex", FLOAT } } },
 	{ "batteryIndicator", {
 		{ "pos", NORMALIZED_PAIR },
-		{ "size", NORMALIZED_PAIR },		
+		{ "size", NORMALIZED_PAIR },
 		{ "itemSpacing", FLOAT },
 		{ "horizontalAlignment", STRING },
+		{ "fontPath", PATH },
+		{ "fontSize", FLOAT },
 		{ "incharge", PATH },
 		{ "full", PATH },
 		{ "at75", PATH },
@@ -192,6 +195,17 @@ std::map<std::string, std::map<std::string, ThemeData::ElementPropertyType>> The
 		{ "color", COLOR },
 		{ "visible", BOOLEAN },
 		{ "zIndex", FLOAT } } },
+	{ "keyboard", {
+		{ "backspace", PATH },
+		{ "enter", PATH },
+		{ "shift", PATH },
+		{ "alt", PATH },
+		{ "iconSize", FLOAT },
+		{ "width", FLOAT },
+		{ "posY", FLOAT },
+		{ "keySpacing", FLOAT },
+		{ "keyRadius", FLOAT },
+		{ "keyColor", COLOR } } },
 	{ "helpsystem", {
 		{ "pos", NORMALIZED_PAIR },
 		{ "origin", NORMALIZED_PAIR },
@@ -245,7 +259,14 @@ std::map<std::string, std::map<std::string, ThemeData::ElementPropertyType>> The
 		{ "logoPos", NORMALIZED_PAIR },
 		{ "logoAlignment", STRING },
 		{ "maxLogoCount", FLOAT },
-		{ "systemInfoDelay", FLOAT },	
+		{ "selectorColor", COLOR },
+		{ "selectorRadius", FLOAT },
+		{ "selectorHeight", FLOAT },
+		{ "selectorFitContent", BOOLEAN },
+		{ "selectorWidth", FLOAT },
+		{ "logoColor", COLOR },
+		{ "logoSelectedColor", COLOR },
+		{ "systemInfoDelay", FLOAT },
 		{ "defaultTransition", STRING },
 		{ "scrollSound", PATH },
 		{ "zIndex", FLOAT } } },
@@ -256,6 +277,7 @@ std::map<std::string, std::map<std::string, ThemeData::ElementPropertyType>> The
 		{ "selectorColor", COLOR },
 		{ "selectorColorEnd", COLOR },
 		{ "selectorGradientType", STRING },
+		{ "selectorRadius", FLOAT },
 		{ "selectedColor", COLOR },
 		{ "color", COLOR } } },
 	{ "menuTextSmall", {
@@ -290,6 +312,9 @@ std::map<std::string, std::map<std::string, ThemeData::ElementPropertyType>> The
 	{ "menuButton",{
 		{ "path", PATH },
 		{ "filledPath", PATH } } },
+	{ "menuArrow",{
+		{ "path", PATH },
+		{ "optionPath", PATH } } },
 };
 
 std::shared_ptr<ThemeData::ThemeMenu> ThemeData::mMenuTheme;
@@ -1453,6 +1478,8 @@ ThemeData::ThemeMenu::ThemeMenu(ThemeData* theme)
 			Text.selectorGradientColor = elem->get<unsigned int>("selectorColorEnd");
 		if (elem->has("selectorGradientType"))
 			Text.selectorGradientType = (elem->get<std::string>("selectorGradientType").compare("horizontal"));
+		if (elem->has("selectorRadius"))
+			Text.selectorRadius = elem->get<float>("selectorRadius") * Renderer::getScreenHeight();
 	}
 
 	elem = theme->getElement("menu", "menubutton", "menuButton");
@@ -1485,6 +1512,17 @@ ThemeData::ThemeMenu::ThemeMenu(ThemeData* theme)
 	elem = theme->getElement("menu", "menuslider", "menuSlider");
 	if (elem && elem->has("path") && ResourceManager::getInstance()->fileExists(elem->get<std::string>("path")))
 		Icons.knob = elem->get<std::string>("path");
+
+	elem = theme->getElement("menu", "menuarrow", "menuArrow");
+	if (elem)
+	{
+		// 'path' = the submenu '>' bracket (also the option-list right arrow)
+		// 'optionPath' = the '<' '>' arrows around option-list values
+		if (elem->has("path") && ResourceManager::getInstance()->fileExists(elem->get<std::string>("path")))
+			Icons.arrow = elem->get<std::string>("path");
+		if (elem->has("optionPath") && ResourceManager::getInstance()->fileExists(elem->get<std::string>("optionPath")))
+			Icons.option_arrow = elem->get<std::string>("optionPath");
+	}
 
 	elem = theme->getElement("menu", "menuicons", "menuIcons");
 	if (elem)

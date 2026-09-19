@@ -9,6 +9,7 @@
 #include <GLES/gl.h>
 #include <SDL.h>
 #include <vector>
+#include <FreeImage.h>
 #include <unistd.h>
 #include <fcntl.h>
 
@@ -307,9 +308,48 @@ namespace Renderer
 //#endif
 	} // setSwapInterval
 
+	bool captureScreenshot(const std::string& path)
+	{
+		int w = getScreenWidth();
+		int h = getScreenHeight();
+		if (w <= 0 || h <= 0)
+			return false;
+
+		std::vector<unsigned char> pixels((size_t)w * h * 4);
+		glPixelStorei(GL_PACK_ALIGNMENT, 1);
+		glReadPixels(0, 0, w, h, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
+
+		FIBITMAP* bmp = FreeImage_Allocate(w, h, 32);
+		if (bmp == nullptr)
+			return false;
+
+		// glReadPixels and FreeImage are both bottom-up, so rows line up 1:1.
+		// glReadPixels is RGBA; FreeImage 32-bit is BGRA in memory, so swap R/B.
+		for (int y = 0; y < h; y++)
+		{
+			BYTE* dst = FreeImage_GetScanLine(bmp, y);
+			unsigned char* src = &pixels[(size_t)y * w * 4];
+			for (int x = 0; x < w; x++)
+			{
+				dst[x * 4 + 0] = src[x * 4 + 2]; // B
+				dst[x * 4 + 1] = src[x * 4 + 1]; // G
+				dst[x * 4 + 2] = src[x * 4 + 0]; // R
+				dst[x * 4 + 3] = 0xFF;           // opaque
+			}
+		}
+
+		bool ok = FreeImage_Save(FIF_PNG, bmp, path.c_str(), 0) != 0;
+		FreeImage_Unload(bmp);
+		if (ok)
+			LOG(LogInfo) << "Screenshot saved: " << path;
+		else
+			LOG(LogError) << "Screenshot FAILED to save: " << path;
+		return ok;
+	}
+
 	void swapBuffers()
 	{
-#ifdef WIN32		
+#ifdef WIN32
 		glFlush();
 		glFinish();
 		Sleep(0);
