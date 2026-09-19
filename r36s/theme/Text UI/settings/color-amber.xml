@@ -1,0 +1,39 @@
+<!--
+Super Min UI - Theme Color: Amber
+-->
+<theme>
+<formatVersion>7</formatVersion>
+
+    <view name="system">
+    <text name="logoText">
+	<color>FFC107</color>
+    </text>
+    </view>
+
+    <view name="system,detailed,video,basic">
+        <helpsystem name="help">
+	<textColor>FFC107</textColor>
+	<iconColor>FFC107</iconColor>
+        </helpsystem>
+    </view>
+
+    <view name="basic, detailed, video">
+    <textlist name="gamelist">
+	<selectorColor>FFC107</selectorColor>
+	<primaryColor>FFC107</primaryColor>
+	<secondaryColor>FFC107</secondaryColor>
+    </textlist>
+    <text name="system_name">
+	<color>FFC107</color>
+    </text>
+    </view>
+
+    <view name="screen">
+    <text name="clock">
+	<color>FFC107</color>
+    </text>
+	<batteryIndicator name="batteryIndicator">
+	<color>FFC107</color>
+    </batteryIndicator>
+    </view>
+</theme>

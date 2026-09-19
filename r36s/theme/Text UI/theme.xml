@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+theme name:     Text UI
+Creator:        Saurabh Das
+Based on:       Super Min UI (MinUI-style, text only)
+-->
+<theme>
+    <formatVersion>7</formatVersion>
+    <feature supported="carousel">
+    <view name="system">
+
+<!-- Carousel page background (behind the text list), same idea as gamelist.png for gamelists. -->
+    <image name="staticBackground">
+	<path>./art/system.png</path>
+	<origin>0 0</origin>
+	<pos>0 0</pos>
+	<size>1 1</size>
+	<zIndex>0</zIndex>
+    </image>
+
+    <sound name="directory">
+	<path>./music/</path>
+    </sound>
+
+<!--
+MinUI-style home: a vertical LEFT-ALIGNED text list of system names.
+No logo images -> the carousel falls back to the system name text (logoText).
+The selected row gets a left-hugging white pill with black text.
+-->
+    <carousel name="systemcarousel">
+	<origin>0 0</origin>
+	<type>vertical</type>
+	<color>00000000</color><!-- transparent; black screen behind -->
+	<logoSize>0.75 0.0833</logoSize><!-- row base height 40px; width 0.75 => left indent = 0.75/10 = 48px -->
+	<logoScale>1.0</logoScale><!-- uniform: no enlargement of the selected item; every row same size -->
+	<maxLogoCount>5</maxLogoCount><!-- 5 rows visible, selected centered -->
+	<logoAlignment>left</logoAlignment><!-- left-align the system names (indent = logoSize.x/10 = 48px) -->
+	<pos>0 0.09</pos>
+	<size>1 0.83</size>
+	<!-- no logoPos => selection row stays vertically centered; pill is centered fixed-width -->
+	<selectorColor>FFFFFFFF</selectorColor><!-- white pill -->
+	<selectorWidth>0.9375</selectorWidth><!-- fixed pill width 600px (0.9375 x 640), centered => 20px each side -->
+	<selectorHeight>0.15</selectorHeight><!-- pill height 72px -->
+	<selectorRadius>0.075</selectorRadius><!-- full pill (half of 72px) -->
+	<logoColor>FFFFFFFF</logoColor><!-- unselected rows: white -->
+	<logoSelectedColor>000000FF</logoSelectedColor><!-- selected row: black on the pill -->
+	<scrollSound>./audio/move.wav</scrollSound>
+    </carousel>
+
+    <text name="logoText">
+	<fontPath>./fonts/BPreplay-Bold.otf</fontPath>
+	<fontSize>0.0666667</fontSize><!-- 32px for every row (uniform, no highlight enlargement) -->
+	<lineSpacing>1.25</lineSpacing><!-- line height 40px -->
+	<forceUppercase>false</forceUppercase>
+	<alignment>left</alignment>
+	<color>FFFFFF</color>
+    </text>
+    <text name="systemInfo">
+	<text> </text>
+	<pos>1 1</pos>
+	<backgroundColor>000000</backgroundColor>
+	<fontPath>./fonts/BPreplay-Bold.otf</fontPath>
+	<fontSize>0.00</fontSize>
+	<zIndex>5</zIndex>	     
+    </text> 
+    </view>
+    </feature>
+
+    <view name="system,detailed,video,basic">	
+        <helpsystem name="help">
+        <fontPath>./fonts/BPreplay-Regular.otf</fontPath>
+	<fontSize>0.035</fontSize>
+	<textColor>FFFFFF</textColor>
+	<iconColor>FFFFFF</iconColor>
+        </helpsystem>
+    </view>  
+   
+    <view name="basic">
+    <text name="description" extra="true">
+	<pos>0.615 0.685</pos>
+	<size>0.347 0.183</size>
+	<alignment>center</alignment>
+	<color>00ffffff</color>
+	<fontSize>0.025</fontSize>
+	<text> </text>
+	<fontPath>./fonts/BPreplay-Bold.otf</fontPath>
+    </text>
+    </view>
+  
+    <view name="basic, detailed, video">
+    <image name="background" extra="true">
+	<size>1 1</size>
+	<pos>0 0</pos>
+	<origin>0 0</origin>
+	<path>./art/gamelist.png</path>
+	<zIndex>0</zIndex>
+	<color>ffffff</color>
+    </image>
+<!--
+If you want to use logos in gamelist
+-->
+    <textlist name="gamelist">
+    <image name="logo">
+	<path>./system/${system.theme}.png</path>
+    </image>
+         <selectorColor>FFFFFF</selectorColor>
+         <selectedColor>000000</selectedColor>
+         <primaryColor>FFFFFF</primaryColor>
+         <secondaryColor>FFFFFF</secondaryColor>
+         <fontPath>./fonts/BPreplay-Bold.otf</fontPath>
+         <fontSize>0.0458333</fontSize><!-- 22px -->
+         <pos>0.02 0.1</pos>
+         <size>0.96 0.8</size>
+         <alignment>left</alignment>
+         <horizontalMargin>0.03</horizontalMargin>
+         <origin>0 0</origin>
+         <lineSpacing>1.2727</lineSpacing><!-- line height 28px (28/22) -->
+         <selectorOffsetY>0.008</selectorOffsetY><!-- nudge pill down ~4px so text centers -->
+         <selectorHeight>0.075</selectorHeight><!-- pill height 36px -->
+         <selectorRadius>0.0375</selectorRadius><!-- full pill (half of 36px) -->
+	<scrollSound>./audio/move.wav</scrollSound>
+    </textlist>
+    <text name="system_name" extra="true">
+         <text>${system.fullName}</text>
+         <forceUppercase>1</forceUppercase>
+         <size>0.96 0.05</size>
+         <pos>0.02 0.025</pos>
+         <alignment>center</alignment>
+         <color>FFFFFF</color>
+         <fontPath>./fonts/BPreplay-Bold.otf</fontPath><!-- bold gamelist system name -->
+         <fontSize>0.0333333</fontSize><!-- 16px, matches the other top-bar text -->
+         <zIndex>2</zIndex>
+    </text>
+	
+    <text name="md_lbl_genre, md_genre, md_lbl_rating, md_lbl_developer, md_lbl_publisher, md_publisher, md_lbl_lastplayed, md_lbl_playcount, md_playcount, md_lbl_releasedate">
+         <visible>false</visible>
+    </text>
+	
+    <rating name="md_rating">
+         <visible>false</visible>
+    </rating>
+	
+    <image name="md_thumbnail">
+         <visible>false</visible>
+    </image>
+	
+
+    </view>
+<!--
+Background of Ark menü
+-->
+    <view name="menu">
+    <menuBackground name="menubg">
+	<path>./art/menu.png</path>
+    </menuBackground>
+
+    <menuTextEdit name="menutextedit">
+	<inactive>./art/textInput/textinput.png</inactive>
+	<active>./art/textInput/textinput-active.png</active>
+    </menuTextEdit>
+
+    <menuArrow name="menuarrow">
+	<path>./art/icons/arrow.svg</path><!-- submenu '>' chevron (also option-list right arrow) -->
+	<optionPath>./art/icons/arrow.svg</optionPath><!-- '<' '>' arrows around option values -->
+    </menuArrow>
+
+    <menuText name="menutext">
+	<fontPath>./fonts/BPreplay-Bold.otf</fontPath>
+	<fontSize>.035</fontSize>
+	<color>FFFFFF</color>
+	<selectorColor>FFFFFF</selectorColor><!-- white pill on selected menu row -->
+	<selectedColor>000000</selectedColor><!-- black text on the pill -->
+	<selectorRadius>0.028</selectorRadius><!-- rounded pill; remove for sharp bar -->
+	<separatorColor>00000000</separatorColor><!-- fully transparent: no separators -->
+    </menuText>
+
+    <menuText name="menutitle">
+	<fontPath>./fonts/BPreplay-Bold.otf</fontPath><!-- bold menu + keyboard title -->
+	<fontSize>0.0333333</fontSize><!-- 16px -->
+	<color>FFFFFF</color>
+    </menuText>
+	
+	<menuText name="menufooter">
+	<fontPath>./fonts/BPreplay-Regular.otf</fontPath>
+	<fontSize>.029</fontSize>
+	<color>FFFFFF</color>
+    </menuText>
+
+	<menuText name="menutextsmall">
+	<fontPath>./fonts/BPreplay-Regular.otf</fontPath>
+	<fontSize>.029</fontSize>
+	<color>FFFFFF</color>
+    </menuText>
+	</view>
+  
+  	<view name="screen">
+         <text name="clock">
+	     <fontPath>./fonts/BPreplay-Regular.otf</fontPath>
+	     <color>FFFFFF</color>
+         <fontSize>0.0333333</fontSize><!-- 16px -->
+         <lineSpacing>1.25</lineSpacing><!-- line height 20px (20/16) -->
+         <pos>0.021875 0.0166666667</pos><!-- 14 8px @640x480 -->
+         <size>0.4 0.0666666667</size><!-- 32px row, same as battery, so centerlines match -->
+         <alignment>left</alignment>
+         <verticalAlignment>center</verticalAlignment>
+    </text>
+    </view>
+<!--
+Color of battery
+-->
+   <view name="screen">
+	<batteryIndicator name="batteryIndicator">
+	<color>FFFFFF</color>
+	<pos>0 0.0166666667</pos><!-- 8px from top @480 -->
+	<size>0.98125 0.0666666667</size><!-- 628 x 32px @640x480 -->
+	<horizontalAlignment>right</horizontalAlignment>
+	<fontPath>./fonts/BPreplay-Regular.otf</fontPath><!-- match the clock font -->
+	<fontSize>0.0333333</fontSize><!-- 16px, matches clock -->
+	<itemSpacing>0.009375</itemSpacing><!-- 6px @640 between icon and % text -->
+	<incharge>./art/battery/battery-charging.svg</incharge>
+	<full>./art/battery/battery-100.svg</full>
+	<at75>./art/battery/battery-75.svg</at75>
+	<at50>./art/battery/battery-50.svg</at50>
+	<at25>./art/battery/battery-25.svg</at25>
+	<empty>./art/battery/battery-0.svg</empty>
+    </batteryIndicator>
+</view>
+
+<!--
+Custom SVG icons for the on-screen keyboard's four special keys.
+Requires the custom EmulationStation build that reads the keyboard element.
+Icons should be monochrome (white) SVGs; they are tinted to the key text color.
+If a file is missing, that key falls back to its built-in Unicode glyph.
+-->
+   <view name="screen">
+	<keyboard name="keyboard">
+	<backspace>./art/keyboard/backspace.svg</backspace>
+	<enter>./art/keyboard/enter.svg</enter>
+	<shift>./art/keyboard/shift.svg</shift>
+	<alt>./art/keyboard/alt.svg</alt>
+	<iconSize>0.05</iconSize><!-- fixed 24px icon on every special key (24/480) -->
+	<width>0.975</width><!-- key grid 624px wide (624/640); 8px side padding; 48px per column x13 -->
+	<posY>0.2416666667</posY><!-- key grid top at 116px from screen top (116/480) -->
+	<keySpacing>0.009375</keySpacing><!-- 6px gap between keys (3px padding each side); keys become 42px tiles in 48px cells -->
+	<keyRadius>0.0166666667</keyRadius><!-- 8px key corner radius (8/480) -->
+	<keyColor>0A0A0AFF</keyColor><!-- unfocused keys: near-black fill, white text (focused stays white/black) -->
+    </keyboard>
+</view>
+
+<!--
+Screensaver clock font (idle time/date display).
+Requires the custom EmulationStation build that reads screensaverClock.
+-->
+   <view name="screen">
+	<text name="screensaverClock">
+	<fontPath>./fonts/BPreplay-Bold.otf</fontPath>
+    </text>
+</view>
+
+<!--
+Theme Configuration subsets: declared last so the selected overlay
+is applied AFTER the base views above and its overrides win.
+-->
+    <subset name="color-scheme" displayName="Theme Color">
+	<include name="white" displayName="White"/>
+	<include name="amber" displayName="Amber">./settings/color-amber.xml</include>
+	<include name="cyan" displayName="Cyan">./settings/color-cyan.xml</include>
+	<include name="green" displayName="Green">./settings/color-green.xml</include>
+	<include name="pink" displayName="Pink">./settings/color-pink.xml</include>
+    </subset>
+
+    <subset name="font-size" displayName="Font Size">
+	<include name="medium" displayName="Medium"/>
+	<include name="small" displayName="Small">./settings/font-small.xml</include>
+	<include name="large" displayName="Large">./settings/font-large.xml</include>
+	<include name="xlarge" displayName="Extra Large">./settings/font-xlarge.xml</include>
+    </subset>
+</theme>

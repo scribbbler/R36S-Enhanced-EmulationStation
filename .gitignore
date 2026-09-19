@@ -50,3 +50,14 @@ build-local.sh
 # Thai locale (encrypted)
 resources/locale/th/
 
+# macOS / exFAT junk
+._*
+.DS_Store
+
+# custom binary output
+emulationstation.custom
+
+# device blobs — NOT redistributable, provide locally (see r36s/docker/BUILD.md)
+r36s/docker/libgo2-lib/
+r36s/docker/libgo2-src/
+
