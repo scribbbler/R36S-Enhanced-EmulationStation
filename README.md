@@ -4,8 +4,10 @@ A modified EmulationStation build **developed and tested on an R36S clone runnin
 ArkOS4Clone**, adding `theme.xml` control over UI elements that were previously
 hardcoded.
 
-Looking for testers on **genuine R36S units and other RK3326 variants** — see
-[Compatibility](#compatibility).
+> 🧪 **Community testing wanted** — this has only been verified on one R36S clone.
+> If you can run it on a **genuine R36S** or another **RK3326 / ArkOS variant**,
+> please [open an issue](../../issues) with your device, ArkOS version and panel
+> info. See [Compatibility](#compatibility).
 
 **Themes can now customise:** battery indicator · selection pills · menu UI ·
 screensaver clock · on‑screen keyboard · selector geometry · button‑hint bar ·
