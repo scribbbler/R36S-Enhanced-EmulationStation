@@ -450,7 +450,9 @@ void Window::render()
 
 
         // clock // batocera
-	if (Settings::getInstance()->getBool("DrawClock") && mClock)
+	// The clock screensaver draws its own top bar (padlock only), so suppress
+	// the normal top-bar clock and battery indicator while it is showing.
+	if (Settings::getInstance()->getBool("DrawClock") && mClock && !mClockSaverActive)
 	{
 		mClock->render(transform);
 	//	Renderer::setMatrix(Transform4x4f::Identity());
@@ -461,7 +463,7 @@ void Window::render()
 		mClockFont->renderTextCache(mClockText.get());*/
 	}
 
-	if (mBatteryIndicator != nullptr)
+	if (mBatteryIndicator != nullptr && !mClockSaverActive)
 		mBatteryIndicator->render(transform);
 
 	// pads // batocera

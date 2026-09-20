@@ -35,8 +35,10 @@ BrightnessInfoComponent::BrightnessInfoComponent(Window* window, const std::stri
 
 	mFrame = nullptr; // background is drawn as a rounded rect in render()
 
-	// label (%) at the top: BPreplay-Bold 17px, 24px band at y=10
-	auto font = fontPath.empty() ? Font::get(17) : Font::get(17, fontPath);
+	// label (%) at the top: BPreplay-Bold 17px, 24px band at y=10.
+	// Font::get() applies the 1.31x small-screen boost, so pass 13 (13*1.31=17)
+	// to render at the true 17px the Figma design specifies.
+	auto font = fontPath.empty() ? Font::get(13) : Font::get(13, fontPath);
 	mLabel = new TextComponent(mWindow, "", font, 0xFFFFFFFF, ALIGN_CENTER);
 	mLabel->setPosition(0, 10);
 	mLabel->setSize(fullSize.x(), 24);

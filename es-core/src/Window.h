@@ -111,7 +111,12 @@ public:
 	void onThemeChanged(const std::shared_ptr<ThemeData>& theme);
 
 	std::shared_ptr<BatteryIndicatorComponent>	getBatteryIndicator() { return mBatteryIndicator; }
-	
+
+	// While the clock screensaver is showing, the top-bar clock and battery
+	// indicator are hidden so only the padlock + clock/date remain (per design).
+	void setClockSaverActive(bool active) { mClockSaverActive = active; }
+	bool isClockSaverActive() const { return mClockSaverActive; }
+
 private:
 	void processPostedFunctions();
 
@@ -134,6 +139,7 @@ private:
 	ScreenSaver*	mScreenSaver;
 	InfoPopup*		mInfoPopup;
 	bool			mRenderScreenSaver;
+	bool			mClockSaverActive = false;
 
 	std::shared_ptr<TextureResource> mSplash;
 	std::string						 mCustomSplash;

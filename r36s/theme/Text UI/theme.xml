@@ -31,29 +31,29 @@ The selected row gets a left-hugging white pill with black text.
 	<origin>0 0</origin>
 	<type>vertical</type>
 	<color>00000000</color><!-- transparent; black screen behind -->
-	<logoSize>0.75 0.0833</logoSize><!-- row base height 40px; width 0.75 => left indent = 0.75/10 = 48px -->
+	<logoSize>0.60 0.115</logoSize><!-- text box 384x55px; width 0.60 => left indent = 0.60/10 = ~38px (matches design's ~33px margin); tall enough to hold the 41px line uncllipped -->
 	<logoScale>1.0</logoScale><!-- uniform: no enlargement of the selected item; every row same size -->
 	<maxLogoCount>5</maxLogoCount><!-- 5 rows visible, selected centered -->
 	<logoAlignment>left</logoAlignment><!-- left-align the system names (indent = logoSize.x/10 = 48px) -->
 	<pos>0 0.09</pos>
 	<size>1 0.83</size>
 	<!-- no logoPos => selection row stays vertically centered; pill is centered fixed-width -->
-	<selectorColor>FFFFFFFF</selectorColor><!-- white pill -->
-	<selectorWidth>0.9375</selectorWidth><!-- fixed pill width 600px (0.9375 x 640), centered => 20px each side -->
-	<selectorHeight>0.15</selectorHeight><!-- pill height 72px -->
-	<selectorRadius>0.075</selectorRadius><!-- full pill (half of 72px) -->
-	<logoColor>FFFFFFFF</logoColor><!-- unselected rows: white -->
+	<selectorColor>F7FBF7FF</selectorColor><!-- off-white pill (#F7FBF7, matches design) -->
+	<selectorWidth>0.975</selectorWidth><!-- fixed pill width 624px (0.975 x 640), centered => 8px each side -->
+	<selectorHeight>0.1542</selectorHeight><!-- pill height 74px -->
+	<selectorRadius>0.0771</selectorRadius><!-- full pill (half of 74px) -->
+	<logoColor>F7FBF7FF</logoColor><!-- unselected rows: off-white (#F7FBF7) -->
 	<logoSelectedColor>000000FF</logoSelectedColor><!-- selected row: black on the pill -->
 	<scrollSound>./audio/move.wav</scrollSound>
     </carousel>
 
     <text name="logoText">
 	<fontPath>./fonts/BPreplay-Bold.otf</fontPath>
-	<fontSize>0.0666667</fontSize><!-- 32px for every row (uniform, no highlight enlargement) -->
-	<lineSpacing>1.25</lineSpacing><!-- line height 40px -->
+	<fontSize>0.0652</fontSize><!-- 41px design ÷ 1.31 engine boost = 31.3px nominal; renders ~41px on device (matches Figma) -->
+	<lineSpacing>1.171</lineSpacing><!-- line height 48px -->
 	<forceUppercase>false</forceUppercase>
 	<alignment>left</alignment>
-	<color>FFFFFF</color>
+	<color>F7FBF7</color><!-- off-white (#F7FBF7); selected row overridden to black by logoSelectedColor -->
     </text>
     <text name="systemInfo">
 	<text> </text>
@@ -73,8 +73,8 @@ The selected row gets a left-hugging white pill with black text.
 	<pos>0.0125 0.9875</pos><!-- 8px side margins; pill BOTTOM 6px above screen bottom (474/480) -->
 	<origin>0 0</origin>
 	<fontSize>0.0333333</fontSize><!-- 16px, matches the top bar -->
-	<textColor>FFFFFF</textColor>
-	<iconColor>FFFFFF</iconColor>
+	<textColor>F7FBF7</textColor>
+	<iconColor>F7FBF7</iconColor>
 	<iconSize>0.05</iconSize><!-- 24px button icons -->
 	<iconTextSpacing>0.009375</iconTextSpacing><!-- 6px icon-to-label gap -->
 	<entrySpacing>0.025</entrySpacing><!-- 16px between entries -->
@@ -101,8 +101,8 @@ The selected row gets a left-hugging white pill with black text.
 	<pos>0.0125 0.9875</pos>
 	<origin>0 0</origin>
 	<fontSize>0.0333333</fontSize>
-	<textColor>FFFFFF</textColor>
-	<iconColor>FFFFFF</iconColor>
+	<textColor>F7FBF7</textColor>
+	<iconColor>F7FBF7</iconColor>
 	<iconSize>0.05</iconSize>
 	<iconTextSpacing>0.009375</iconTextSpacing>
 	<entrySpacing>0.025</entrySpacing>
@@ -150,20 +150,20 @@ If you want to use logos in gamelist
     <image name="logo">
 	<path>./system/${system.theme}.png</path>
     </image>
-         <selectorColor>FFFFFF</selectorColor>
-         <selectedColor>000000</selectedColor>
-         <primaryColor>FFFFFF</primaryColor>
-         <secondaryColor>FFFFFF</secondaryColor>
+         <selectorColor>F7FBF7</selectorColor><!-- off-white pill (#F7FBF7) -->
+         <selectedColor>000000</selectedColor><!-- black text on the pill -->
+         <primaryColor>F7FBF7</primaryColor><!-- unselected game text: off-white -->
+         <secondaryColor>F7FBF7</secondaryColor>
          <fontPath>./fonts/BPreplay-Bold.otf</fontPath>
-         <fontSize>0.0458333</fontSize><!-- 22px -->
-         <pos>0.02 0.1</pos>
-         <size>0.96 0.8</size>
+         <fontSize>0.03976</fontSize><!-- 25px design ÷ 1.31 boost = 19.1px nominal -> renders ~25px -->
+         <pos>0.0125 0.1</pos><!-- list box left edge at 8px (pill 8px margin) -->
+         <size>0.975 0.8</size><!-- pill width 624px (8px each side) -->
          <alignment>left</alignment>
-         <horizontalMargin>0.03</horizontalMargin>
+         <horizontalMargin>0.01875</horizontalMargin><!-- 12px inset from box -> text at 20px from screen -->
          <origin>0 0</origin>
-         <lineSpacing>1.2727</lineSpacing><!-- line height 28px (28/22) -->
+         <lineSpacing>1.556</lineSpacing><!-- row pitch 42px (maxGlyphHeight ~27px × 1.556) -->
          <selectorOffsetY>0.008</selectorOffsetY><!-- nudge pill down ~4px so text centers -->
-         <selectorHeight>0.075</selectorHeight><!-- pill height 36px -->
+         <selectorHeight>0.075</selectorHeight><!-- pill height 36px (independent of pitch) -->
          <selectorRadius>0.0375</selectorRadius><!-- full pill (half of 36px) -->
 	<scrollSound>./audio/move.wav</scrollSound>
     </textlist>
@@ -173,9 +173,9 @@ If you want to use logos in gamelist
          <size>0.96 0.05</size>
          <pos>0.02 0.025</pos>
          <alignment>center</alignment>
-         <color>FFFFFF</color>
+         <color>F7FBF7</color>
          <fontPath>./fonts/BPreplay-Bold.otf</fontPath><!-- bold gamelist system name -->
-         <fontSize>0.0333333</fontSize><!-- 16px, matches the other top-bar text -->
+         <fontSize>0.02863</fontSize><!-- 18px design ÷ 1.31 boost -> renders ~18px -->
          <zIndex>2</zIndex>
     </text>
 	
@@ -213,39 +213,39 @@ Background of Ark menü
 
     <menuText name="menutext">
 	<fontPath>./fonts/BPreplay-Bold.otf</fontPath>
-	<fontSize>.035</fontSize>
-	<color>FFFFFF</color>
-	<selectorColor>FFFFFF</selectorColor><!-- white pill on selected menu row -->
+	<fontSize>0.03181</fontSize><!-- 20px design ÷ 1.31 boost -> renders ~20px -->
+	<color>F7FBF7</color><!-- unselected menu row: off-white -->
+	<selectorColor>F7FBF7</selectorColor><!-- off-white pill (#F7FBF7) on selected menu row -->
 	<selectedColor>000000</selectedColor><!-- black text on the pill -->
-	<selectorRadius>0.028</selectorRadius><!-- rounded pill; remove for sharp bar -->
+	<selectorRadius>0.0375</selectorRadius><!-- full pill (half of 36px) -->
 	<separatorColor>00000000</separatorColor><!-- fully transparent: no separators -->
     </menuText>
 
     <menuText name="menutitle">
 	<fontPath>./fonts/BPreplay-Bold.otf</fontPath><!-- bold menu + keyboard title -->
-	<fontSize>0.0333333</fontSize><!-- 16px -->
-	<color>FFFFFF</color>
+	<fontSize>0.02863</fontSize><!-- 18px design ÷ 1.31 boost -> renders ~18px -->
+	<color>F7FBF7</color>
     </menuText>
-	
+
 	<menuText name="menufooter">
 	<fontPath>./fonts/BPreplay-Regular.otf</fontPath>
-	<fontSize>.029</fontSize>
-	<color>FFFFFF</color>
+	<fontSize>0.02863</fontSize><!-- 18px design ÷ 1.31 boost -> renders ~18px -->
+	<color>F7FBF7</color><!-- off-white version text -->
     </menuText>
 
 	<menuText name="menutextsmall">
 	<fontPath>./fonts/BPreplay-Regular.otf</fontPath>
 	<fontSize>.029</fontSize>
-	<color>FFFFFF</color>
+	<color>F7FBF7</color>
     </menuText>
 	</view>
   
   	<view name="screen">
          <text name="clock">
 	     <fontPath>./fonts/BPreplay-Regular.otf</fontPath>
-	     <color>FFFFFF</color>
-         <fontSize>0.0333333</fontSize><!-- 16px -->
-         <lineSpacing>1.25</lineSpacing><!-- line height 20px (20/16) -->
+	     <color>F7FBF7</color>
+         <fontSize>0.02863</fontSize><!-- 18px design ÷ 1.31 boost -> renders ~18px -->
+         <lineSpacing>1.333</lineSpacing><!-- line height 24px (24/18) -->
          <pos>0.021875 0.0166666667</pos><!-- 14 8px @640x480 -->
          <size>0.4 0.0666666667</size><!-- 32px row, same as battery, so centerlines match -->
          <alignment>left</alignment>
@@ -257,13 +257,13 @@ Color of battery
 -->
    <view name="screen">
 	<batteryIndicator name="batteryIndicator">
-	<color>FFFFFF</color>
+	<color>F7FBF7</color>
 	<pos>0 0.0166666667</pos><!-- 8px from top @480 -->
 	<size>0.98125 0.0666666667</size><!-- 628 x 32px @640x480 -->
 	<horizontalAlignment>right</horizontalAlignment>
 	<fontPath>./fonts/BPreplay-Regular.otf</fontPath><!-- match the clock font -->
-	<fontSize>0.0333333</fontSize><!-- 16px, matches clock -->
-	<itemSpacing>0.009375</itemSpacing><!-- 6px @640 between icon and % text -->
+	<fontSize>0.02863</fontSize><!-- 18px design ÷ 1.31 boost -> renders ~18px, matches clock -->
+	<itemSpacing>0.00625</itemSpacing><!-- 4px @640 between icon and % text (Figma gap-4px) -->
 	<incharge>./art/battery/battery-charging.svg</incharge>
 	<full>./art/battery/battery-100.svg</full>
 	<at75>./art/battery/battery-75.svg</at75>
@@ -315,10 +315,11 @@ Requires the custom EmulationStation build that reads screensaverClock.
    <view name="screen">
 	<text name="screensaverClock">
 	<fontPath>./fonts/BPreplay-Bold.otf</fontPath>
+	<fontSize>0.159</fontSize><!-- 100px time design ÷ 1.31 boost -> renders ~100px; date = 0.36x -->
     </text>
-	<!-- While charging, the clock/date are replaced by this battery icon + charge %. -->
+	<!-- While charging, the date line becomes this battery icon + "NN% Charged". -->
 	<image name="screensaverBattery">
-	<path>./art/battery/battery-charging.svg</path>
+	<path>./art/icons/battery.svg</path>
     </image>
 	<!-- Small padlock shown above the date (the clock locks all input but Select). -->
 	<image name="screensaverLock">

@@ -1071,12 +1071,17 @@ ClockScreenSaver::ClockScreenSaver(Window* window) : GuiComponent(window)
 
 	const float W = Renderer::getScreenWidth();
 	const float H = Renderer::getScreenHeight();
+	mScreenW = W;
+	mScreenH = H;
 
-	// Layout (top -> bottom, all horizontally centered): lock icon, date, time.
-	// Positions are screen fractions so the stack reads like the mockup.
-	const float lockY = H * 0.27f;
-	const float dateY = H * 0.37f;
-	const float timeY = H * 0.53f;
+	// Layout matches the Figma "clock" frame: a padlock centered at the top,
+	// the date (36px) centered, and the large time (100px) below it.
+	const float lockY = H * 0.0458f; // ~22px: vertical centre of the 44px top band
+	const float dateY = H * 0.37f;   // date / charging line
+	const float timeY = H * 0.517f;  // large time
+	mDateY = dateY;
+	mChargeIconW = H * 0.10f;        // 48px on a 480px panel
+	mChargeGap   = H * 0.021f;       // 10px gap between icon and label
 
 	// Create time label (large, centered)
 	mLabelTime = new TextComponent(mWindow);
@@ -1100,7 +1105,7 @@ ClockScreenSaver::ClockScreenSaver(Window* window) : GuiComponent(window)
 	mLabelDate->setColor(0xFFFFFFFF);
 	mLabelDate->setGlowColor(0x00000060);
 	mLabelDate->setGlowSize(2);
-	mLabelDate->setFont(ph, sz * 0.4f);
+	mLabelDate->setFont(ph, sz * 0.36f); // 36px date (0.36 x the 100px time)
 
 	// Lock icon, centered above the date. Themeable via
 	// <view name="screen"><image name="screensaverLock"><path>.
@@ -1148,31 +1153,27 @@ ClockScreenSaver::ClockScreenSaver(Window* window) : GuiComponent(window)
 	mBattLevel = -1;
 	mBattCheckAccumulator = 0;
 
-	// Large centered battery icon (sized to a fraction of the screen height,
-	// matching the visual weight of the clock it replaces).
-	float iconH = Renderer::getScreenHeight() * 0.22f;
-	float iconW = iconH * 1.6f;
+	// Charging line: a small battery icon (48 x 40) + "NN% Charged", both placed
+	// on the date row and centred together (see layoutChargeLine). The bolt
+	// battery comes from the theme (screensaverBattery = battery.svg). Left
+	// origins let layoutChargeLine position the group.
+	float chargeIconH = Renderer::getScreenHeight() * 0.083f; // ~40px
 	mBattImage = new ImageComponent(mWindow);
-	mBattImage->setMaxSize(iconW, iconH);
-	// Rasterize the SVG at the display size so it stays crisp instead of
-	// scaling up a tiny default raster.
+	mBattImage->setMaxSize(mChargeIconW, chargeIconH);
+	// Rasterize the SVG at the display size so it stays crisp.
 	if (!mBattIconPath.empty())
-		mBattImage->setImage(mBattIconPath, false, MaxSizeInfo(iconW, iconH));
+		mBattImage->setImage(mBattIconPath, false, MaxSizeInfo(mChargeIconW, chargeIconH));
 	mBattImage->setColorShift(0xFFFFFFFF);
-	mBattImage->setOrigin(0.5f, 0.5f);
-	mBattImage->setPosition(Renderer::getScreenWidth() / 2.0f,
-	                        Renderer::getScreenHeight() / 2.0f - fh * 0.35f);
+	mBattImage->setOrigin(0.0f, 0.5f);
 
 	mBattLabel = new TextComponent(mWindow);
-	mBattLabel->setOrigin(0.5f, 0.5f);
-	mBattLabel->setPosition(Renderer::getScreenWidth() / 2.0f, Renderer::getScreenHeight() / 2.0f + fh * 0.55f);
-	mBattLabel->setSize(Renderer::getScreenWidth(), fh * 0.5f);
-	mBattLabel->setHorizontalAlignment(ALIGN_CENTER);
+	mBattLabel->setOrigin(0.0f, 0.5f);
+	mBattLabel->setHorizontalAlignment(ALIGN_LEFT);
 	mBattLabel->setVerticalAlignment(ALIGN_CENTER);
 	mBattLabel->setColor(0xFFFFFFFF);
 	mBattLabel->setGlowColor(0x00000060);
 	mBattLabel->setGlowSize(2);
-	mBattLabel->setFont(ph, sz * 0.4f);
+	mBattLabel->setFont(ph, sz * 0.36f); // 36px, same as the date
 
 	refreshBattery();
 }
@@ -1184,8 +1185,26 @@ void ClockScreenSaver::refreshBattery()
 	if (info.level != mBattLevel)
 	{
 		mBattLevel = info.level;
-		mBattLabel->setText(std::to_string(Math::max(0, Math::min(100, mBattLevel))) + "%");
+		mBattLabel->setText(std::to_string(Math::max(0, Math::min(100, mBattLevel))) + "% Charged");
+		layoutChargeLine();
 	}
+}
+
+// Centre the "[battery] NN% Charged" group on the date row. The label auto-sizes
+// to its text, so the group width changes with the percentage; recompute on each
+// level change.
+void ClockScreenSaver::layoutChargeLine()
+{
+	if (mBattImage == nullptr || mBattLabel == nullptr)
+		return;
+
+	float iconW  = mBattImage->getSize().x();
+	float labelW = mBattLabel->getSize().x();
+	float groupW = iconW + mChargeGap + labelW;
+	float startX = (mScreenW - groupW) / 2.0f;
+
+	mBattImage->setPosition(startX, mDateY);
+	mBattLabel->setPosition(startX + iconW + mChargeGap, mDateY);
 }
 
 ClockScreenSaver::~ClockScreenSaver()
@@ -1227,12 +1246,12 @@ void ClockScreenSaver::render(const Transform4x4f& transform)
 	Renderer::setMatrix(Transform4x4f::Identity());
 	Renderer::drawRect(0.0f, 0.0f, Renderer::getScreenWidth(), Renderer::getScreenHeight(), 0x000000FF);
 
-	// Lock icon sits at the top of the stack in every state (the clock always
-	// locks input while it is showing).
+	// Padlock centered at the top in every state (the clock always locks input).
 	if (mLockImage)
 		mLockImage->render(transform);
 
-	// While charging, replace the clock/date with a battery icon + charge %.
+	// The date row shows either the date, or (while charging) a battery icon +
+	// "NN% Charged". The large time stays visible below in both states.
 	if (mCharging)
 	{
 		if (mBattImage)
@@ -1240,16 +1259,15 @@ void ClockScreenSaver::render(const Transform4x4f& transform)
 
 		if (mBattLabel)
 			mBattLabel->render(transform);
-
-		return;
+	}
+	else
+	{
+		if (mLabelDate)
+			mLabelDate->render(transform);
 	}
 
-	// Render time and date
 	if (mLabelTime)
 		mLabelTime->render(transform);
-
-	if (mLabelDate)
-		mLabelDate->render(transform);
 }
 
 void ClockScreenSaver::update(int deltaTime)

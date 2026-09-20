@@ -87,23 +87,32 @@ public:
 
 private:
 	void refreshBattery();
+	// Center the charging line ("[battery] NN% Charged") on the date row.
+	void layoutChargeLine();
 
 	TextComponent*		mLabelTime;
 	TextComponent*		mLabelDate;
 	int 				mDateTimeUpdateAccumulator;
 	time_t				mDateTimeLastUpdate;
 
-	// Small padlock icon shown centered above the date (the clock locks input).
+	// Small padlock icon centered at the top (the clock locks all input but Select).
 	ImageComponent*		mLockImage;
 
-	// When the device is plugged in, the clock/date are replaced by a large
-	// battery icon + charge %.
+	// While charging, the date line is replaced by a small battery icon + "NN%
+	// Charged"; the large time stays visible below.
 	ImageComponent*		mBattImage;
 	TextComponent*		mBattLabel;
 	std::string			mBattIconPath;
 	bool				mCharging;
 	int					mBattLevel;
 	int					mBattCheckAccumulator;
+
+	// cached layout geometry
+	float				mScreenW;
+	float				mScreenH;
+	float				mDateY;
+	float				mChargeIconW;
+	float				mChargeGap;
 };
 
 // Screensaver implementation for main window

@@ -679,7 +679,15 @@ int main(int argc, char* argv[])
 		SDL_Event event;
 		bool ps_standby = PowerSaver::getState() && (int) SDL_GetTicks() - ps_time > PowerSaver::getMode();
 
-		if (ps_standby ? SDL_WaitEventTimeout(&event, PowerSaver::getTimeout()) : SDL_PollEvent(&event))
+		// The clock screensaver has to keep ticking (and detect charging) while
+		// idle, but PowerSaver would otherwise freeze the loop for the whole
+		// screensaver timeout. Force a steady ~1s wake so the clock/date/charging
+		// refresh every second without spinning the CPU at full frame rate.
+		bool clockTick = window.isClockSaverActive();
+		bool waiting = ps_standby || clockTick;
+		int waitTimeout = clockTick ? 1000 : PowerSaver::getTimeout();
+
+		if (waiting ? SDL_WaitEventTimeout(&event, waitTimeout) : SDL_PollEvent(&event))
 		{
 			do
 			{
@@ -687,22 +695,22 @@ int main(int argc, char* argv[])
 
 				if (event.type == SDL_QUIT)
 					running = false;
-			} 
+			}
 			while(SDL_PollEvent(&event));
 
 			// triggered if exiting from SDL_WaitEvent due to event
-			if (ps_standby)
+			if (waiting)
 				// show as if continuing from last event
 				lastTime = SDL_GetTicks();
 
 			// reset counter
 			ps_time = SDL_GetTicks();
 		}
-		else if (ps_standby)
+		else if (waiting)
 		{
 			// If exitting SDL_WaitEventTimeout due to timeout. Trail considering
 			// timeout as an event
-			ps_time = SDL_GetTicks();			
+			ps_time = SDL_GetTicks();
 		}
 
 		if (window.isSleeping())

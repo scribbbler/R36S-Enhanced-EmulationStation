@@ -240,8 +240,22 @@ void SystemView::populate()
 			{
 				text->setHorizontalAlignment(mCarousel.logoAlignment);
 				text->setVerticalAlignment(ALIGN_CENTER);
+
+				// A left-aligned vertical carousel ties the text-box width to
+				// logoSize.x, which ALSO sets the left inset (logoSize.x / 10).
+				// That forces a tight inset to mean a narrow box, so long names
+				// truncate while empty space remains to the right. Decouple them:
+				// keep the inset tight but widen the label box toward the far edge
+				// (symmetric right margin), so names use the available width.
+				if (mCarousel.logoAlignment == ALIGN_LEFT)
+				{
+					float inset = mCarousel.logoSize.x() / 10.f;
+					float wide  = mCarousel.size.x() - inset * 2.f;
+					if (wide > mCarousel.logoSize.x())
+						text->setSize(wide, mCarousel.logoSize.y() * mCarousel.logoScale);
+				}
 			}
-			else 
+			else
 			{
 				text->setHorizontalAlignment(ALIGN_CENTER);
 				text->setVerticalAlignment(mCarousel.logoAlignment);
@@ -380,6 +394,10 @@ void SystemView::setClockSaverActive(bool active)
 		AudioManager::getInstance()->stopMusic();
 	else
 		AudioManager::getInstance()->playRandomMusic(false);
+
+	// Hide the normal top-bar clock + battery indicator while the clock
+	// screensaver is up (it draws its own padlock-only top bar).
+	mWindow->setClockSaverActive(active);
 
 	// Refresh through the ViewController: SystemView has no parent in the
 	// gui-stack, so its own updateHelpPrompts() would fail the peekGui()==this
@@ -1103,14 +1121,8 @@ void SystemView::renderCarousel(const Transform4x4f& trans)
 		scale = Math::min(mCarousel.logoScale, Math::max(1.0f, scale));
 		scale /= mCarousel.logoScale;
 
-		int opacity;
-		if (mCarousel.selectorFitContent)
-			opacity = 0xFF; // uniform brightness for the text-list style
-		else
-		{
-			opacity = (int)Math::round(0x80 + ((0xFF - 0x80) * (1.0f - fabs(distance))));
-			opacity = Math::max((int) 0x80, opacity);
-		}
+		// Full brightness for every entry, selected or not.
+		int opacity = 0xFF;
 
 		const std::shared_ptr<GuiComponent> &comp = mEntries.at(index).data.logo;
 		if (mCarousel.type == VERTICAL_WHEEL || mCarousel.type == HORIZONTAL_WHEEL) {
