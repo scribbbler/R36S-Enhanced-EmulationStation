@@ -1,8 +1,23 @@
-# EmulationStation for the R36S (Text UI)
+# R36S Enhanced EmulationStation
 
-A customized build of EmulationStation (the [fcamod](https://github.com/lcdyk0517/EmulationStation-fcamod) fork) for the **R36S / RK3326 ArkOS4Clone** handheld (640×480), plus a minimal **Text UI** theme and on‑device install tools.
+A modified EmulationStation build for **R36S / RK3326** handhelds running
+**ArkOS4Clone** that unlocks UI elements which previously couldn't be controlled
+through `theme.xml`.
 
-Everything here targets what a theme alone can't change — the battery indicator, selection highlights, the on‑screen keyboard, the screensaver clock, screenshots, and more — all made theme‑driven so other themes are unaffected unless they opt in.
+**Themes can now customise:** battery indicator · selection pills · menu UI ·
+screensaver clock · on‑screen keyboard · selector geometry · button‑hint bar ·
+volume/brightness pop‑ups · icons · and more.
+
+Every addition is **opt‑in** — existing themes are unaffected unless they use the
+new properties. The bundled **Text UI** theme is included as a reference
+implementation; other theme authors can use the new properties in their own
+themes. See **[THEME‑EXTENSIONS.md](THEME-EXTENSIONS.md)** for the full list.
+
+> _Screenshots: **TODO** — add carousel / keyboard / screensaver / pop‑up captures here._
+
+**Safe to try:** the installer backs up your original EmulationStation binary and
+provides a **Restore Stock ES** tool. If the custom build crashes during startup,
+the stock binary is **automatically restored**. (Still keep an SD‑card backup.)
 
 > The separate **music player** for the R36S lives in its own repository.
 
@@ -10,8 +25,9 @@ Everything here targets what a theme alone can't change — the battery indicato
 
 - **Battery indicator** — crisp rasterized icon, 21‑level (5%) SVG selection, and a themeable icon set + font/size via `<batteryIndicator>`.
 - **Pill‑shaped selectors** — theme‑driven rounded selection highlights for the carousel, gamelist and menu (`selectorColor`/`selectorRadius`/`selectorHeight`/`selectorWidth`, fit‑content mode, and `logoColor`/`logoSelectedColor` tinting).
-- **Themeable screensaver clock** — custom font via `<screensaverClock>` and a `19th Sep, 2026` style date.
+- **Clock screensaver** (Select on the carousel) — themeable font/date, 12‑hour support, a lock icon while input is locked, and a battery icon + charge % while charging (`screensaverClock` / `screensaverBattery` / `screensaverLock`).
 - **On‑screen keyboard** — themeable SVG icons for backspace/enter/shift/alt, solid key fill + gap + corner radius, fixed grid width/position, a simplified two‑layer search layout, and footer button hints.
+- **Themeable button‑hint bar** and **volume/brightness pop‑ups** — custom labels, icons, spacing and background via `<helpsystem>` / `<volumeIndicator>` / `<brightnessIndicator>`.
 - **FN + B screenshot** — saves a PNG to `/roms/screenshots`.
 - **Clock + battery on the menu** overlay, themeable **menu arrow** icons, and Title‑Cased custom collections.
 
@@ -46,6 +62,31 @@ The installer only ever swaps `/usr/bin/emulationstation/emulationstation`; a cr
 | Battery Probe / Hardware Probe | dump battery / LED / display / input info |
 | LED Test 2 / LED Write Test | diagnose & set the power LED (clone driver needs manual mode) |
 | Copy ES Log | copy the ES logs to the card for inspection |
+
+## Compatibility
+
+This build has currently been tested on an **R36S clone running ArkOS4Clone**.
+
+**Tested**
+- R36S clone / RK3326‑based device
+- ArkOS4Clone
+- 640×480 display
+
+**Not yet verified**
+- Genuine R36S hardware
+- Standard / community ArkOS builds for genuine R36S units
+- Other R35S/R36S clone variants
+- Different display panels or resolutions
+
+Because R36S clones can differ significantly in hardware, DTB files, audio
+configuration, display panels and system builds, compatibility should not be
+assumed across every device. The installer backs up the existing EmulationStation
+binary and provides a stock‑restore option, but **keep a backup of your SD card
+before testing**.
+
+If you successfully test this build on another R36S or clone variant, please open
+an issue with your device type, ArkOS version, and display/panel information —
+hardware coverage is exactly what this project needs.
 
 ## Build
 
