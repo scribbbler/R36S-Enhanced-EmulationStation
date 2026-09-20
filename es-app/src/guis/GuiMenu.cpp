@@ -2263,7 +2263,10 @@ void GuiMenu::addVersionInfo()
 	}
 	else
 #endif
-		mVersion.setText("EMULATIONSTATION V" + Utils::String::toUpper(PROGRAM_VERSION_STRING) + " BUILD " + buildDate);
+		mVersion.setText("R36S ENHANCED · ES "
+			+ std::to_string(PROGRAM_VERSION_MAJOR) + "." + std::to_string(PROGRAM_VERSION_MINOR)
+			+ "." + std::to_string(PROGRAM_VERSION_MAINTENANCE) + "." + std::to_string(PROGRAM_VERSION_BUILD)
+			+ " · BUILD " + buildDate);
 
 	mVersion.setHorizontalAlignment(ALIGN_CENTER);	
 	mVersion.setVerticalAlignment(ALIGN_CENTER);

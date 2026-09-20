@@ -191,9 +191,9 @@ void TextListComponent<T>::render(const Transform4x4f& parentTrans)
 			float selY = (mCursor - startEntry)*entrySize + mSelectorOffsetY;
 			if (mCornerRadius > 0.0f)
 			{
-				// Theme opted in to a pill-shaped selector (rounded, inset a little).
-				float pillMargin = mSelectorHeight * 0.15f;
-				Renderer::drawRoundRect(pillMargin, selY, mSize.x() - 2.0f * pillMargin,
+				// Pill spans the full list-box width; the theme's pos/size place
+				// it and horizontalMargin sets the text inset inside it.
+				Renderer::drawRoundRect(0.0f, selY, mSize.x(),
 						mSelectorHeight, mCornerRadius, mSelectorColor);
 			}
 			else

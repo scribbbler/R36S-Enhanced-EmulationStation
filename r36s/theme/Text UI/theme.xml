@@ -159,10 +159,10 @@ If you want to use logos in gamelist
          <pos>0.0125 0.1</pos><!-- list box left edge at 8px (pill 8px margin) -->
          <size>0.975 0.8</size><!-- pill width 624px (8px each side) -->
          <alignment>left</alignment>
-         <horizontalMargin>0.01875</horizontalMargin><!-- 12px inset from box -> text at 20px from screen -->
+         <horizontalMargin>0.021875</horizontalMargin><!-- 14px text gap from pill on both sides (clip uses margin*2) -->
          <origin>0 0</origin>
          <lineSpacing>1.556</lineSpacing><!-- row pitch 42px (maxGlyphHeight ~27px × 1.556) -->
-         <selectorOffsetY>0.008</selectorOffsetY><!-- nudge pill down ~4px so text centers -->
+         <selectorOffsetY>0.0049</selectorOffsetY><!-- pill up ~1.5px to vertically centre the text -->
          <selectorHeight>0.075</selectorHeight><!-- pill height 36px (independent of pitch) -->
          <selectorRadius>0.0375</selectorRadius><!-- full pill (half of 36px) -->
 	<scrollSound>./audio/move.wav</scrollSound>
@@ -175,7 +175,7 @@ If you want to use logos in gamelist
          <alignment>center</alignment>
          <color>F7FBF7</color>
          <fontPath>./fonts/BPreplay-Bold.otf</fontPath><!-- bold gamelist system name -->
-         <fontSize>0.02863</fontSize><!-- 18px design ÷ 1.31 boost -> renders ~18px -->
+         <fontSize>0.03181</fontSize><!-- 20px design ÷ 1.31 boost -> renders ~20px, matches top bar -->
          <zIndex>2</zIndex>
     </text>
 	
@@ -223,13 +223,13 @@ Background of Ark menü
 
     <menuText name="menutitle">
 	<fontPath>./fonts/BPreplay-Bold.otf</fontPath><!-- bold menu + keyboard title -->
-	<fontSize>0.02863</fontSize><!-- 18px design ÷ 1.31 boost -> renders ~18px -->
+	<fontSize>0.03181</fontSize><!-- 20px design ÷ 1.31 boost -> renders ~20px, matches top bar -->
 	<color>F7FBF7</color>
     </menuText>
 
 	<menuText name="menufooter">
 	<fontPath>./fonts/BPreplay-Regular.otf</fontPath>
-	<fontSize>0.02863</fontSize><!-- 18px design ÷ 1.31 boost -> renders ~18px -->
+	<fontSize>0.02863</fontSize><!-- 18px version text ÷ 1.31 boost -> renders ~18px -->
 	<color>F7FBF7</color><!-- off-white version text -->
     </menuText>
 
@@ -244,8 +244,8 @@ Background of Ark menü
          <text name="clock">
 	     <fontPath>./fonts/BPreplay-Regular.otf</fontPath>
 	     <color>F7FBF7</color>
-         <fontSize>0.02863</fontSize><!-- 18px design ÷ 1.31 boost -> renders ~18px -->
-         <lineSpacing>1.333</lineSpacing><!-- line height 24px (24/18) -->
+         <fontSize>0.03181</fontSize><!-- 20px design ÷ 1.31 boost -> renders ~20px -->
+         <lineSpacing>1.4</lineSpacing><!-- line height 28px (28/20) -->
          <pos>0.021875 0.0166666667</pos><!-- 14 8px @640x480 -->
          <size>0.4 0.0666666667</size><!-- 32px row, same as battery, so centerlines match -->
          <alignment>left</alignment>
@@ -262,8 +262,8 @@ Color of battery
 	<size>0.98125 0.0666666667</size><!-- 628 x 32px @640x480 -->
 	<horizontalAlignment>right</horizontalAlignment>
 	<fontPath>./fonts/BPreplay-Regular.otf</fontPath><!-- match the clock font -->
-	<fontSize>0.02863</fontSize><!-- 18px design ÷ 1.31 boost -> renders ~18px, matches clock -->
-	<itemSpacing>0.00625</itemSpacing><!-- 4px @640 between icon and % text (Figma gap-4px) -->
+	<fontSize>0.03181</fontSize><!-- 20px design ÷ 1.31 boost -> renders ~20px, matches clock -->
+	<itemSpacing>0.009375</itemSpacing><!-- 6px @640 between icon and % text (Figma gap-6px) -->
 	<incharge>./art/battery/battery-charging.svg</incharge>
 	<full>./art/battery/battery-100.svg</full>
 	<at75>./art/battery/battery-75.svg</at75>
