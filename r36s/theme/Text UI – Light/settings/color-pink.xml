@@ -1,0 +1,39 @@
+<!--
+Super Min UI - Theme Color: Pink
+-->
+<theme>
+<formatVersion>7</formatVersion>
+
+    <view name="system">
+    <text name="logoText">
+	<color>FF6090</color>
+    </text>
+    </view>
+
+    <view name="system,detailed,video,basic">
+        <helpsystem name="help">
+	<textColor>FF6090</textColor>
+	<iconColor>FF6090</iconColor>
+        </helpsystem>
+    </view>
+
+    <view name="basic, detailed, video">
+    <textlist name="gamelist">
+	<selectorColor>FF6090</selectorColor>
+	<primaryColor>FF6090</primaryColor>
+	<secondaryColor>FF6090</secondaryColor>
+    </textlist>
+    <text name="system_name">
+	<color>FF6090</color>
+    </text>
+    </view>
+
+    <view name="screen">
+    <text name="clock">
+	<color>FF6090</color>
+    </text>
+	<batteryIndicator name="batteryIndicator">
+	<color>FF6090</color>
+    </batteryIndicator>
+    </view>
+</theme>

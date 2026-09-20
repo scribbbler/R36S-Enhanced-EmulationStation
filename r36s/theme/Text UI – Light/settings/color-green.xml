@@ -1,0 +1,39 @@
+<!--
+Super Min UI - Theme Color: Green
+-->
+<theme>
+<formatVersion>7</formatVersion>
+
+    <view name="system">
+    <text name="logoText">
+	<color>69F0AE</color>
+    </text>
+    </view>
+
+    <view name="system,detailed,video,basic">
+        <helpsystem name="help">
+	<textColor>69F0AE</textColor>
+	<iconColor>69F0AE</iconColor>
+        </helpsystem>
+    </view>
+
+    <view name="basic, detailed, video">
+    <textlist name="gamelist">
+	<selectorColor>69F0AE</selectorColor>
+	<primaryColor>69F0AE</primaryColor>
+	<secondaryColor>69F0AE</secondaryColor>
+    </textlist>
+    <text name="system_name">
+	<color>69F0AE</color>
+    </text>
+    </view>
+
+    <view name="screen">
+    <text name="clock">
+	<color>69F0AE</color>
+    </text>
+	<batteryIndicator name="batteryIndicator">
+	<color>69F0AE</color>
+    </batteryIndicator>
+    </view>
+</theme>
