@@ -3,7 +3,8 @@
 #include "components/TextComponent.h"
 #include "Log.h"
 
-#define TOTAL_HORIZONTAL_PADDING_PX 20
+#define TOTAL_HORIZONTAL_PADDING_PX 40   // text inset = 20px (design)
+#define ROW_VERT_PADDING_PX 8            // taller rows -> ~38px pitch (design)
 
 ComponentList::ComponentList(Window* window) : IList<ComponentListRow, void*>(window, LIST_SCROLL_STYLE_SLOW, LIST_NEVER_LOOP)
 {
@@ -245,9 +246,9 @@ void ComponentList::render(const Transform4x4f& parentTrans)
 				// pass, like the gamelist/carousel). Note we do NOT gate on
 				// selectorColor != bgColor here -- a white pill on a white-tinted
 				// menu background is valid and the old guard skipped it entirely.
-				float pillMargin = selectedRowHeight * 0.12f;
+				float pillMargin = 8.0f;   // 8px side margins (design)
 				float pillW = mSize.x() - 2.0f * pillMargin;
-				Renderer::drawRoundRect(pillMargin, mSelectorBarOffset, pillW, selectedRowHeight, menuRadius, selectorColor);
+				Renderer::drawRoundRect(pillMargin, mSelectorBarOffset + 1.0f, pillW, selectedRowHeight - 2.0f, menuRadius, selectorColor);
 			}
 			else if ((selectorColor != bgColor) && ((selectorColor & 0xFF) != 0x00))
 			{
@@ -293,7 +294,7 @@ float ComponentList::getRowHeight(const ComponentListRow& row) const
 			height = row.elements.at(i).component->getSize().y();
 	}
 
-	return height;
+	return height + ROW_VERT_PADDING_PX;
 }
 
 float ComponentList::getTotalRowHeight() const

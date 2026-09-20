@@ -314,7 +314,7 @@ Requires the custom EmulationStation build that reads screensaverClock.
 -->
    <view name="screen">
 	<text name="screensaverClock">
-	<fontPath>./fonts/BPreplay-Bold.otf</fontPath>
+	<fontPath>./fonts/BPreplay-Bold-Clock.otf</fontPath><!-- Bold with a vertically-centred ':' (screensaver only) -->
 	<fontSize>0.159</fontSize><!-- 100px time design ÷ 1.31 boost -> renders ~100px; date = 0.36x -->
     </text>
 	<!-- While charging, the date line becomes this battery icon + "NN% Charged". -->

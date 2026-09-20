@@ -275,7 +275,7 @@ namespace Renderer
 
 	} // swapBuffers
 
-	#define ROUNDING_PIECES 8.0f
+	#define ROUNDING_PIECES 32.0f   // segments per 90 deg corner (smooth large pills)
 
 	void drawGLRoundedCorner(float x, float y, double sa, double arc, float r, unsigned int color, std::vector<Vertex> &vertex)
 	{
