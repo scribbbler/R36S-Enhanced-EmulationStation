@@ -14,6 +14,11 @@ class TextureResource;
 // Battery state change callback type: level (0-100), charging (true/false)
 using BatteryStateCallback = std::function<void(int level, bool charging)>;
 
+// Fired once on the rising edge of charging (unplugged -> plugged): the charge
+// level and the themed charging icon. Lets the app decide how to present it
+// (e.g. the charging splash) instead of the component reaching into Window.
+using ChargingStartedCallback = std::function<void(int level, const std::string& icon)>;
+
 class ControllerActivityComponent : public GuiComponent
 {
 public:
@@ -49,7 +54,8 @@ public:
 	bool hasBattery() { return mBatteryInfo.hasBattery; }
 
 	void setBatteryStateCallback(BatteryStateCallback callback) { mBatteryStateCallback = callback; }
-	
+	void setChargingStartedCallback(ChargingStartedCallback callback) { mChargingStartedCallback = callback; }
+
 	// Force refresh network state (call after WiFi toggle)
 	void refreshNetworkState() { updateNetworkInfo(); }
 	
@@ -150,6 +156,7 @@ protected:
 	std::string mEmpty;
 
 	BatteryStateCallback mBatteryStateCallback;
+	ChargingStartedCallback mChargingStartedCallback;
 };
 
 #endif // ES_APP_COMPONENTS_RATING_COMPONENT_H

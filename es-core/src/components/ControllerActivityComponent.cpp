@@ -5,7 +5,6 @@
 #include "resources/TextureResource.h"
 #include "utils/StringUtil.h"
 #include "ThemeData.h"
-#include "Window.h"
 #include "InputManager.h"
 #include "Settings.h"
 #include "platform.h"
@@ -548,9 +547,11 @@ void ControllerActivityComponent::updateBatteryInfo()
 
 	mBatteryInfo = info;
 
-	// Large charging splash the moment charging starts (skip the very first reading).
-	if (hadBattery && !wasCharging && info.isCharging && mWindow != nullptr)
-		mWindow->showChargingScreen(mIncharge, info.level);
+	// Charging just started (skip the very first reading): emit the edge event and
+	// let the app decide how to present it. The component senses; it no longer
+	// reaches into Window to draw the charging splash itself.
+	if (hadBattery && !wasCharging && info.isCharging && mChargingStartedCallback)
+		mChargingStartedCallback(info.level, mIncharge);
 
 	// Notify callback about battery state change
 	if (mBatteryStateCallback && mBatteryInfo.hasBattery)

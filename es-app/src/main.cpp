@@ -534,6 +534,12 @@ int main(int argc, char* argv[])
 			LedControl::applyPowerLed();
 		});
 
+		// Show the large charging splash when charging starts. The battery
+		// component only reports the edge; the app owns this presentation policy.
+		window.getBatteryIndicator()->setChargingStartedCallback([&window](int level, const std::string& icon) {
+			window.showChargingScreen(icon, level);
+		});
+
 		if (splashScreen)
 			window.renderLoadingScreen(_("Loading..."));
 	}
