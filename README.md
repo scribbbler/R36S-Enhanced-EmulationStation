@@ -1,8 +1,11 @@
 # R36S Enhanced EmulationStation
 
-A modified EmulationStation build for **R36S / RK3326** handhelds running
-**ArkOS4Clone** that unlocks UI elements which previously couldn't be controlled
-through `theme.xml`.
+A modified EmulationStation build **developed and tested on an R36S clone running
+ArkOS4Clone**, adding `theme.xml` control over UI elements that were previously
+hardcoded.
+
+Looking for testers on **genuine R36S units and other RK3326 variants** — see
+[Compatibility](#compatibility).
 
 **Themes can now customise:** battery indicator · selection pills · menu UI ·
 screensaver clock · on‑screen keyboard · selector geometry · button‑hint bar ·
