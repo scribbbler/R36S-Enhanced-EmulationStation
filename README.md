@@ -14,8 +14,10 @@ screensaver clock · on‑screen keyboard · selector geometry · button‑hint 
 volume/brightness pop‑ups · icons · and more.
 
 Every addition is **opt‑in** — existing themes are unaffected unless they use the
-new properties. The bundled **Text UI** theme is included as a reference
-implementation; other theme authors can use the new properties in their own
+new properties. **Four themes** are bundled as reference implementations —
+**Text UI** (dark), **Text UI – Light**, **Text UI – iPod** (white, blue
+gradient selection bars) and **Min UI** (fit‑content pills, list‑style
+navigation); other theme authors can use the new properties in their own
 themes. See **[THEME‑EXTENSIONS.md](THEME-EXTENSIONS.md)** for the full list.
 
 > _Screenshots: **TODO** — add carousel / keyboard / screensaver / pop‑up captures here._
@@ -30,9 +32,10 @@ the stock binary is **automatically restored**. (Still keep an SD‑card backup.
 ## Features
 
 - **Battery indicator** — crisp rasterized icon, 21‑level (5%) SVG selection, and a themeable icon set + font/size via `<batteryIndicator>`.
-- **Pill‑shaped selectors** — theme‑driven rounded selection highlights for the carousel, gamelist and menu (`selectorColor`/`selectorRadius`/`selectorHeight`/`selectorWidth`, fit‑content mode, and `logoColor`/`logoSelectedColor` tinting).
+- **Pill‑shaped selectors** — theme‑driven rounded selection highlights for the carousel, gamelist and menu (`selectorColor`/`selectorRadius`/`selectorHeight`/`selectorWidth`, `logoColor`/`logoSelectedColor` tinting), with **vertical gradients** (`selectorColorEnd`, iPod‑style) and **fit‑content mode** (`selectorFitContent`/`selectorPadding` — the pill hugs the selected text, `selectorWidth` caps it).
+- **List‑style carousel navigation** (`listScroll`) — the selection walks the visible rows and the list scrolls only in between, like a gamelist, instead of the selection always sitting centered.
 - **Clock screensaver** (Select on the carousel) — themeable font/date, 12‑hour support, a lock icon while input is locked, and a battery icon + charge % while charging (`screensaverClock` / `screensaverBattery` / `screensaverLock`).
-- **On‑screen keyboard** — themeable SVG icons for backspace/enter/shift/alt, solid key fill + gap + corner radius, fixed grid width/position, a simplified two‑layer search layout, and footer button hints.
+- **On‑screen keyboard** — themeable SVG icons for backspace/enter/shift/alt, an **active‑shift icon** (`shiftActive`/`altActive`), a **key press flash** (`keyPressColor`/`keyPressMs`), solid key fill + gap + corner radius, fixed grid width/position, a simplified two‑layer search layout, and footer button hints.
 - **Themeable button‑hint bar** and **volume/brightness pop‑ups** — custom labels, icons, spacing and background via `<helpsystem>` / `<volumeIndicator>` / `<brightnessIndicator>`.
 - **FN + B screenshot** — saves a PNG to `/roms/screenshots`.
 - **Clock + battery on the menu** overlay, themeable **menu arrow** icons, and Title‑Cased custom collections.
@@ -42,7 +45,7 @@ the stock binary is **automatically restored**. (Still keep an SD‑card backup.
 ```
 es-app/, es-core/, …     the modified EmulationStation source
 r36s/
-  theme/Text UI/         the Text UI theme
+  theme/                 four bundled themes (Text UI, - Light, - iPod, Min UI)
   tools/                 on-device install/utility scripts (see below)
   docker/                Docker build environment + notes
 ```
@@ -53,9 +56,9 @@ r36s/
 2. Copy the tools onto your card:
    - `r36s/tools/*` → `/roms/tools/` (the ES **Options → Tools** menu)
    - the binary → `/roms/tools/es-custom/emulationstation.custom`
-   - `r36s/theme/Text UI` → `/roms/themes/Text UI`
+   - the theme folders you want from `r36s/theme/` → `/roms/themes/`
 3. On the device: **Menu → Options → Tools → Install Custom ES**. It backs up the stock binary, sanity‑checks the new one, installs it with a crash‑failsafe, and restarts EmulationStation. **Restore Stock ES** reverts.
-4. Select the **Text UI** theme in *UI Settings → Theme*.
+4. Pick one of the bundled themes in *UI Settings → Theme*.
 
 The installer only ever swaps `/usr/bin/emulationstation/emulationstation`; a crash within 15s of launch (that isn't an intentional restart/shutdown) auto‑restores the stock binary.
 
@@ -68,6 +71,9 @@ The installer only ever swaps `/usr/bin/emulationstation/emulationstation`; a cr
 | Battery Probe / Hardware Probe | dump battery / LED / display / input info |
 | LED Test 2 / LED Write Test | diagnose & set the power LED (clone driver needs manual mode) |
 | Copy ES Log | copy the ES logs to the card for inspection |
+| Install / Remove Game Overlays, Overlay Probe | RetroArch bezel overlays as per‑core overrides — see [`r36s/tools/overlays/`](r36s/tools/overlays/) |
+| Fix Config Saving | delete empty per‑core override files that make RetroArch refuse global config saves |
+| Enable RA Save On Quit | turn on RetroArch's save‑on‑quit directly in both configs |
 
 ## Compatibility
 
