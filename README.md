@@ -4,6 +4,12 @@ A modified EmulationStation build **developed and tested on an R36S clone runnin
 ArkOS4Clone**, adding `theme.xml` control over UI elements that were previously
 hardcoded.
 
+> 🎮 **Just want to use it?** Grab the one‑zip bundle from the
+> [Releases](../../releases) page, unzip it onto your ROMs card (it merges
+> `tools/` and `themes/` into place), then on the device run
+> **Options → Tools → Install Custom ES** and pick a **Mono** theme in
+> *UI Settings → Theme*. That's the whole install.
+
 > 🧪 **Community testing wanted** — this has only been verified on one R36S clone.
 > If you can run it on a **genuine R36S** or another **RK3326 / ArkOS variant**,
 > please [open an issue](../../issues) with your device, ArkOS version and panel
@@ -54,13 +60,20 @@ r36s/
 
 ## Install (prebuilt)
 
+**Easiest:** download the `mono-r36s-*.zip` bundle from
+[Releases](../../releases) and unzip it onto your ROMs card — it contains
+`tools/` (with the binary inside) and `themes/` in the right places. Then do
+steps 3–4 below.
+
+Manual equivalent:
+
 1. Grab `emulationstation.custom` from the [Releases](../../releases) page.
-2. Copy the tools onto your card:
+2. Copy the pieces onto your card:
    - `r36s/tools/*` → `/roms/tools/` (the ES **Options → Tools** menu)
    - the binary → `/roms/tools/es-custom/emulationstation.custom`
    - the theme folders you want from `r36s/theme/` → `/roms/themes/`
 3. On the device: **Menu → Options → Tools → Install Custom ES**. It backs up the stock binary, sanity‑checks the new one, installs it with a crash‑failsafe, and restarts EmulationStation. **Restore Stock ES** reverts.
-4. Pick one of the bundled themes in *UI Settings → Theme*.
+4. Pick one of the **Mono** themes in *UI Settings → Theme*.
 
 The installer only ever swaps `/usr/bin/emulationstation/emulationstation`; a crash within 15s of launch (that isn't an intentional restart/shutdown) auto‑restores the stock binary.
 
