@@ -54,11 +54,29 @@ for W in emulationstation.sh emulationstation.sh.es; do
   if grep -q "es-custom-failsafe" "$ESDIR/$W"; then
     log "clean failsafe applied to $W"
   else
-    log "WARNING: failsafe patch did not apply to $W (unexpected wrapper content)"
+    FAILSAFE_FAILED=1
+    log "ERROR: failsafe patch did not apply to $W (unexpected wrapper content)"
   fi
 done
 
+# If the failsafe could not be armed, this ArkOS build launcher differs from
+# the one we know - do NOT install a binary with no crash safety net. Restore
+# the original wrappers and abort with everything untouched.
+if [ "${FAILSAFE_FAILED:-0}" = "1" ]; then
+  for W in emulationstation.sh emulationstation.sh.es; do
+    [ -f "$ESDIR/$W.orig" ] && sudo cp -f "$ESDIR/$W.orig" "$ESDIR/$W"
+  done
+  sync
+  log "ABORTED: unknown launcher script; nothing was installed"
+  echo "Install aborted: this ArkOS build has a different ES launcher, so the"
+  echo "crash failsafe could not be armed. Nothing was changed."
+  echo "Please open a GitHub issue with your ArkOS version."
+  sleep 6
+  exit 1
+fi
+
 # 3) install the custom binary
+echo "Installing custom EmulationStation (stock backup + crash failsafe armed)..."
 sudo cp -f "$SRC/emulationstation.custom" "$ESDIR/emulationstation"
 sudo chmod 755 "$ESDIR/emulationstation"
 sync
