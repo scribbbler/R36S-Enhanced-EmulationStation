@@ -23,7 +23,7 @@ Super Min UI - Theme Color: Pink
 	<primaryColor>FF6090</primaryColor>
 	<secondaryColor>FF6090</secondaryColor>
     </textlist>
-    <text name="system_name">
+    <text name="logoText">
 	<color>FF6090</color>
     </text>
     </view>

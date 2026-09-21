@@ -23,7 +23,7 @@ Super Min UI - Theme Color: Green
 	<primaryColor>69F0AE</primaryColor>
 	<secondaryColor>69F0AE</secondaryColor>
     </textlist>
-    <text name="system_name">
+    <text name="logoText">
 	<color>69F0AE</color>
     </text>
     </view>

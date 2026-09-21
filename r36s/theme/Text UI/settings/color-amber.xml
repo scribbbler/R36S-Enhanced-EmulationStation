@@ -23,7 +23,7 @@ Super Min UI - Theme Color: Amber
 	<primaryColor>FFC107</primaryColor>
 	<secondaryColor>FFC107</secondaryColor>
     </textlist>
-    <text name="system_name">
+    <text name="logoText">
 	<color>FFC107</color>
     </text>
     </view>

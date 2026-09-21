@@ -23,7 +23,7 @@ Super Min UI - Theme Color: Cyan
 	<primaryColor>00E5FF</primaryColor>
 	<secondaryColor>00E5FF</secondaryColor>
     </textlist>
-    <text name="system_name">
+    <text name="logoText">
 	<color>00E5FF</color>
     </text>
     </view>

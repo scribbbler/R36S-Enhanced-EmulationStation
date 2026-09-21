@@ -24,7 +24,8 @@ themes. See **[THEME‑EXTENSIONS.md](THEME-EXTENSIONS.md)** for the full list.
 provides a **Restore Stock ES** tool. If the custom build crashes during startup,
 the stock binary is **automatically restored**. (Still keep an SD‑card backup.)
 
-> The separate **music player** for the R36S lives in its own repository.
+> The separate **music player** for the R36S lives in its own repository:
+> [R36S-Music-Player](https://github.com/scribbbler/R36S-Music-Player).
 
 ## Features
 
