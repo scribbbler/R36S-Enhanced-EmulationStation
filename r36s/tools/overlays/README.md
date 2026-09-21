@@ -42,9 +42,21 @@ All credit for the overlay artwork goes to **Jeltron**.
   anything it touches (`*.pre-overlay.bak` + a manifest), and is re-runnable. It
   also silences the "Configuration override loaded" toast.
 - **`Remove Game Overlays.sh`** — undoes the installer using the manifest
-  (restores backups / deletes files it created). Leaves the overlay art in place.
+  (restores backups / deletes files it created) and switches the global
+  Integer Scaling setting back off in both base RetroArch configs.
+  Leaves the overlay art in place.
 
 ## Notes / limitations
+
+- **Custom viewports are written in the panel's PORTRAIT coordinate space.**
+  The R36S screen is a portrait-native 480×640 panel rotated counter-clockwise
+  to landscape, and the ArkOS rk3326 RetroArch fork applies `custom_viewport`
+  before that rotation. Jeltron's landscape numbers written directly render
+  oversized and shifted right; the installer converts them
+  (`portrait_x = 480 − y − h, portrait_y = x`, sizes swapped), which was
+  calibrated and verified on-device. Aspect = Custom (23), integer scaling
+  off, bilinear off for GB / on for GBA — matching the author's intent
+  exactly, with unmodified overlay art.
 
 - Overrides target each system's **default core**. If you've switched a system
   to a non-default core, that system won't pick up the overlay until re-mapped.

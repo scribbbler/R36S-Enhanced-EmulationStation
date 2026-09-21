@@ -33,10 +33,12 @@ records match the stock build (Mali, not Mesa software GL).
 docker build -t es-build:eoan r36s/docker/
 # from the repo root (the ES source):
 docker run --rm -v "$PWD":/src es-build:eoan bash -lc '
-  cp -r /src /work && cd /work &&
+  cp -r /src /tmp/build && cd /tmp/build &&
   cmake -DGLES=ON . && make -j"$(nproc)" emulationstation &&
   aarch64-linux-gnu-strip -s emulationstation -o /src/emulationstation.custom
 '
+# (copy to a FRESH path - the image already has a /work dir, so
+#  "cp -r /src /work" would nest the source at /work/src and cmake fails)
 ```
 
 > Build **inside the container FS** (as above), not directly on an exFAT bind

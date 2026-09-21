@@ -26,17 +26,44 @@ mkdir -p /roms/tools/es-custom
 
   echo
   echo "########## current overlay settings in base cfg ##########"
-  grep -E '^(input_overlay|aspect_ratio_index|video_scale_integer|video_smooth|custom_viewport)' "$RACFG" 2>/dev/null
+  grep -E '^(input_overlay|aspect_ratio_index|video_scale_integer|video_smooth|custom_viewport|config_save_on_exit|video_fullscreen|video_window|video_driver|aspect_ratio_auto)' "$RACFG" 2>/dev/null
+  echo "-- same keys in retroarch32 base cfg --"
+  grep -E '^(input_overlay |aspect_ratio_index|video_scale_integer|video_smooth|custom_viewport|config_save_on_exit)' /home/ark/.config/retroarch32/retroarch.cfg 2>/dev/null
 
-  # resolve overlay_directory
+  echo
+  echo "########## display orientation (portrait-native panel?) ##########"
+  grep -E '^(video_rotation|screen_orientation|video_allow_rotate|video_fullscreen_x|video_fullscreen_y)' "$RACFG" 2>/dev/null
+  for m in /sys/class/drm/card*-*/modes; do
+    [ -f "$m" ] && echo "$m: $(head -3 "$m" | tr '\n' ' ')"
+  done
+  [ -f /sys/class/graphics/fb0/virtual_size ] && echo "fb0 virtual_size: $(cat /sys/class/graphics/fb0/virtual_size)"
+  command -v fbset >/dev/null && fbset -s 2>/dev/null | grep -E 'mode|geometry'
+
+  echo
+  echo "########## RetroArch version(s) ##########"
+  /usr/local/bin/retroarch --version 2>&1 | head -3
+  /usr/local/bin/retroarch32 --version 2>&1 | head -3
+
+  # resolve overlay_directory ('~' in the cfg needs manual expansion)
   OVDIR="$(grep -E '^overlay_directory ' "$RACFG" 2>/dev/null | sed 's/.*= *"//;s/"$//')"
+  OVDIR="${OVDIR/#\~//home/ark}"
   echo
   echo "########## overlay_directory = $OVDIR ##########"
   ls -la "$OVDIR" 2>/dev/null | head -40
 
   # resolve config_directory (per-core overrides live here)
   CFGDIR="$(grep -E '^rgui_config_directory ' "$RACFG" 2>/dev/null | sed 's/.*= *"//;s/"$//')"
+  CFGDIR="${CFGDIR/#\~//home/ark}"
   [ -z "$CFGDIR" ] && CFGDIR="$(dirname "$RACFG")/config"
+
+  echo
+  echo "########## per-core override file CONTENTS (what RA actually loads) ##########"
+  for f in "$CFGDIR/Gambatte/Gambatte.cfg" "$CFGDIR/Gambatte/gbc.cfg" "$CFGDIR/gpSP/gpSP.cfg" \
+           "$CFGDIR/FinalBurn Neo/FinalBurn Neo.cfg" "$CFGDIR/Nestopia/Nestopia.cfg"; do
+    echo "---- $f ----"
+    cat "$f" 2>/dev/null || echo "(missing)"
+    echo
+  done
   echo
   echo "########## override config dir = $CFGDIR (subfolders = core names) ##########"
   ls -la "$CFGDIR" 2>/dev/null | head -60
