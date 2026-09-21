@@ -12,7 +12,7 @@ Values follow the normal ES conventions:
 - **`COLOR`** — `RRGGBB` or `RRGGBBAA` hex.
 - **`PATH`** — file path relative to the theme folder (`./art/...`).
 
-All examples below are taken verbatim from the included **Text UI** reference
+All examples below are taken verbatim from the included **Mono Dark** reference
 theme, so they are known‑good on a 640×480 panel.
 
 > Screenshots: _TODO — add a capture next to each section._
@@ -91,7 +91,7 @@ so game lists and the main menu match.
 
 The on‑screen button‑hint bar, made fully theme‑driven: custom labels, custom
 button icons, spacing, a rounded background "pill", and per‑view visibility.
-Text UI uses it to render two fixed‑width pills.
+Mono Dark uses it to render two fixed‑width pills.
 
 | Property | Type | Notes |
 |---|---|---|
@@ -239,11 +239,11 @@ while charging, the clock/date are swapped for the battery icon + charge %.
 
 | Property | Element(s) | Type | Notes |
 |---|---|---|---|
-| `selectorColorEnd` | carousel, textlist, menuText | COLOR | Bottom color of a vertical gradient on the selection pill (works with any corner radius). Equal to `selectorColor` (or unset) = solid. The **Text UI – iPod** theme uses it for the classic blue iPod bar. |
+| `selectorColorEnd` | carousel, textlist, menuText | COLOR | Bottom color of a vertical gradient on the selection pill (works with any corner radius). Equal to `selectorColor` (or unset) = solid. The **Mono Classic** theme uses it for the classic blue iPod bar. |
 | `selectorFitContent` | carousel, textlist | BOOLEAN | The pill hugs the selected text instead of spanning a fixed width. On the carousel the pad around the text is `selectorPadding`; on the textlist it is `horizontalMargin`. |
 | `selectorPadding` | carousel | FLOAT | Horizontal pad (fraction of screen height) around the text in fit mode. Unset = 0.30 × pill height. |
 | `selectorWidth` | carousel | FLOAT | In fit mode this becomes the pill's **maximum** width. |
-| `listScroll` | carousel | BOOLEAN | Gamelist-style navigation: the selection walks the visible slots (top → middle → bottom at the ends) and the list scrolls only in between, instead of the selection always sitting centered. See the **Min UI** theme. |
+| `listScroll` | carousel | BOOLEAN | Gamelist-style navigation: the selection walks the visible slots (top → middle → bottom at the ends) and the list scrolls only in between, instead of the selection always sitting centered. See the **Mono Fit** themes. |
 
 ## Keyboard press feedback & active shift  ·  `keyboard` · view: `screen`
 

@@ -14,11 +14,13 @@ screensaver clock · on‑screen keyboard · selector geometry · button‑hint 
 volume/brightness pop‑ups · icons · and more.
 
 Every addition is **opt‑in** — existing themes are unaffected unless they use the
-new properties. **Four themes** are bundled as reference implementations —
-**Text UI** (dark), **Text UI – Light**, **Text UI – iPod** (white, blue
-gradient selection bars) and **Min UI** (fit‑content pills, list‑style
-navigation); other theme authors can use the new properties in their own
-themes. See **[THEME‑EXTENSIONS.md](THEME-EXTENSIONS.md)** for the full list.
+new properties. The **Mono theme family** is bundled as the reference
+implementation — **Mono Dark**, **Mono Light**, and **Mono Fit Dark** /
+**Mono Fit Light** (a fit‑content capsule that hugs the selected name, with
+list‑style navigation), plus the work‑in‑progress **Mono Classic** (white,
+blue gradient selection bars, iPod‑style); other theme authors can use the new
+properties in their own themes. See
+**[THEME‑EXTENSIONS.md](THEME-EXTENSIONS.md)** for the full list.
 
 > _Screenshots: **TODO** — add carousel / keyboard / screensaver / pop‑up captures here._
 
@@ -45,7 +47,7 @@ the stock binary is **automatically restored**. (Still keep an SD‑card backup.
 ```
 es-app/, es-core/, …     the modified EmulationStation source
 r36s/
-  theme/                 four bundled themes (Text UI, - Light, - iPod, Min UI)
+  theme/                 the Mono theme family (Dark, Light, Fit Dark, Fit Light, Classic [WIP])
   tools/                 on-device install/utility scripts (see below)
   docker/                Docker build environment + notes
 ```
