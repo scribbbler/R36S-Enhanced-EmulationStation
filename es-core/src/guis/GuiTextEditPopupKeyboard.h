@@ -58,7 +58,11 @@ private:
 	// Themed SVG icon paths for the special keys (empty => use built-in Unicode glyph)
 	std::string mIconBackspace;
 	std::string mIconEnter;
+	unsigned int mKeyPressColor = 0;
+	int mKeyPressMs = 100;
 	std::string mIconShift;
+	std::string mIconShiftActive;
+	std::string mIconAltActive;
 	std::string mIconAlt;
 	float mIconSizePx = 0.0f; // fixed on-screen icon side length (px); theme 'iconSize' fraction * screen height
 	float mKbWidthPx = 0.0f;  // fixed key-grid width (px); theme 'width' fraction * screen width. <=0 => default padding-based width

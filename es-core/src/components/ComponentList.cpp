@@ -3,8 +3,8 @@
 #include "components/TextComponent.h"
 #include "Log.h"
 
-#define TOTAL_HORIZONTAL_PADDING_PX 40   // text inset = 20px (design)
-#define ROW_VERT_PADDING_PX 8            // taller rows -> ~38px pitch (design)
+#define TOTAL_HORIZONTAL_PADDING_PX 44   // text inset = 22px (rendered Figma v3)
+#define ROW_VERT_PADDING_PX 3            // ~38px pitch with the 23px v3 font (text comp ~35px)
 
 ComponentList::ComponentList(Window* window) : IList<ComponentListRow, void*>(window, LIST_SCROLL_STYLE_SLOW, LIST_NEVER_LOOP)
 {
@@ -246,9 +246,12 @@ void ComponentList::render(const Transform4x4f& parentTrans)
 				// pass, like the gamelist/carousel). Note we do NOT gate on
 				// selectorColor != bgColor here -- a white pill on a white-tinted
 				// menu background is valid and the old guard skipped it entirely.
-				float pillMargin = 8.0f;   // 8px side margins (design)
+				float pillMargin = 10.0f;  // v2: 10px side margins (rendered Figma: pill x 10..630)
 				float pillW = mSize.x() - 2.0f * pillMargin;
-				Renderer::drawRoundRect(pillMargin, mSelectorBarOffset + 1.0f, pillW, selectedRowHeight - 2.0f, menuRadius, selectorColor);
+				if (selectorGradientColor != selectorColor)
+					Renderer::drawRoundRectVGradient(pillMargin, mSelectorBarOffset + 1.0f, pillW, selectedRowHeight - 2.0f, menuRadius, selectorColor, selectorGradientColor);
+				else
+					Renderer::drawRoundRect(pillMargin, mSelectorBarOffset + 1.0f, pillW, selectedRowHeight - 2.0f, menuRadius, selectorColor);
 			}
 			else if ((selectorColor != bgColor) && ((selectorColor & 0xFF) != 0x00))
 			{

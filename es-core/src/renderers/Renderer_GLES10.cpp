@@ -435,6 +435,49 @@ namespace Renderer
 		delete[] vxs;	
 	}
 
+	// Vertical-gradient rounded rect: per-vertex color is linear in y, so
+	// triangle interpolation reproduces the gradient exactly.
+	void drawRoundRectVGradient(float x, float y, float width, float height, float radius, unsigned int colorTop, unsigned int colorBottom, const Blend::Factor _srcBlendFactor, const Blend::Factor _dstBlendFactor)
+	{
+		std::vector<Vertex> vertex;
+		const unsigned int seed = convertColor(colorTop);
+		drawGLRoundedCorner(x, y + radius, 3.0f * ES_PI / 2.0f, ES_PI / 2.0f, radius, seed, vertex);
+		drawGLRoundedCorner(x + width - radius, y, 0.0, ES_PI / 2.0f, radius, seed, vertex);
+		drawGLRoundedCorner(x + width, y + height - radius, ES_PI / 2.0f, ES_PI / 2.0f, radius, seed, vertex);
+		drawGLRoundedCorner(x + radius, y + height, ES_PI, ES_PI / 2.0f, radius, seed, vertex);
+
+		Vertex* vxs = new Vertex[vertex.size()];
+		for (int i = 0; i < vertex.size(); i++)
+		{
+			vxs[i] = vertex[i];
+			float t = (height > 0.0f) ? (vxs[i].pos.y() - y) / height : 0.0f;
+			t = t < 0.0f ? 0.0f : (t > 1.0f ? 1.0f : t);
+			vxs[i].col = convertColor(mixColors(colorTop, colorBottom, t));
+		}
+
+		bindTexture(0);
+		glEnable(GL_BLEND);
+		glBlendFunc(convertBlendFactor(_srcBlendFactor), convertBlendFactor(_dstBlendFactor));
+
+		glEnableClientState(GL_VERTEX_ARRAY);
+		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+		glEnableClientState(GL_COLOR_ARRAY);
+
+		glVertexPointer(2, GL_FLOAT, sizeof(Vertex), &vxs[0].pos);
+		glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), &vxs[0].tex);
+		glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(Vertex), &vxs[0].col);
+
+		glDrawArrays(GL_TRIANGLE_FAN, 0, vertex.size());
+
+		glDisableClientState(GL_COLOR_ARRAY);
+		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+		glDisableClientState(GL_VERTEX_ARRAY);
+
+		delete[] vxs;
+
+		glDisable(GL_BLEND);
+	}
+
 	void enableRoundCornerStencil(float x, float y, float width, float height, float radius)
 	{
 		bool tx = glIsEnabled(GL_TEXTURE_2D);

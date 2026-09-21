@@ -124,7 +124,9 @@ void HelpComponent::updateGrid()
 	for(const auto& p : mPrompts)
 	{
 		const std::string& b = p.first;
-		bool action = (b == "a" || b == "b" || b == "x" || b == "y" || b == "l" || b == "r");
+		// v2 design: X/Y live in the LEFT pill; only A/B (and shoulder buttons)
+		// go to the right pill.
+		bool action = (b == "a" || b == "b" || b == "l" || b == "r");
 		if(action)
 			rightPrompts.push_back(p);
 		else

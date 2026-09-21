@@ -24,6 +24,8 @@ public:
 	void setText(const std::string& text, const std::string& helpText, bool upperCase = true);
 	void setIcon(const std::string& path, float pixelSize = 0.0f); // render an SVG/PNG icon (fixed size) instead of the text label
 	void setKeyFill(unsigned int unfocusedBackColor, float insetPx = 0.0f, float radiusPx = 0.0f); // solid rounded-rect fill (both states) inset by insetPx, dark unfocused background; text colors unchanged
+	void setPressFlash(unsigned int color, int durationMs = 250); // briefly tint the key background on every press
+	void update(int deltaTime) override;
 
 	inline const std::string& getText() const { return mText; };
 	inline const std::function<void()>& getPressedFunc() const { return mPressedFunc; };
@@ -53,6 +55,9 @@ private:
 	bool mRoundRectFill = false;         // draw the background as a solid rounded-rect (drawRoundRect) instead of the ninepatch
 	float mKeyInset = 0.0f;              // inset (px) of the rounded-rect fill on every side => gap between keys is 2x this
 	float mCornerRadius = 0.0f;          // rounded-rect corner radius in px
+	unsigned int mPressFlashColor = 0;   // alpha 0 = press flash disabled
+	int mPressFlashMs = 0;               // configured flash duration
+	int mPressFlashTimer = 0;            // remaining flash time
 	bool mRenderNonFocusedBackground;
 
 	Vector4f	mPadding;

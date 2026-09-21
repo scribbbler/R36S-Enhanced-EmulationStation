@@ -44,6 +44,8 @@ bool ButtonComponent::input(InputConfig* config, Input input)
 {
 	if(config->isMappedTo(BUTTON_OK, input) && input.value != 0)
 	{
+		if ((mPressFlashColor & 0xFF) != 0)
+			mPressFlashTimer = mPressFlashMs;
 		if(mPressedFunc && mEnabled)
 			mPressedFunc();
 		return true;
@@ -195,8 +197,24 @@ unsigned int ButtonComponent::getCurTextColor() const
 		return mTextColorFocused;
 }
 
+void ButtonComponent::setPressFlash(unsigned int color, int durationMs)
+{
+	mPressFlashColor = color;
+	mPressFlashMs = durationMs;
+}
+
+void ButtonComponent::update(int deltaTime)
+{
+	if (mPressFlashTimer > 0)
+		mPressFlashTimer -= deltaTime;
+
+	GuiComponent::update(deltaTime);
+}
+
 unsigned int ButtonComponent::getCurBackColor() const
 {
+	if (mPressFlashTimer > 0 && (mPressFlashColor & 0xFF) != 0)
+		return mPressFlashColor;
 	if (!mFocused)
 		return mColor;
 	else

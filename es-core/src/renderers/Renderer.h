@@ -114,6 +114,8 @@ namespace Renderer
 
 
 	void drawRoundRect(float x, float y, float w, float h, float radius, unsigned int color, const Blend::Factor _srcBlendFactor = Blend::SRC_ALPHA, const Blend::Factor _dstBlendFactor = Blend::ONE_MINUS_SRC_ALPHA);
+	// rounded rect with a vertical top->bottom color gradient (iPod-style pills)
+	void drawRoundRectVGradient(float x, float y, float w, float h, float radius, unsigned int colorTop, unsigned int colorBottom, const Blend::Factor _srcBlendFactor = Blend::SRC_ALPHA, const Blend::Factor _dstBlendFactor = Blend::ONE_MINUS_SRC_ALPHA);
 
 	void enableRoundCornerStencil(float x, float y, float size_x, float size_y, float radius);
 	void disableStencil();

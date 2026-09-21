@@ -138,8 +138,12 @@ GuiTextEditPopupKeyboard::GuiTextEditPopupKeyboard(Window* window, const std::st
 				mIconEnter = kb->get<std::string>("enter");
 			if (kb->has("shift") && ResourceManager::getInstance()->fileExists(kb->get<std::string>("shift")))
 				mIconShift = kb->get<std::string>("shift");
+			if (kb->has("shiftActive") && ResourceManager::getInstance()->fileExists(kb->get<std::string>("shiftActive")))
+				mIconShiftActive = kb->get<std::string>("shiftActive");
 			if (kb->has("alt") && ResourceManager::getInstance()->fileExists(kb->get<std::string>("alt")))
 				mIconAlt = kb->get<std::string>("alt");
+			if (kb->has("altActive") && ResourceManager::getInstance()->fileExists(kb->get<std::string>("altActive")))
+				mIconAltActive = kb->get<std::string>("altActive");
 			if (kb->has("iconSize"))
 				mIconSizePx = Renderer::getScreenHeight() * kb->get<float>("iconSize");
 			if (kb->has("width"))
@@ -149,6 +153,10 @@ GuiTextEditPopupKeyboard::GuiTextEditPopupKeyboard(Window* window, const std::st
 				mKeyFillColor = kb->get<unsigned int>("keyColor");
 				mHasKeyFill = true;
 			}
+			if (kb->has("keyPressColor"))
+				mKeyPressColor = kb->get<unsigned int>("keyPressColor");
+			if (kb->has("keyPressMs"))
+				mKeyPressMs = (int)kb->get<float>("keyPressMs");
 			if (kb->has("posY"))
 				mKbTopPx = Renderer::getScreenHeight() * kb->get<float>("posY");
 			if (kb->has("keySpacing"))
@@ -266,6 +274,8 @@ GuiTextEditPopupKeyboard::GuiTextEditPopupKeyboard(Window* window, const std::st
 				{
 					float inset = (mKeyPadPx >= 0.0f) ? mKeyPadPx : (BUTTON_GRID_HORIZ_PADDING / 4.0f);
 					button->setKeyFill(mKeyFillColor, inset, mKeyRadiusPx);
+					if ((mKeyPressColor & 0xFF) != 0)
+						button->setPressFlash(mKeyPressColor, mKeyPressMs);
 				}
 				buttons.push_back(button);
 
@@ -490,7 +500,16 @@ void GuiTextEditPopupKeyboard::toggleKeyState(bool& state, std::shared_ptr<Butto
 {
 	state = !state;
 
-	if (state)
+	// Themed active-state icon (shiftActive / altActive): swap the icon and
+	// skip the legacy red tint - the icon itself conveys the state.
+	const std::string& normalIcon = (button == mShiftButton) ? mIconShift    : mIconAlt;
+	const std::string& activeIcon = (button == mShiftButton) ? mIconShiftActive : mIconAltActive;
+
+	if (!activeIcon.empty() && !normalIcon.empty())
+	{
+		button->setIcon(state ? activeIcon : normalIcon, mIconSizePx);
+	}
+	else if (state)
 	{
 		button->setRenderNonFocusedBackground(true);
 		button->setColorShift(0xFF0000FF);

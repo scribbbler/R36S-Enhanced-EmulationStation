@@ -233,6 +233,32 @@ while charging, the clock/date are swapped for the battery icon + charge %.
 
 ---
 
+---
+
+## Gradient & fit-content selectors  ·  `carousel` / `textlist` / `menuText`
+
+| Property | Element(s) | Type | Notes |
+|---|---|---|---|
+| `selectorColorEnd` | carousel, textlist, menuText | COLOR | Bottom color of a vertical gradient on the selection pill (works with any corner radius). Equal to `selectorColor` (or unset) = solid. The **Text UI – iPod** theme uses it for the classic blue iPod bar. |
+| `selectorFitContent` | carousel, textlist | BOOLEAN | The pill hugs the selected text instead of spanning a fixed width. On the carousel the pad around the text is `selectorPadding`; on the textlist it is `horizontalMargin`. |
+| `selectorPadding` | carousel | FLOAT | Horizontal pad (fraction of screen height) around the text in fit mode. Unset = 0.30 × pill height. |
+| `selectorWidth` | carousel | FLOAT | In fit mode this becomes the pill's **maximum** width. |
+| `listScroll` | carousel | BOOLEAN | Gamelist-style navigation: the selection walks the visible slots (top → middle → bottom at the ends) and the list scrolls only in between, instead of the selection always sitting centered. See the **Min UI** theme. |
+
+## Keyboard press feedback & active shift  ·  `keyboard` · view: `screen`
+
+| Property | Type | Notes |
+|---|---|---|
+| `shiftActive` / `altActive` | PATH | Alternate icon shown while shift/alt is engaged (e.g. a filled arrow). When set, replaces the legacy red tint. |
+| `keyPressColor` | COLOR | Key background flash color on every key press. |
+| `keyPressMs` | FLOAT | Flash duration in milliseconds (default 100). |
+
+## Text `padding` on the carousel name  ·  `logoText`
+
+The carousel's `logoText` now honours the standard text `padding` property
+(`left top right bottom`, screen fractions) for fine vertical nudges — e.g.
+`<padding>0 0 0 0.0041667</padding>` lifts the vertically-centred name 1px.
+
 _These properties are additive and version‑tolerant: unknown properties are
 ignored by stock builds, and unset properties fall back to the built‑in
 behaviour here, so a theme using them stays usable on either frontend._

@@ -16,7 +16,7 @@ std::shared_ptr<ComponentGrid> makeButtonGrid(Window* window, const std::vector<
 std::shared_ptr<ComponentGrid> makeMultiDimButtonGrid(Window* window, const std::vector< std::vector< std::shared_ptr<ButtonComponent> > >& buttons, float outerWidth);
 std::shared_ptr<ImageComponent> makeArrow(Window* window);
 
-#define TITLE_VERT_PADDING (Renderer::getScreenHeight()*0.0637f)
+#define TITLE_VERT_PADDING (Renderer::getScreenHeight()*0.0617f) // v2: first menu row at y=47 (rendered Figma)
 #define TITLE_WITHSUB_VERT_PADDING (Renderer::getScreenHeight()*0.05f)
 #define SUBTITLE_VERT_PADDING (Renderer::getScreenHeight()*0.019f)
 

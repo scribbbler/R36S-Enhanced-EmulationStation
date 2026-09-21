@@ -233,7 +233,10 @@ void SystemView::populate()
 				0x000000FF,
 				ALIGN_CENTER);
 			text->setSize(mCarousel.logoSize * mCarousel.logoScale);
-			text->applyTheme((*it)->getTheme(), "system", "logoText", ThemeFlags::FONT_PATH | ThemeFlags::FONT_SIZE | ThemeFlags::COLOR | ThemeFlags::FORCE_UPPERCASE | ThemeFlags::LINE_SPACING | ThemeFlags::TEXT);
+			// ALIGNMENT also unlocks <padding> for fine vertical nudges; the
+			// carousel re-applies its own h/v alignment below, so only the
+			// padding from the theme survives.
+			text->applyTheme((*it)->getTheme(), "system", "logoText", ThemeFlags::FONT_PATH | ThemeFlags::FONT_SIZE | ThemeFlags::COLOR | ThemeFlags::FORCE_UPPERCASE | ThemeFlags::LINE_SPACING | ThemeFlags::TEXT | ThemeFlags::ALIGNMENT);
 			e.data.logo = std::shared_ptr<GuiComponent>(text);
 
 			if (mCarousel.type == VERTICAL || mCarousel.type == VERTICAL_WHEEL)
@@ -677,6 +680,18 @@ void SystemView::onCursorChanged(const CursorState& /*state*/)
 	if(abs(target - posMax - startPos) < dist)
 		endPos = target - posMax; // loop around the start (max - 1 -> -1)
 
+	// gamelist-style navigation: the camera is a clamped scroll offset, the
+	// cursor walks the visible slots (top -> middle -> bottom at the end).
+	if (mCarousel.listScroll)
+	{
+		int centerSlot = (mCarousel.maxLogoCount - 1) / 2;
+		float maxCam = (float)((int)mEntries.size() - mCarousel.maxLogoCount);
+		if (maxCam < 0.0f) maxCam = 0.0f;
+		endPos = (float)mCursor - (float)centerSlot;
+		if (endPos < 0.0f) endPos = 0.0f;
+		if (endPos > maxCam) endPos = maxCam;
+	}
+
 	// animate mSystemInfo's opacity (fade out, wait, fade back in)
 
 	cancelAnimation(1);
@@ -886,14 +901,12 @@ std::vector<HelpPrompt> SystemView::getHelpPrompts()
 	if (mClockSaverActive)
 		return prompts; // no help bar while the clock screensaver is showing
 
-	// R36S Text UI: only Select, Start, Y, X (ordered so the left pill reads
-	// Clock/Menu and the right pill reads Search/Random). No Choose / A-launch.
-	if (!UIModeController::getInstance()->isUIModeKid())
-		prompts.push_back(HelpPrompt("select", _("CLOCK SCREENSAVER")));
-	prompts.push_back(HelpPrompt("start", _("MENU")));
-	if (SystemData::getSystem("all") != nullptr)
-		prompts.push_back(HelpPrompt("y", _("SEARCH"))); // QUICK
+	// R36S Text UI v2: X Random + Y Favorite (left pill), A Open (right pill).
+	// Select (clock) and Start (menu) still work but show no chip, per design.
 	prompts.push_back(HelpPrompt("x", _("RANDOM")));
+	if (SystemData::getSystem("all") != nullptr)
+		prompts.push_back(HelpPrompt("y", _("SEARCH")));
+	prompts.push_back(HelpPrompt("a", _("OPEN")));
 
 	return prompts;
 }
@@ -990,7 +1003,7 @@ void SystemView::renderCarousel(const Transform4x4f& trans)
 			: (mCarousel.logoSize.y() * mCarousel.logoScale);
 		float itemH = mCarousel.logoSize.y() * mCarousel.logoScale;
 		float pillW, pillX, pillY;
-		if (mCarousel.selectorWidth > 0.0f)
+		if (mCarousel.selectorWidth > 0.0f && !mCarousel.selectorFitContent)
 		{
 			// Fixed pill width: centered (or at logoPos.x), tracking the selected row.
 			pillW = mCarousel.selectorWidth;
@@ -998,17 +1011,21 @@ void SystemView::renderCarousel(const Transform4x4f& trans)
 				: (mCarousel.size.x() - pillW) / 2.0f;
 			float selTop = (vertical && mCarousel.logoPos.y() >= 0) ? mCarousel.logoPos.y()
 				: (mCarousel.size.y() - itemH) / 2.0f;
+			if (mCarousel.listScroll)
+				selTop += ((float)mCursor - mCamOffset - (float)((mCarousel.maxLogoCount - 1) / 2))
+					* (mCarousel.size.y() / (float)mCarousel.maxLogoCount);
 			pillY = selTop + (itemH - pillH) / 2.0f;
 		}
 		else if (mCarousel.selectorFitContent)
 		{
 			// Left-aligned list pill hugging the selected item. Measure the
 			// selected text's actual width so the pill varies per system.
-			float pad = pillH * 0.30f; // horizontal breathing room around the text
+			float pad = (mCarousel.selectorPadding >= 0.0f) ? mCarousel.selectorPadding
+				: (pillH * 0.30f); // horizontal breathing room around the text
 			float contentW = mCarousel.logoSize.x() * mCarousel.logoScale; // fallback (box width)
 			if (!mEntries.empty())
 			{
-				int sel = (int)Math::round(mCamOffset);
+				int sel = mCarousel.listScroll ? mCursor : (int)Math::round(mCamOffset);
 				int n = (int)mEntries.size();
 				sel = ((sel % n) + n) % n;
 				if (TextComponent* tc = dynamic_cast<TextComponent*>(mEntries.at(sel).data.logo.get()))
@@ -1016,11 +1033,19 @@ void SystemView::renderCarousel(const Transform4x4f& trans)
 						contentW = tc->getFont()->sizeText(tc->getText()).x() * mCarousel.logoScale;
 			}
 			pillW = contentW + 2.0f * pad;
-			// left-aligned list when logoPos.x is set, else centered
-			pillX = (mCarousel.logoPos.x() >= 0) ? (mCarousel.logoPos.x() - pad)
+			if (mCarousel.selectorWidth > 0.0f && pillW > mCarousel.selectorWidth)
+				pillW = mCarousel.selectorWidth; // selectorWidth acts as the max width in fit mode
+			// anchor: explicit logoPos.x, else the left-aligned text inset
+			// (logoSize.x / 10, same formula the item layout uses), else centered
+			float anchorX = (mCarousel.logoPos.x() >= 0) ? mCarousel.logoPos.x()
+				: ((mCarousel.logoAlignment == ALIGN_LEFT && vertical) ? (mCarousel.logoSize.x() / 10.0f) : -1.0f);
+			pillX = (anchorX >= 0.0f) ? (anchorX - pad)
 				: (mCarousel.size.x() - pillW) / 2.0f;
 			float selTop = (vertical && mCarousel.logoPos.y() >= 0) ? mCarousel.logoPos.y()
 				: (mCarousel.size.y() - itemH) / 2.0f;
+			if (mCarousel.listScroll)
+				selTop += ((float)mCursor - mCamOffset - (float)((mCarousel.maxLogoCount - 1) / 2))
+					* (mCarousel.size.y() / (float)mCarousel.maxLogoCount);
 			pillY = selTop + (itemH - pillH) / 2.0f;
 		}
 		else
@@ -1032,7 +1057,10 @@ void SystemView::renderCarousel(const Transform4x4f& trans)
 			pillY = (mCarousel.size.y() - pillH) / 2.0f;
 		}
 		float radius = mCarousel.selectorRadius >= 0.0f ? mCarousel.selectorRadius : pillH * 0.5f;
-		Renderer::drawRoundRect(pillX, pillY, pillW, pillH, radius, mCarousel.selectorColor);
+		if (mCarousel.selectorColorEnd != mCarousel.selectorColor)
+			Renderer::drawRoundRectVGradient(pillX, pillY, pillW, pillH, radius, mCarousel.selectorColor, mCarousel.selectorColorEnd);
+		else
+			Renderer::drawRoundRect(pillX, pillY, pillW, pillH, radius, mCarousel.selectorColor);
 	}
 
 	// draw logos
@@ -1091,7 +1119,15 @@ void SystemView::renderCarousel(const Transform4x4f& trans)
 	if (mCarousel.logoPos.y() >= 0)
 		yOff = mCarousel.logoPos.y() - (mCarousel.type == VERTICAL ? (mCamOffset * logoSpacing[1]) : 0);
 
+	// list-scroll mode: the camera no longer centers the cursor, so anchor the
+	// strip such that entry index == camOffset sits in the TOP slot.
+	if (mCarousel.listScroll && mCarousel.type == VERTICAL)
+		yOff = (mCarousel.size.y() - mCarousel.logoSize.y()) / 2.f
+			- ((mCamOffset + (float)((mCarousel.maxLogoCount - 1) / 2)) * logoSpacing[1]);
+
 	int center = (int)(mCamOffset);
+	if (mCarousel.listScroll)
+		center += (mCarousel.maxLogoCount - 1) / 2;
 	int logoCount = Math::min(mCarousel.maxLogoCount, (int)mEntries.size());
 
 	// Adding texture loading buffers depending on scrolling speed and status
@@ -1134,7 +1170,8 @@ void SystemView::renderCarousel(const Transform4x4f& trans)
 		// recolor cleanly); fall back to the generic setColor for text logos.
 		if (mCarousel.logoSelectedColor != 0x00000000)
 		{
-			unsigned int tint = (fabs(distance) < 0.5f) ? mCarousel.logoSelectedColor : mCarousel.logoColor;
+			bool isSelected = mCarousel.listScroll ? (index == mCursor) : (fabs(distance) < 0.5f);
+			unsigned int tint = isSelected ? mCarousel.logoSelectedColor : mCarousel.logoColor;
 			if (ImageComponent* img = dynamic_cast<ImageComponent*>(comp.get()))
 			{
 				img->setColorShift(tint);
@@ -1401,6 +1438,9 @@ void  SystemView::getDefaultElements(void)
 	mCarousel.scrollSound = "";
 	mCarousel.defaultTransition = "";
 	mCarousel.selectorColor = 0x00000000; // disabled unless the theme sets it
+	mCarousel.selectorColorEnd = 0x00000000;
+	mCarousel.selectorPadding = -1.0f;
+	mCarousel.listScroll = false;
 	mCarousel.selectorRadius = -1.0f;     // auto (half height)
 	mCarousel.selectorHeight = -1.0f;     // auto (logoSize.y * logoScale)
 	mCarousel.selectorFitContent = false; // full-width centered pill by default
@@ -1468,13 +1508,22 @@ void SystemView::getCarouselFromTheme(const ThemeData::ThemeElement* elem)
 	if (elem->has("maxLogoCount"))
 		mCarousel.maxLogoCount = (int)Math::round(elem->get<float>("maxLogoCount"));
 	if (elem->has("selectorColor"))
+	{
 		mCarousel.selectorColor = elem->get<unsigned int>("selectorColor");
+		mCarousel.selectorColorEnd = mCarousel.selectorColor;
+	}
+	if (elem->has("selectorColorEnd"))
+		mCarousel.selectorColorEnd = elem->get<unsigned int>("selectorColorEnd");
 	if (elem->has("selectorRadius"))
 		mCarousel.selectorRadius = elem->get<float>("selectorRadius") * mSize.y();
 	if (elem->has("selectorHeight"))
 		mCarousel.selectorHeight = elem->get<float>("selectorHeight") * mSize.y();
+	if (elem->has("selectorPadding"))
+		mCarousel.selectorPadding = elem->get<float>("selectorPadding") * mSize.y();
 	if (elem->has("selectorFitContent"))
 		mCarousel.selectorFitContent = elem->get<bool>("selectorFitContent");
+	if (elem->has("listScroll"))
+		mCarousel.listScroll = elem->get<bool>("listScroll");
 	if (elem->has("selectorWidth"))
 		mCarousel.selectorWidth = elem->get<float>("selectorWidth") * mSize.x();
 	if (elem->has("logoColor"))

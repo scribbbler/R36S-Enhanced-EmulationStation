@@ -225,24 +225,16 @@ std::vector<HelpPrompt> BasicGameListView::getHelpPrompts()
 {
 	std::vector<HelpPrompt> prompts;
 
-	// R36S Text UI: only Select, Start, Y, X (ordered so the left pill reads
-	// Options/Menu and the right pill reads Favorite/Random). No Choose/Launch/Back.
-	if(!UIModeController::getInstance()->isUIModeKid())
-		prompts.push_back(HelpPrompt("select", _("OPTIONS")));
-
-	prompts.push_back(HelpPrompt("start", _("MENU")));
-
-	if(mRoot->getSystem()->isGameSystem() && !UIModeController::getInstance()->isUIModeKid())
-	{
-		std::string prompt = CollectionSystemManager::get()->getEditingCollection();
-		if (prompt == "Favorites")
-			prompt = _("FAVORITE");
-
-		prompts.push_back(HelpPrompt("y", prompt));
-	}
-
+	// R36S Text UI v2: X Random + Y Search (left pill), B Back + A Launch
+	// (right pill). Select/Start still work but show no chip, per design.
 	if(mRoot->getSystem()->isGameSystem())
 		prompts.push_back(HelpPrompt("x", _("RANDOM")));
+
+	if(mRoot->getSystem()->isGameSystem() && !UIModeController::getInstance()->isUIModeKid())
+		prompts.push_back(HelpPrompt("y", _("FAVORITE")));
+
+	prompts.push_back(HelpPrompt("b", _("BACK")));
+	prompts.push_back(HelpPrompt("a", _("LAUNCH")));
 
 	return prompts;
 }

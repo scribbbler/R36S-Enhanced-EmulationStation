@@ -100,6 +100,7 @@ private:
 	float mLineSpacing;
 	float mSelectorHeight;
 	float mSelectorOffsetY;
+	bool mFitContent = false;            // pill hugs the selected text (+2x horizontalMargin), capped at box width
 	float mCornerRadius = 0.0f; // pill selector corner radius in px; 0 = auto (height/2)
 	unsigned int mSelectorColor;
 	unsigned int mSelectorColorEnd;
@@ -189,16 +190,27 @@ void TextListComponent<T>::render(const Transform4x4f& parentTrans)
 		} else {
 			Renderer::setMatrix(trans);
 			float selY = (mCursor - startEntry)*entrySize + mSelectorOffsetY;
+			float selW = mSize.x();
+			if (mFitContent)
+			{
+				auto& sel = mEntries.at((unsigned int)mCursor);
+				if (sel.data.textCache)
+					selW = Math::min(sel.data.textCache->metrics.size.x() + 2.0f * mHorizontalMargin, mSize.x());
+			}
 			if (mCornerRadius > 0.0f)
 			{
 				// Pill spans the full list-box width; the theme's pos/size place
 				// it and horizontalMargin sets the text inset inside it.
-				Renderer::drawRoundRect(0.0f, selY, mSize.x(),
-						mSelectorHeight, mCornerRadius, mSelectorColor);
+				if (mSelectorColorEnd != mSelectorColor)
+					Renderer::drawRoundRectVGradient(0.0f, selY, selW,
+							mSelectorHeight, mCornerRadius, mSelectorColor, mSelectorColorEnd);
+				else
+					Renderer::drawRoundRect(0.0f, selY, selW,
+							mSelectorHeight, mCornerRadius, mSelectorColor);
 			}
 			else
 			{
-				Renderer::drawRect(0.0f, selY, mSize.x(), mSelectorHeight,
+				Renderer::drawRect(0.0f, selY, selW, mSelectorHeight,
 						mSelectorColor, mSelectorColorEnd, mSelectorColorGradientHorizontal);
 			}
 		}
@@ -450,6 +462,8 @@ void TextListComponent<T>::applyTheme(const std::shared_ptr<ThemeData>& theme, c
 		{
 			setSelectorHeight(elem->get<float>("selectorHeight") * Renderer::getScreenHeight());
 		}
+		if (elem->has("selectorFitContent"))
+			mFitContent = elem->get<bool>("selectorFitContent");
 		if(elem->has("selectorOffsetY"))
 		{
 			float scale = this->mParent ? this->mParent->getSize().y() : (float)Renderer::getScreenHeight();

@@ -50,9 +50,12 @@ struct SystemViewCarousel
 	float systemInfoDelay;
 
 	unsigned int selectorColor;  // pill behind the selected system; alpha 0 = disabled
+	unsigned int selectorColorEnd; // bottom color for a vertical gradient (== selectorColor -> solid)
 	float selectorRadius;        // pill corner radius in px; <0 = auto (half height)
 	float selectorHeight;        // pill height in px; <0 = auto (logoSize.y * logoScale)
+	float selectorPadding;       // fit-content pill: horizontal pad around the text in px; <0 = auto (0.30 * pill height)
 	bool  selectorFitContent;    // true = pill sized/positioned to the item box (left list); false = full-width centered
+	bool  listScroll;            // true = gamelist-style navigation: cursor walks the slots, camera clamps at list ends
 	float selectorWidth;         // fixed pill width in px; <0 = auto (fit-content or full-width)
 	unsigned int logoColor;         // tint for unselected logos (used only if logoSelectedColor set)
 	unsigned int logoSelectedColor; // tint for the selected logo; 0 = disabled (no tinting)
