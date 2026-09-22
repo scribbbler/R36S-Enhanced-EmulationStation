@@ -34,6 +34,11 @@ properties in their own themes. See
 provides a **Restore Stock ES** tool. If the custom build crashes during startup,
 the stock binary is **automatically restored**. (Still keep an SD‑card backup.)
 
+> **Designing your own theme?** [Mono Theme Studio](https://scribbbler.github.io/Mono-Theme-Studio/)
+> is a browser tool for these themes — per‑layer colour, opacity and typography
+> with a live 640×480 preview and a ready‑to‑use `theme.xml`
+> ([source](https://github.com/scribbbler/Mono-Theme-Studio)).
+
 > The separate **music player** for the R36S lives in its own repository:
 > [R36S-Music-Player](https://github.com/scribbbler/R36S-Music-Player).
 
