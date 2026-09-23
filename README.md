@@ -28,7 +28,30 @@ blue gradient selection bars, iPod‑style); other theme authors can use the new
 properties in their own themes. See
 **[THEME‑EXTENSIONS.md](THEME-EXTENSIONS.md)** for the full list.
 
-> _Screenshots: **TODO** — add carousel / keyboard / screensaver / pop‑up captures here._
+## The themes
+
+| | Carousel | Gamelist | Menu |
+|---|---|---|---|
+| **Mono Dark** | ![](docs/themes/mono-dark-carousel.png) | ![](docs/themes/mono-dark-gamelist.png) | ![](docs/themes/mono-dark-menu.png) |
+| **Mono Light** | ![](docs/themes/mono-light-carousel.png) | ![](docs/themes/mono-light-gamelist.png) | ![](docs/themes/mono-light-menu.png) |
+| **Mono Fit Dark** | ![](docs/themes/mono-fit-dark-carousel.png) | ![](docs/themes/mono-fit-dark-gamelist.png) | ![](docs/themes/mono-fit-dark-menu.png) |
+| **Mono Fit Light** | ![](docs/themes/mono-fit-light-carousel.png) | ![](docs/themes/mono-fit-light-gamelist.png) | ![](docs/themes/mono-fit-light-menu.png) |
+
+The **Fit** pair hugs the selected name with the capsule instead of spanning the
+screen, and its carousel scrolls like a gamelist. Every theme carries two
+settings you can change on the device under **UI Settings → Theme
+Configuration** — no files, no computer:
+
+| Setting | Options |
+|---|---|
+| **Theme Color** | White *(default)* · Amber · Cyan · Green · Pink |
+| **Font Size** | Medium *(default)* · Small · Large · Extra Large |
+
+**→ [CUSTOMIZING-THEMES.md](CUSTOMIZING-THEMES.md)** covers the rest: which
+files you can drop in to swap fonts, icons, button art and backgrounds without
+editing anything; designing a theme in the browser with Mono Theme Studio; and
+writing `theme.xml` by hand, including the two conventions (screen fractions,
+and the 1.31 font multiplier) that catch everyone out.
 
 **Safe to try:** the installer backs up your original EmulationStation binary and
 provides a **Restore Stock ES** tool. If the custom build crashes during startup,
@@ -36,8 +59,10 @@ the stock binary is **automatically restored**. (Still keep an SD‑card backup.
 
 > **Designing your own theme?** [Mono Theme Studio](https://scribbbler.github.io/Mono-Theme-Studio/)
 > is a browser tool for these themes — per‑layer colour, opacity and typography
-> with a live 640×480 preview and a ready‑to‑use `theme.xml`
-> ([source](https://github.com/scribbbler/Mono-Theme-Studio)).
+> with a live 640×480 preview and a ready‑to‑use `theme.xml`. It opens themes you
+> already have, previews them as either stock ES or this build, and exports a
+> finished `.zip` ([source](https://github.com/scribbbler/Mono-Theme-Studio)).
+> Start with **[CUSTOMIZING-THEMES.md](CUSTOMIZING-THEMES.md)**.
 
 > The separate **music player** for the R36S lives in its own repository:
 > [R36S-Music-Player](https://github.com/scribbbler/R36S-Music-Player).
