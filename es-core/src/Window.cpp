@@ -437,8 +437,11 @@ void Window::render()
 	}
 
 	
-	// GPI skip
-	if (mGuiStack.size() < 2 || !Renderer::isSmallScreen())
+	// GPI skip: a small screen hides the help bar while anything is stacked over
+	// the view, so popups keep their own footers uncluttered. Menus opt back in -
+	// their bottom row is laid out around those prompts.
+	const bool stackedSkip = (mGuiStack.size() >= 2) && Renderer::isSmallScreen();
+	if (!stackedSkip || (!mGuiStack.empty() && mGuiStack.back()->showsHelpPrompts()))
 		if(!mRenderedHelpPrompts)
 			mHelp->render(transform);
 

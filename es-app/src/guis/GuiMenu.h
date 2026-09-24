@@ -19,6 +19,7 @@ public:
 	void onSizeChanged() override;
 	std::vector<HelpPrompt> getHelpPrompts() override;
 	HelpStyle getHelpStyle() override;
+	bool showsHelpPrompts() const override { return true; }
 
 	static void openThemeConfiguration(Window* mWindow, GuiComponent* s, std::shared_ptr<OptionListComponent<std::string>> theme_set, const std::string systemTheme = "");
 

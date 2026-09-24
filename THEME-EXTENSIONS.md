@@ -87,7 +87,9 @@ so game lists and the main menu match.
 
 ---
 
-## `helpsystem`  ·  view: `system`, `basic`, `detailed`, `video`
+## `helpsystem`  ·  view: `system`, `basic`, `detailed`, `video`, and menus
+
+Menus draw the hint bar too, styled from the `system` view's `helpsystem`. Stock hides it as soon as anything is stacked over the view on a small screen; this build lets menus opt back in, so their bottom row reads `BACK`/`SELECT` beside the version line rather than the version line alone.
 
 The on‑screen button‑hint bar, made fully theme‑driven: custom labels, custom
 button icons, spacing, a rounded background "pill", and per‑view visibility.

@@ -159,6 +159,10 @@ public:
 
 	virtual HelpStyle getHelpStyle();
 
+	// On a small screen the help bar is hidden as soon as anything is stacked
+	// over the view. A GUI whose own layout is built around it says so here.
+	virtual bool showsHelpPrompts() const { return false; }
+
 	// Returns true if the component is busy doing background processing (e.g. HTTP downloads)
 	bool isProcessing() const;
 

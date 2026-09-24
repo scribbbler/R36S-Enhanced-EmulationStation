@@ -27,6 +27,7 @@ public:
 	bool input(InputConfig* config, Input input) override;
 	std::vector<HelpPrompt> getHelpPrompts() override;
 	HelpStyle getHelpStyle() override;
+	bool showsHelpPrompts() const override { return true; }
 
 	MenuComponent& getMenu() { return mMenu; }
 
