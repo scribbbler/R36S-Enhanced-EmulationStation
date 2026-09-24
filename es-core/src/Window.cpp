@@ -595,8 +595,10 @@ void Window::renderLoadingScreen(std::string text, float percent, unsigned char 
 		float x = Renderer::getScreenWidth() / 2 - w / 2;
 		float y = Renderer::getScreenHeight() - (Renderer::getScreenHeight() * 3 * baseHeight);
 
+		// The bar was a blue vertical gradient. It is a solid white fill on a
+		// dark track now, which is what the monochrome themes want.
 		Renderer::drawRect(x, y, w, h, 0x25252500 | opacity);
-		Renderer::drawRect(x, y, (w*percent), h, 0x006C9E00 | opacity, 0x003E5C00 | opacity, true); // 0xFFFFFFFF
+		Renderer::drawRect(x, y, (w*percent), h, 0xFFFFFF00 | opacity);
 	}
 	
 	ImageComponent splash(this, true);
