@@ -1,0 +1,13 @@
+<!--
+Super Min UI - Font Size: Xlarge
+-->
+<theme>
+<formatVersion>7</formatVersion>
+
+    <view name="basic, detailed, video">
+    <textlist name="gamelist">
+	<fontSize>0.052</fontSize>
+	<selectorHeight>0.098</selectorHeight>
+    </textlist>
+    </view>
+</theme>

@@ -1,0 +1,361 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+theme name:     Mono Dark
+Creator:        Saurabh Das
+Family:         Mono (the Mono family flagship: black, text-only, capsule selection)
+-->
+<theme>
+    <formatVersion>7</formatVersion>
+    <feature supported="carousel">
+    <view name="system">
+
+<!-- Carousel page background (behind the text list), same idea as gamelist.png for gamelists. -->
+    <image name="staticBackground">
+	<path>./art/system.png</path>
+	<origin>0 0</origin>
+	<pos>0 0</pos>
+	<size>1 1</size>
+	<zIndex>0</zIndex>
+    </image>
+
+    <sound name="directory">
+	<path>./music/</path>
+    </sound>
+
+<!--
+MinUI-style home: a vertical LEFT-ALIGNED text list of system names.
+No logo images -> the carousel falls back to the system name text (logoText).
+The selected row gets a left-hugging white pill with black text.
+-->
+    <!-- Mono Max: the system's logo instead of its name. ES falls back to
+         logoText for any system with no file here, so the two coexist. -->
+    <image name="logo">
+	<path>./system/${system.theme}.svg</path>
+    </image>
+
+    <carousel name="systemcarousel">
+	<origin>0 0</origin>
+	<type>vertical</type>
+	<color>00000000</color><!-- transparent; black screen behind -->
+	<logoSize>0.5 0.15</logoSize><!-- 320x72 logo box; indent = 320/10 = 32px, matching the name themes -->
+	<logoScale>1.0</logoScale><!-- uniform: no enlargement of the selected item; every row same size -->
+	<maxLogoCount>5</maxLogoCount><!-- 5 rows visible, selected centered -->
+	<logoAlignment>left</logoAlignment><!-- left-align the system names (indent = logoSize.x/10 = 48px) -->
+	<pos>0 0.0875</pos><!-- v4: region top 42px -> selected pill at y 196..268 (rendered Figma) -->
+	<size>1 0.7916667</size><!-- 380px -> row pitch 380/5 = 76px (72px row + 4px gap), per Figma -->
+	<!-- no logoPos => selection row stays vertically centered; pill is centered fixed-width -->
+	<selectorColor>F7FBF7FF</selectorColor><!-- off-white pill (#F7FBF7, matches design) -->
+	<selectorWidth>0.975</selectorWidth><!-- v4: pill 624px, x 8..632 (rendered Figma) -->
+	<selectorHeight>0.15</selectorHeight><!-- pill height 72px (Figma row height) -->
+	<selectorRadius>0.075</selectorRadius><!-- full pill (half of 72px) -->
+	<logoColor>F7FBF7FF</logoColor><!-- unselected rows: off-white (#F7FBF7) -->
+	<logoSelectedColor>000000FF</logoSelectedColor><!-- selected row: black on the pill -->
+	<scrollSound>./audio/move.wav</scrollSound>
+    </carousel>
+
+    <text name="logoText">
+	<fontPath>./fonts/BPreplay-Bold.otf</fontPath>
+	<fontSize>0.0652</fontSize><!-- 41px design ÷ 1.31 engine boost = 31.3px nominal; renders ~41px on device (matches Figma) -->
+	<lineSpacing>1.171</lineSpacing><!-- line height 48px -->
+	<padding>0 0 0 0.0041667</padding><!-- 2px bottom padding -> centred name sits 1px higher in the row (needs ES build that themes carousel padding) -->
+	<forceUppercase>false</forceUppercase>
+	<alignment>left</alignment>
+	<color>F7FBF7</color><!-- off-white (#F7FBF7); selected row overridden to black by logoSelectedColor -->
+    </text>
+    <text name="systemInfo">
+	<text> </text>
+	<pos>1 1</pos>
+	<backgroundColor>000000</backgroundColor>
+	<fontPath>./fonts/BPreplay-Bold.otf</fontPath>
+	<fontSize>0.00</fontSize>
+	<zIndex>5</zIndex>	     
+    </text> 
+    </view>
+    </feature>
+
+    <!-- Carousel help bar: Clock (Select) / Menu (Start)  |  Search (Y) / Random (X) -->
+    <view name="system">
+        <helpsystem name="help">
+        <fontPath>./fonts/BPreplay-Regular.otf</fontPath>
+	<pos>0.0375 0.9041667</pos><!-- 24px margin; grid top 434 -> pill 426..474 (matches baked art) -->
+	<origin>0 0</origin>
+	<fontSize>0.0334</fontSize><!-- v2: 21px design (16.03 nominal x 1.31 boost) -->
+	<textColor>F7FBF7</textColor>
+	<iconColor>F7FBF7</iconColor>
+	<iconSize>0.0666667</iconSize><!-- v2: 32px button icons -->
+	<iconTextSpacing>0.0125</iconTextSpacing><!-- 8px icon-to-label gap (Figma) -->
+	<entrySpacing>0.034375</entrySpacing><!-- v2: 22px between entries -->
+	<textUppercase>true</textUppercase><!-- applies to system labels only; overrides below are verbatim -->
+
+	<backgroundColor>202420FF</backgroundColor><!-- v2 group pill (#202420, Figma) -->
+	<backgroundWidth>0</backgroundWidth><!-- v2: content-fit pills -->
+	<backgroundRadius>0.0375</backgroundRadius><!-- full pill (half of 36px) -->
+	<backgroundPadding>0.015625 0.0125</backgroundPadding><!-- 10px x, 6px y -> 44px pill (matches baked art 428..472) -->
+	<iconX>./art/buttons/x.png</iconX>
+	<iconY>./art/buttons/y.png</iconY>
+	<iconA>./art/buttons/a.png</iconA>
+	<iconB>./art/buttons/b.png</iconB>
+	<iconStart>./art/buttons/start.png</iconStart>
+	<iconSelect>./art/buttons/select.png</iconSelect>
+	<iconL>./art/buttons/l.png</iconL>
+	<iconR>./art/buttons/r.png</iconR>
+	<iconUpDown>./art/buttons/updown.png</iconUpDown>
+	<iconLeftRight>./art/buttons/leftright.png</iconLeftRight>
+	<iconUpDownLeftRight>./art/buttons/updownleftright.png</iconUpDownLeftRight>
+        </helpsystem>
+    </view>
+
+    <!-- Gamelist help bar: Options (Select) / Menu (Start)  |  Favorite (Y) / Random (X) -->
+    <view name="basic, detailed, video">
+        <helpsystem name="help">
+        <fontPath>./fonts/BPreplay-Regular.otf</fontPath>
+	<pos>0.0375 0.9041667</pos><!-- 24px margin; grid top 434 -> pill 426..474 (matches baked art) -->
+	<origin>0 0</origin>
+	<fontSize>0.0334</fontSize>
+	<textColor>F7FBF7</textColor>
+	<iconColor>F7FBF7</iconColor>
+	<iconSize>0.0666667</iconSize>
+	<iconTextSpacing>0.0125</iconTextSpacing>
+	<entrySpacing>0.034375</entrySpacing>
+	<textUppercase>true</textUppercase>
+
+	<backgroundColor>202420FF</backgroundColor><!-- v2 group pill (#202420, Figma) -->
+	<backgroundWidth>0</backgroundWidth>
+	<backgroundRadius>0.0375</backgroundRadius>
+	<backgroundPadding>0.015625 0.0125</backgroundPadding><!-- 10px x, 6px y -> 44px pill (matches baked art 428..472) -->
+	<iconX>./art/buttons/x.png</iconX>
+	<iconY>./art/buttons/y.png</iconY>
+	<iconB>./art/buttons/b.png</iconB>
+	<iconA>./art/buttons/a.png</iconA>
+	<iconStart>./art/buttons/start.png</iconStart>
+	<iconSelect>./art/buttons/select.png</iconSelect>
+	<iconL>./art/buttons/l.png</iconL>
+	<iconR>./art/buttons/r.png</iconR>
+	<iconUpDown>./art/buttons/updown.png</iconUpDown>
+	<iconLeftRight>./art/buttons/leftright.png</iconLeftRight>
+	<iconUpDownLeftRight>./art/buttons/updownleftright.png</iconUpDownLeftRight>
+        </helpsystem>
+    </view>
+   
+    <view name="basic">
+    <text name="description" extra="true">
+	<pos>0.615 0.685</pos>
+	<size>0.347 0.183</size>
+	<alignment>center</alignment>
+	<color>00ffffff</color>
+	<fontSize>0.025</fontSize>
+	<text> </text>
+	<fontPath>./fonts/BPreplay-Bold.otf</fontPath>
+    </text>
+    </view>
+  
+    <view name="basic, detailed, video">
+    <image name="background" extra="true">
+	<size>1 1</size>
+	<pos>0 0</pos>
+	<origin>0 0</origin>
+	<path>./art/gamelist.png</path>
+	<zIndex>0</zIndex>
+	<color>ffffff</color>
+    </image>
+    <textlist name="gamelist">
+         <selectorColor>F7FBF7</selectorColor><!-- off-white pill (#F7FBF7) -->
+         <selectedColor>000000</selectedColor><!-- black text on the pill -->
+         <primaryColor>F7FBF7</primaryColor><!-- unselected game text: off-white -->
+         <secondaryColor>F7FBF7</secondaryColor>
+         <fontPath>./fonts/BPreplay-Bold.otf</fontPath>
+         <fontSize>0.050889</fontSize><!-- 32px design (24.43 nominal x 1.31 engine boost), Figma game pill -->
+         <pos>0.00625 0.1</pos><!-- v2: top 48px -> pill top 47 (rendered Figma) -->
+         <size>0.9875 0.7875</size><!-- pill width 632px (4px each side); 378px = 7 rows x 54px pitch (Figma) -->
+         <alignment>left</alignment>
+         <horizontalMargin>0.025</horizontalMargin><!-- 16px text inset inside the pill (Figma px-16) -->
+         <origin>0 0</origin>
+         <lineSpacing>1.611</lineSpacing><!-- v2: row pitch 53px (glyph height 32.9 measured on device) -->
+         <selectorOffsetY>-0.0020833</selectorOffsetY><!-- pill 1px above cell top -> pill top at exactly 50px like the design -->
+         <selectorHeight>0.1083333</selectorHeight><!-- pill height 52px (Figma) -->
+         <selectorRadius>0.0541667</selectorRadius><!-- full pill (half of 52px) -->
+	<scrollSound>./audio/move.wav</scrollSound>
+    </textlist>
+<!-- Style the built-in gamelist header (shows the system full name). A separate
+     extra here would render on top of it and double the title. -->
+    <text name="logoText">
+         <forceUppercase>1</forceUppercase>
+         <size>0.96 0.05</size>
+         <pos>0.02 0.025</pos>
+         <alignment>center</alignment>
+         <color>F7FBF7</color>
+         <fontPath>./fonts/BPreplay-Bold.otf</fontPath><!-- bold gamelist system name -->
+         <fontSize>0.03181</fontSize><!-- 20px design ÷ 1.31 boost -> renders ~20px, matches top bar -->
+         <zIndex>2</zIndex>
+    </text>
+	
+    <text name="md_lbl_genre, md_genre, md_lbl_rating, md_lbl_developer, md_lbl_publisher, md_publisher, md_lbl_lastplayed, md_lbl_playcount, md_playcount, md_lbl_releasedate">
+         <visible>false</visible>
+    </text>
+	
+    <rating name="md_rating">
+         <visible>false</visible>
+    </rating>
+	
+    <image name="md_thumbnail">
+         <visible>false</visible>
+    </image>
+	
+
+    </view>
+<!--
+Background of Ark menü
+-->
+    <view name="menu">
+    <menuBackground name="menubg">
+	<path>./art/menu.png</path>
+    </menuBackground>
+
+    <menuTextEdit name="menutextedit">
+	<inactive>./art/textInput/textinput.png</inactive>
+	<active>./art/textInput/textinput-active.png</active>
+    </menuTextEdit>
+
+    <menuArrow name="menuarrow">
+	<path>./art/icons/arrow.svg</path><!-- submenu '>' chevron (also option-list right arrow) -->
+	<optionPath>./art/icons/arrow.svg</optionPath><!-- '<' '>' arrows around option values -->
+    </menuArrow>
+
+    <menuText name="menutext">
+	<fontPath>./fonts/BPreplay-Bold.otf</fontPath>
+	<fontSize>0.036578</fontSize><!-- 23px design (17.56 nominal x 1.31 boost), Figma menu v3 -->
+	<color>F7FBF7</color><!-- unselected menu row: off-white -->
+	<selectorColor>F7FBF7</selectorColor><!-- off-white pill (#F7FBF7) on selected menu row -->
+	<selectedColor>000000</selectedColor><!-- black text on the pill -->
+	<selectorRadius>0.0375</selectorRadius><!-- full pill (half of 36px) -->
+	<separatorColor>00000000</separatorColor><!-- fully transparent: no separators -->
+    </menuText>
+
+    <menuText name="menutitle">
+	<fontPath>./fonts/BPreplay-Bold.otf</fontPath><!-- bold menu + keyboard title -->
+	<fontSize>0.03181</fontSize><!-- 20px design ÷ 1.31 boost -> renders ~20px, matches top bar -->
+	<color>F7FBF7</color>
+    </menuText>
+
+	<menuText name="menufooter">
+	<fontPath>./fonts/BPreplay-Regular.otf</fontPath>
+	<fontSize>0.02863</fontSize><!-- 18px version text ÷ 1.31 boost -> renders ~18px -->
+	<color>F7FBF7</color><!-- off-white version text -->
+    </menuText>
+
+	<menuText name="menutextsmall">
+	<fontPath>./fonts/BPreplay-Regular.otf</fontPath>
+	<fontSize>.029</fontSize>
+	<color>F7FBF7</color>
+    </menuText>
+	</view>
+  
+  	<view name="screen">
+         <text name="clock">
+	     <fontPath>./fonts/BPreplay-Bold-Clock.otf</fontPath><!-- bold clock digits with centred ':' -->
+	     <color>F7FBF7</color>
+         <fontSize>0.03181</fontSize><!-- 20px design ÷ 1.31 boost -> renders ~20px -->
+         <lineSpacing>1.4</lineSpacing><!-- line height 28px (28/20) -->
+         <pos>0.0375 0.0166666667</pos><!-- 24, 8px @640x480 (Figma side padding 24px) -->
+         <size>0.4 0.0666666667</size><!-- 32px row, same as battery, so centerlines match -->
+         <alignment>left</alignment>
+         <verticalAlignment>center</verticalAlignment>
+    </text>
+    </view>
+<!--
+Color of battery
+-->
+   <view name="screen">
+	<batteryIndicator name="batteryIndicator">
+	<color>F7FBF7</color>
+	<pos>0 0.0166666667</pos><!-- 8px from top @480 -->
+	<size>0.96875 0.0666666667</size><!-- 620 x 32px; battery right edge 20px from screen edge (Figma v3) -->
+	<horizontalAlignment>right</horizontalAlignment>
+	<fontPath>./fonts/BPreplay-Bold-Clock.otf</fontPath><!-- match the clock font -->
+	<fontSize>0.03181</fontSize><!-- 20px design ÷ 1.31 boost -> renders ~20px, matches clock -->
+	<itemSpacing>0.009375</itemSpacing><!-- 6px @640 between icon and % text (Figma gap-6px) -->
+	<incharge>./art/battery/battery-charging.svg</incharge>
+	<full>./art/battery/battery-100.svg</full>
+	<at75>./art/battery/battery-75.svg</at75>
+	<at50>./art/battery/battery-50.svg</at50>
+	<at25>./art/battery/battery-25.svg</at25>
+	<empty>./art/battery/battery-0.svg</empty>
+    </batteryIndicator>
+</view>
+
+<!--
+Custom SVG icons for the on-screen keyboard's four special keys.
+Requires the custom EmulationStation build that reads the keyboard element.
+Icons should be monochrome (white) SVGs; they are tinted to the key text color.
+If a file is missing, that key falls back to its built-in Unicode glyph.
+-->
+   <view name="screen">
+	<keyboard name="keyboard">
+	<backspace>./art/keyboard/backspace.svg</backspace>
+	<enter>./art/keyboard/enter.svg</enter>
+	<shift>./art/keyboard/shift.svg</shift>
+	<shiftActive>./art/keyboard/shift-active.png</shiftActive><!-- filled arrow while shift is on (needs the shiftActive-capable ES build) -->
+	<alt>./art/keyboard/alt.svg</alt>
+	<iconSize>0.05</iconSize><!-- fixed 24px icon on every special key (24/480) -->
+	<width>0.975</width><!-- key grid 624px wide (624/640); 8px side padding; 48px per column x13 -->
+	<posY>0.2416666667</posY><!-- key grid top at 116px from screen top (116/480) -->
+	<keySpacing>0.009375</keySpacing><!-- 6px gap between keys (3px padding each side); keys become 42px tiles in 48px cells -->
+	<keyRadius>0.0166666667</keyRadius><!-- 8px key corner radius (8/480) -->
+	<keyColor>1D1D1DFF</keyColor><!-- keys lifted off the black paper; the letters carry the contrast -->
+	<keyPressColor>CCCCCCFF</keyPressColor><!-- key flash color on press -->
+	<keyPressMs>150</keyPressMs><!-- flash duration; tune freely, no rebuild needed -->
+    </keyboard>
+</view>
+
+<!--
+Icons for the volume / brightness pop-up overlays.
+-->
+   <view name="screen">
+	<volumeIndicator name="volumeIndicator">
+	<icon>./art/icons/volume.svg</icon>
+	<fontPath>./fonts/BPreplay-Bold.otf</fontPath>
+    </volumeIndicator>
+	<brightnessIndicator name="brightnessIndicator">
+	<icon>./art/icons/brightness.svg</icon>
+	<fontPath>./fonts/BPreplay-Bold.otf</fontPath>
+    </brightnessIndicator>
+</view>
+
+<!--
+Screensaver clock font (idle time/date display).
+Requires the custom EmulationStation build that reads screensaverClock.
+-->
+   <view name="screen">
+	<text name="screensaverClock">
+	<fontPath>./fonts/BPreplay-Bold-Clock.otf</fontPath><!-- Bold with a vertically-centred ':' (screensaver only) -->
+	<fontSize>0.159</fontSize><!-- 100px time design ÷ 1.31 boost -> renders ~100px; date = 0.36x -->
+    </text>
+	<!-- While charging, the date line becomes this battery icon + "NN% Charged". -->
+	<image name="screensaverBattery">
+	<path>./art/icons/battery.svg</path>
+    </image>
+	<!-- Small padlock shown above the date (the clock locks all input but Select). -->
+	<image name="screensaverLock">
+	<path>./art/icons/lock.svg</path>
+    </image>
+</view>
+
+<!--
+Theme Configuration subsets: declared last so the selected overlay
+is applied AFTER the base views above and its overrides win.
+-->
+    <subset name="color-scheme" displayName="Theme Color">
+	<include name="white" displayName="White"/>
+	<include name="amber" displayName="Amber">./settings/color-amber.xml</include>
+	<include name="cyan" displayName="Cyan">./settings/color-cyan.xml</include>
+	<include name="green" displayName="Green">./settings/color-green.xml</include>
+	<include name="pink" displayName="Pink">./settings/color-pink.xml</include>
+    </subset>
+
+    <subset name="font-size" displayName="Font Size">
+	<include name="medium" displayName="Medium"/>
+	<include name="small" displayName="Small">./settings/font-small.xml</include>
+	<include name="large" displayName="Large">./settings/font-large.xml</include>
+	<include name="xlarge" displayName="Extra Large">./settings/font-xlarge.xml</include>
+    </subset>
+</theme>

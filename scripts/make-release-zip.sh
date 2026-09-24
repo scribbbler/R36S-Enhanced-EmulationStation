@@ -20,7 +20,7 @@ cp -R r36s/tools/. "$STAGE/tools/"
 cp emulationstation.custom "$STAGE/tools/es-custom/emulationstation.custom"
 
 # Ship the released themes; Mono Classic is WIP and stays out for now.
-for t in "Mono Dark" "Mono Light" "Mono Fit Dark" "Mono Fit Light"; do
+for t in "Mono Dark" "Mono Light" "Mono Fit Dark" "Mono Fit Light" "Mono Max"; do
   cp -R "r36s/theme/$t" "$STAGE/themes/"
 done
 

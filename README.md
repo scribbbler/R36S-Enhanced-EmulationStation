@@ -21,9 +21,10 @@ volume/brightness pop‑ups · icons · and more.
 
 Every addition is **opt‑in** — existing themes are unaffected unless they use the
 new properties. The **Mono theme family** is bundled as the reference
-implementation — **Mono Dark**, **Mono Light**, and **Mono Fit Dark** /
+implementation — **Mono Dark**, **Mono Light**, **Mono Fit Dark** /
 **Mono Fit Light** (a fit‑content capsule that hugs the selected name, with
-list‑style navigation), plus the work‑in‑progress **Mono Classic** (white,
+list‑style navigation) and **Mono Max** (system logos instead of names), plus
+the work‑in‑progress **Mono Classic** (white,
 blue gradient selection bars, iPod‑style); other theme authors can use the new
 properties in their own themes. See
 **[THEME‑EXTENSIONS.md](THEME-EXTENSIONS.md)** for the full list.
@@ -38,7 +39,10 @@ properties in their own themes. See
 | **Mono Fit Light** | ![](docs/themes/mono-fit-light-carousel.png) | ![](docs/themes/mono-fit-light-gamelist.png) | ![](docs/themes/mono-fit-light-menu.png) |
 
 The **Fit** pair hugs the selected name with the capsule instead of spanning the
-screen, and its carousel scrolls like a gamelist. Every theme carries two
+screen, and its carousel scrolls like a gamelist. **Mono Max** is Mono Dark with
+each system's logo in place of its name — tinted to the row colour, so it reads
+off-white on black and inverts to black on the selected capsule; any system
+without a logo falls back to its name. Every theme carries two
 settings you can change on the device under **UI Settings → Theme
 Configuration** — no files, no computer:
 
