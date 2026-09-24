@@ -70,6 +70,7 @@ private:
 	unsigned int mKeyFillColor = 0; // unfocused key background color
 	float mKbTopPx = 0.0f;        // fixed key-grid top from screen top (px); theme 'posY' * screen height. <=0 => auto
 	float mPopupOffsetY = 0.0f;   // the popup's own y offset, so an absolute key-grid top can be converted to local
+	std::shared_ptr<Font> mKeyFont;  // themed key-letter font; null = inherit the menu font
 	float mTopGap = 0.0f;         // how far the popup sits below the screen top, so the background can cover it
 	float mKeyPadPx = -1.0f;      // per-side key padding (px) => gap between keys is 2x this; theme 'keySpacing'. <0 => default
 	float mKeyRadiusPx = 0.0f;    // key corner radius (px); theme 'keyRadius' * screen height

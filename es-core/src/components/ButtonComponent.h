@@ -22,6 +22,8 @@ public:
 	void render(const Transform4x4f& parentTrans) override;
 
 	void setText(const std::string& text, const std::string& helpText, bool upperCase = true);
+	// Override the menu font this button would otherwise inherit.
+	void setFont(const std::shared_ptr<Font>& font);
 	void setIcon(const std::string& path, float pixelSize = 0.0f); // render an SVG/PNG icon (fixed size) instead of the text label
 	void setKeyFill(unsigned int unfocusedBackColor, float insetPx = 0.0f, float radiusPx = 0.0f); // solid rounded-rect fill (both states) inset by insetPx, dark unfocused background; text colors unchanged
 	void setPressFlash(unsigned int color, int durationMs = 250); // briefly tint the key background on every press

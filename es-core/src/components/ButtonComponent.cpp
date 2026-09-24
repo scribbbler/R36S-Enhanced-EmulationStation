@@ -67,6 +67,18 @@ void ButtonComponent::setText(const std::string& text, const std::string& helpTe
 	updateHelpPrompts();
 }
 
+void ButtonComponent::setFont(const std::shared_ptr<Font>& font)
+{
+	if (font == nullptr || font == mFont)
+		return;
+
+	mFont = font;
+
+	// Rebuild the cache at the new size; the text is already in its final case.
+	if (!mText.empty())
+		setText(mText, mHelpText, false);
+}
+
 void ButtonComponent::setIcon(const std::string& path, float pixelSize)
 {
 	if (path.empty())

@@ -140,6 +140,7 @@ grid geometry and key appearance.
 
 | Property | Type | Notes |
 |---|---|---|
+| `fontPath` `fontSize` | PATH / FLOAT | Key‑letter face and size. Unset, the keys use the menu row font, so their size is tied to `menutext`; either property detaches them. |
 | `backspace` `enter` `shift` `alt` | PATH | SVG icon for each special key. |
 | `iconSize` | FLOAT | Fixed icon size on every special key. |
 | `width` | FLOAT | Total key‑grid width. |

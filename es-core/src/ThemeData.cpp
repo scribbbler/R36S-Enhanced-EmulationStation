@@ -203,6 +203,8 @@ std::map<std::string, std::map<std::string, ThemeData::ElementPropertyType>> The
 		{ "icon", PATH },
 		{ "fontPath", PATH } } },
 	{ "keyboard", {
+		{ "fontPath", PATH },
+		{ "fontSize", FLOAT },
 		{ "backspace", PATH },
 		{ "enter", PATH },
 		{ "shift", PATH },

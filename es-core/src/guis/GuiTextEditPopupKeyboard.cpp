@@ -163,6 +163,10 @@ GuiTextEditPopupKeyboard::GuiTextEditPopupKeyboard(Window* window, const std::st
 				mKeyPadPx = Renderer::getScreenWidth() * kb->get<float>("keySpacing") / 2.0f; // half each side => full gap between keys
 			if (kb->has("keyRadius"))
 				mKeyRadiusPx = Renderer::getScreenHeight() * kb->get<float>("keyRadius");
+			// Key letters otherwise inherit the menu row font, which ties their
+			// size to the menu's. Either property here detaches them from it.
+			if (kb->has("fontPath") || kb->has("fontSize"))
+				mKeyFont = Font::getFromTheme(kb, ThemeFlags::ALL, ThemeData::getMenuTheme()->Text.font);
 		}
 	}
 
@@ -251,6 +255,9 @@ GuiTextEditPopupKeyboard::GuiTextEditPopupKeyboard(Window* window, const std::st
 				}
 				else
 					button = makeButton(lower, upper, lowerAlted, upperAlted);
+
+				if (mKeyFont != nullptr)
+					button->setFont(mKeyFont);
 
 				// Themed SVG icons override the default Unicode glyphs on the four special keys.
 				// All four render at the same fixed size, independent of key width.
