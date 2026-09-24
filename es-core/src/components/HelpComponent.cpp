@@ -136,6 +136,26 @@ void HelpComponent::updateGrid()
 	mGrid = leftPrompts.empty() ? nullptr : buildGrid(leftPrompts);
 	mGridRight = rightPrompts.empty() ? nullptr : buildGrid(rightPrompts);
 
+	// The two pills are placed from opposite edges and neither knows about the
+	// other, so a long row runs them into each other and the left pill's last
+	// label is cut mid-word. Drop trailing left-hand prompts - the ones the
+	// view added last - until both pills fit side by side. Losing a prompt
+	// reads better than half a word underneath another one.
+	if(mGrid && mGridRight && mStyle.backgroundWidth <= 0.0f)
+	{
+		const float screenWidth = Renderer::getScreenWidth();
+		const float sideMargin  = mStyle.position.x();
+		const float minGap      = (mStyle.entrySpacing > 0.0f) ? mStyle.entrySpacing : ENTRY_SPACING;
+
+		while(leftPrompts.size() > 1 &&
+		      sideMargin + mGrid->getSize().x() + minGap
+		        + mGridRight->getSize().x() + sideMargin > screenWidth)
+		{
+			leftPrompts.pop_back();
+			mGrid = buildGrid(leftPrompts);
+		}
+	}
+
 	// Explicit left-aligned positioning (origin 0) so nothing relies on grid
 	// origin-anchoring. Left pill hugs the left margin; right pill hugs the
 	// right margin. 'margin' (theme pos.x) is used on both sides.
