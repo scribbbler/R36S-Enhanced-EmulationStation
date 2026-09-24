@@ -368,14 +368,11 @@ namespace Renderer
 	} // swapBuffers
 
 #define ROUNDING_PIECES 32.0f   // segments per 90 deg corner (smooth large pills)
+#define ROUND_FEATHER    0.75f  // width of the antialiased edge, in pixels
 
+	// Collect one corner's arc into the perimeter, clockwise.
 	void drawGLRoundedCorner(float x, float y, double sa, double arc, float r, unsigned int color, std::vector<Vertex> &vertex)
 	{
-		float red = (((color & 0xff000000) >> 24) & 255) / 255.0f;
-		float g = (((color & 0x00ff0000) >> 16) & 255) / 255.0f;
-		float b = (((color & 0x0000ff00) >> 8) & 255) / 255.0f;
-		float a = (((color & 0x000000ff)) & 255) / 255.0f;
-
 		// centre of the arc, for clockwise sense
 		float cent_x = x + r * Math::cosf(sa + ES_PI / 2.0f);
 		float cent_y = y + r * Math::sinf(sa + ES_PI / 2.0f);
@@ -386,34 +383,51 @@ namespace Renderer
 		{
 			float ang = sa + arc * (double)i / (double)n;
 
-			// compute the next point
-			float next_x = cent_x + r * Math::sinf(ang);
-			float next_y = cent_y - r * Math::cosf(ang);
-
 			Vertex vx;
-			vx.pos = Vector2f(next_x, next_y);
+			vx.pos = Vector2f(cent_x + r * Math::sinf(ang), cent_y - r * Math::cosf(ang));
 			vx.tex = Vector2f(0, 0);
 			vx.col = color;
 			vertex.push_back(vx);
 		}
 	}
 
-	void drawRoundRect(float x, float y, float width, float height, float radius, unsigned int color, const Blend::Factor _srcBlendFactor, const Blend::Factor _dstBlendFactor)
+	void buildRoundRectOutline(float x, float y, float width, float height, float radius, unsigned int color, std::vector<Vertex>& out)
 	{
-		auto finalColor = convertColor(color);
+		drawGLRoundedCorner(x, y + radius, 3.0f * ES_PI / 2.0f, ES_PI / 2.0f, radius, color, out);
+		drawGLRoundedCorner(x + width - radius, y, 0.0, ES_PI / 2.0f, radius, color, out);
+		drawGLRoundedCorner(x + width, y + height - radius, ES_PI / 2.0f, ES_PI / 2.0f, radius, color, out);
+		drawGLRoundedCorner(x + radius, y + height, ES_PI, ES_PI / 2.0f, radius, color, out);
+	}
 
-		std::vector<Vertex> vertex;
-		drawGLRoundedCorner(x, y + radius, 3.0f * ES_PI / 2.0f, ES_PI / 2.0f, radius, finalColor, vertex);
-		drawGLRoundedCorner(x + width - radius, y, 0.0, ES_PI / 2.0f, radius, finalColor, vertex);
-		drawGLRoundedCorner(x + width, y + height - radius, ES_PI / 2.0f, ES_PI / 2.0f, radius, finalColor, vertex);
-		drawGLRoundedCorner(x + radius, y + height, ES_PI, ES_PI / 2.0f, radius, finalColor, vertex);
+	// Outward unit normal at every point of a closed convex outline: the
+	// normalised sum of the two adjacent edge normals.
+	void roundRectNormals(const std::vector<Vertex>& pts, std::vector<Vector2f>& nrm)
+	{
+		const int n = (int)pts.size();
+		nrm.resize(n);
+		for (int i = 0; i < n; i++)
+		{
+			const Vector2f& p = pts[i].pos;
+			const Vector2f& prev = pts[(i - 1 + n) % n].pos;
+			const Vector2f& next = pts[(i + 1) % n].pos;
 
-		Vertex* vxs = new Vertex[vertex.size()];
-		for (int i = 0; i < vertex.size(); i++)
-			vxs[i] = vertex[i];
+			// edge normals, for a clockwise outline in y-down screen space
+			float ax = p.x() - prev.x(), ay = p.y() - prev.y();
+			float bx = next.x() - p.x(), by = next.y() - p.y();
+			float la = sqrtf(ax * ax + ay * ay), lb = sqrtf(bx * bx + by * by);
+			if (la > 0.0f) { ax /= la; ay /= la; }
+			if (lb > 0.0f) { bx /= lb; by /= lb; }
 
+			float nx = ay + by, ny = -(ax + bx);
+			float l = sqrtf(nx * nx + ny * ny);
+			nrm[i] = (l > 0.0f) ? Vector2f(nx / l, ny / l) : Vector2f(0.0f, 0.0f);
+		}
+	}
+
+	void submitRoundRect(std::vector<Vertex>& fill, std::vector<Vertex>& edge,
+		const Blend::Factor _srcBlendFactor, const Blend::Factor _dstBlendFactor)
+	{
 		bindTexture(0);
-
 		glEnable(GL_BLEND);
 		glBlendFunc(convertBlendFactor(_srcBlendFactor), convertBlendFactor(_dstBlendFactor));
 
@@ -421,61 +435,94 @@ namespace Renderer
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 		glEnableClientState(GL_COLOR_ARRAY);
 
-		glVertexPointer(2, GL_FLOAT, sizeof(Vertex), &vxs[0].pos);
-		glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), &vxs[0].tex);
-		glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(Vertex), &vxs[0].col);
+		glVertexPointer(2, GL_FLOAT, sizeof(Vertex), &fill[0].pos);
+		glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), &fill[0].tex);
+		glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(Vertex), &fill[0].col);
+		glDrawArrays(GL_TRIANGLE_FAN, 0, (GLsizei)fill.size());
 
-		glDrawArrays(GL_TRIANGLE_FAN, 0, vertex.size());
+		glVertexPointer(2, GL_FLOAT, sizeof(Vertex), &edge[0].pos);
+		glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), &edge[0].tex);
+		glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(Vertex), &edge[0].col);
+		glDrawArrays(GL_TRIANGLE_STRIP, 0, (GLsizei)edge.size());
 
 		glDisableClientState(GL_COLOR_ARRAY);
 		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 		glDisableClientState(GL_VERTEX_ARRAY);
 		glDisable(GL_BLEND);
+	}
 
-		delete[] vxs;	
+	// There is no multisample buffer on this path, so a plain polygon edge is
+	// thresholded per pixel and a curve comes out as a staircase however many
+	// segments it has. Pull the solid fill in by half a pixel and wrap it in a
+	// ring that fades to transparent, which gives the edge its coverage ramp.
+	void drawRoundRectAA(float x, float y, float width, float height, float radius,
+		unsigned int colorTop, unsigned int colorBottom, bool gradient,
+		const Blend::Factor _srcBlendFactor, const Blend::Factor _dstBlendFactor)
+	{
+		if (radius <= 0.0f || width <= 0.0f || height <= 0.0f)
+			return;
+
+		const float maxR = Math::min(width, height) / 2.0f;
+		if (radius > maxR) radius = maxR;
+
+		std::vector<Vertex> pts;
+		buildRoundRectOutline(x, y, width, height, radius, 0, pts);
+		if (pts.size() < 3)
+			return;
+
+		std::vector<Vector2f> nrm;
+		roundRectNormals(pts, nrm);
+
+		const float half = ROUND_FEATHER / 2.0f;
+		const int n = (int)pts.size();
+
+		std::vector<Vertex> fill(n), edge;
+		edge.reserve((n + 1) * 2);
+
+		for (int i = 0; i <= n; i++)
+		{
+			const int k = i % n;
+			const Vector2f& p = pts[k].pos;
+			const Vector2f& d = nrm[k];
+
+			unsigned int col = colorTop;
+			if (gradient && height > 0.0f)
+			{
+				float t = (p.y() - y) / height;
+				t = t < 0.0f ? 0.0f : (t > 1.0f ? 1.0f : t);
+				col = mixColors(colorTop, colorBottom, t);
+			}
+			const unsigned int solid = convertColor(col);
+			const unsigned int clear = solid & 0x00FFFFFF;   // same colour, no alpha
+
+			Vertex in;
+			in.pos = Vector2f(p.x() - d.x() * half, p.y() - d.y() * half);
+			in.tex = Vector2f(0, 0);
+			in.col = solid;
+
+			Vertex out;
+			out.pos = Vector2f(p.x() + d.x() * half, p.y() + d.y() * half);
+			out.tex = Vector2f(0, 0);
+			out.col = clear;
+
+			if (i < n) fill[k] = in;
+			edge.push_back(in);
+			edge.push_back(out);
+		}
+
+		submitRoundRect(fill, edge, _srcBlendFactor, _dstBlendFactor);
+	}
+
+	void drawRoundRect(float x, float y, float width, float height, float radius, unsigned int color, const Blend::Factor _srcBlendFactor, const Blend::Factor _dstBlendFactor)
+	{
+		drawRoundRectAA(x, y, width, height, radius, color, color, false, _srcBlendFactor, _dstBlendFactor);
 	}
 
 	// Vertical-gradient rounded rect: per-vertex color is linear in y, so
 	// triangle interpolation reproduces the gradient exactly.
 	void drawRoundRectVGradient(float x, float y, float width, float height, float radius, unsigned int colorTop, unsigned int colorBottom, const Blend::Factor _srcBlendFactor, const Blend::Factor _dstBlendFactor)
 	{
-		std::vector<Vertex> vertex;
-		const unsigned int seed = convertColor(colorTop);
-		drawGLRoundedCorner(x, y + radius, 3.0f * ES_PI / 2.0f, ES_PI / 2.0f, radius, seed, vertex);
-		drawGLRoundedCorner(x + width - radius, y, 0.0, ES_PI / 2.0f, radius, seed, vertex);
-		drawGLRoundedCorner(x + width, y + height - radius, ES_PI / 2.0f, ES_PI / 2.0f, radius, seed, vertex);
-		drawGLRoundedCorner(x + radius, y + height, ES_PI, ES_PI / 2.0f, radius, seed, vertex);
-
-		Vertex* vxs = new Vertex[vertex.size()];
-		for (int i = 0; i < vertex.size(); i++)
-		{
-			vxs[i] = vertex[i];
-			float t = (height > 0.0f) ? (vxs[i].pos.y() - y) / height : 0.0f;
-			t = t < 0.0f ? 0.0f : (t > 1.0f ? 1.0f : t);
-			vxs[i].col = convertColor(mixColors(colorTop, colorBottom, t));
-		}
-
-		bindTexture(0);
-		glEnable(GL_BLEND);
-		glBlendFunc(convertBlendFactor(_srcBlendFactor), convertBlendFactor(_dstBlendFactor));
-
-		glEnableClientState(GL_VERTEX_ARRAY);
-		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-		glEnableClientState(GL_COLOR_ARRAY);
-
-		glVertexPointer(2, GL_FLOAT, sizeof(Vertex), &vxs[0].pos);
-		glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), &vxs[0].tex);
-		glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(Vertex), &vxs[0].col);
-
-		glDrawArrays(GL_TRIANGLE_FAN, 0, vertex.size());
-
-		glDisableClientState(GL_COLOR_ARRAY);
-		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-		glDisableClientState(GL_VERTEX_ARRAY);
-
-		delete[] vxs;
-
-		glDisable(GL_BLEND);
+		drawRoundRectAA(x, y, width, height, radius, colorTop, colorBottom, true, _srcBlendFactor, _dstBlendFactor);
 	}
 
 	void enableRoundCornerStencil(float x, float y, float width, float height, float radius)
