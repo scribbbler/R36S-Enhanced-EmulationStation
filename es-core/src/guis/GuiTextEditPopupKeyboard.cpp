@@ -353,6 +353,8 @@ GuiTextEditPopupKeyboard::GuiTextEditPopupKeyboard(Window* window, const std::st
 	// If multiline, set all diminsions back to default, else draw size for keyboard.
 	if (mMultiLine) 
 	{
+		mTopGap = 0.0f;
+
 		if (Renderer::isSmallScreen())
 			setSize(OSK_WIDTH, Renderer::getScreenHeight());
 		else
@@ -362,13 +364,19 @@ GuiTextEditPopupKeyboard::GuiTextEditPopupKeyboard(Window* window, const std::st
 	}
 	else
 	{
+		// The title needs to sit a little below the screen top so it lines up
+		// with the top-anchored menu title. Offset the CONTENT by that much,
+		// not the window: on a small screen the popup is already the full
+		// screen height, so moving the window down leaves the same amount of
+		// the top uncovered, and the dimmed view behind shows through it as a
+		// grey band - invisible on a dark theme, obvious on a light one.
+		// Set before setSize, which triggers onSizeChanged and lays the grid out.
+		mTopGap = mPopupOffsetY; // ~8.5px (2px higher than 0.022)
+
 		//setSize(OSK_WIDTH, mTitle->getFont()->getHeight() + textHeight + 40 + (Renderer::getScreenHeight() * 0.085f) * 6);
 		setSize(OSK_WIDTH, OSK_HEIGHT);
-		// Shift the whole popup down a touch so its title lines up with the
-		// top-anchored menu title (which sits below the popup's flush-top title).
-		float kbYOffset = mPopupOffsetY; // ~8.5px (2px higher than 0.022)
-		setPosition((Renderer::getScreenWidth() - mSize.x()) / 2, (Renderer::getScreenHeight() - mSize.y()) / 2 + kbYOffset);
-		animateTo(Vector2f((Renderer::getScreenWidth() - mSize.x()) / 2, (Renderer::getScreenHeight() - mSize.y()) / 2 + kbYOffset));
+		setPosition((Renderer::getScreenWidth() - mSize.x()) / 2, (Renderer::getScreenHeight() - mSize.y()) / 2);
+		animateTo(Vector2f((Renderer::getScreenWidth() - mSize.x()) / 2, (Renderer::getScreenHeight() - mSize.y()) / 2));
 	}
 }
 
@@ -383,6 +391,7 @@ void GuiTextEditPopupKeyboard::onSizeChanged()
 	mGrid.setRowHeightPerc(0, mTitle->getFont()->getHeight() / mSize.y());
 	mGrid.setRowHeightPerc(2, mKeyboardGrid->getSize().y() / mSize.y());
 	mGrid.setSize(mSize);
+	mGrid.setPosition(0.0f, mTopGap);   // title and text field, not the background
 
 	auto pos = mKeyboardGrid->getPosition();
 	auto sz = mKeyboardGrid->getSize();
@@ -395,7 +404,7 @@ void GuiTextEditPopupKeyboard::onSizeChanged()
 
 	// Key-grid top: theme 'posY' pins it to an absolute distance from the screen top
 	// (converted to popup-local by subtracting the popup's own offset); else auto-computed.
-	float kbTop = (mKbTopPx > 0.0f) ? (mKbTopPx - mPopupOffsetY) : pos.y();
+	float kbTop = (mKbTopPx > 0.0f) ? (mKbTopPx - mTopGap) : pos.y();
 
 	mKeyboardGrid->setSize(kbWidth, sz.y() - OSK_PADDINGY); // Small margin between buttons
 	mKeyboardGrid->setPosition(kbMarginX, kbTop);
