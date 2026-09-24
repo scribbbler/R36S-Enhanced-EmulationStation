@@ -280,7 +280,7 @@ If a file is missing, that key falls back to its built-in Unicode glyph.
 	<posY>0.2416666667</posY><!-- key grid top at 116px from screen top (116/480) -->
 	<keySpacing>0.009375</keySpacing><!-- 6px gap between keys (3px padding each side); keys become 42px tiles in 48px cells -->
 	<keyRadius>0.0166666667</keyRadius><!-- 8px key corner radius (8/480) -->
-	<keyColor>0A0A0AFF</keyColor><!-- unfocused keys: near-black fill, white text (focused stays white/black) -->
+	<keyColor>1D1D1DFF</keyColor><!-- keys lifted off the black paper; the letters carry the contrast -->
 	<keyPressColor>CCCCCCFF</keyPressColor><!-- key flash color on press -->
 	<keyPressMs>150</keyPressMs><!-- flash duration; tune freely, no rebuild needed -->
     </keyboard>
