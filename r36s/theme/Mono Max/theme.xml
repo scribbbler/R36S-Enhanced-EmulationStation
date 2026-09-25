@@ -37,22 +37,25 @@ The selected row gets a left-hugging white pill with black text.
 	<origin>0 0</origin>
 	<type>vertical</type>
 	<color>00000000</color><!-- transparent; black screen behind -->
-	<logoSize>0.5 0.1</logoSize><!-- 320x48 logo box; indent = 320/10 = 32px, matching the name themes.
-	     The logos are tight-cropped, so this box IS the drawn height: at 0.15 they filled the
-	     whole 72px row and touched the pill. 48px leaves 12px of pill above and below, and
-	     matches logoText's 48px line height so an unthemed system's name fits the same box.
-	     Row pitch, pill and indent are all independent of this (size.y/maxLogoCount,
-	     selectorHeight, logoSize.x) -- only the drawn logo changes. -->
+	<logoSize>0.8 0.15</logoSize><!-- 512x72 logo box; indent = 512/10 = 51px.
+	     The logos are tight-cropped, so this box IS the drawn size, and WIDTH is what limits
+	     most of them: the set runs to 10.9:1, so at 320px wide the widest draw 29px however
+	     tall the box gets. 512x72 puts the whole set between 47px and 72px. Widening costs
+	     indent -- SystemView hardcodes it to logoSize.x/10 for a left-aligned vertical
+	     carousel, with no logoPos override -- so 51px here rather than the name themes' 32px.
+	     Row pitch and pill are independent of this (size.y/maxLogoCount, selectorHeight). -->
 	<logoScale>1.0</logoScale><!-- uniform: no enlargement of the selected item; every row same size -->
-	<maxLogoCount>5</maxLogoCount><!-- 5 rows visible, selected centered -->
+	<maxLogoCount>3</maxLogoCount><!-- 3 rows visible, selected centered: 380/3 = 127px pitch, the
+	     room a 72px logo needs. At 5 rows the pitch was 76px and the box could not grow. -->
 	<logoAlignment>left</logoAlignment><!-- left-align the system names (indent = logoSize.x/10 = 48px) -->
 	<pos>0 0.0875</pos><!-- v4: region top 42px -> selected pill at y 196..268 (rendered Figma) -->
-	<size>1 0.7916667</size><!-- 380px -> row pitch 380/5 = 76px (72px row + 4px gap), per Figma -->
+	<size>1 0.7916667</size><!-- 380px -> row pitch 380/3 = 127px -->
 	<!-- no logoPos => selection row stays vertically centered; pill is centered fixed-width -->
 	<selectorColor>F7FBF7FF</selectorColor><!-- off-white pill (#F7FBF7, matches design) -->
 	<selectorWidth>0.975</selectorWidth><!-- v4: pill 624px, x 8..632 (rendered Figma) -->
-	<selectorHeight>0.15</selectorHeight><!-- pill height 72px (Figma row height) -->
-	<selectorRadius>0.075</selectorRadius><!-- full pill (half of 72px) -->
+	<selectorHeight>0.2166667</selectorHeight><!-- pill 104px: grown with the pitch, so three rows
+	     read as a list rather than as three 72px pills adrift in 127px of black -->
+	<selectorRadius>0.1083333</selectorRadius><!-- full pill (half of 104px) -->
 	<logoColor>F7FBF7FF</logoColor><!-- unselected rows: off-white (#F7FBF7) -->
 	<logoSelectedColor>000000FF</logoSelectedColor><!-- selected row: black on the pill -->
 	<scrollSound>./audio/move.wav</scrollSound>
@@ -60,8 +63,10 @@ The selected row gets a left-hugging white pill with black text.
 
     <text name="logoText">
 	<fontPath>./fonts/BPreplay-Bold.otf</fontPath>
-	<fontSize>0.0652</fontSize><!-- 41px design ÷ 1.31 engine boost = 31.3px nominal; renders ~41px on device (matches Figma) -->
-	<lineSpacing>1.171</lineSpacing><!-- line height 48px -->
+	<fontSize>0.089</fontSize><!-- 56px design ÷ 1.31 engine boost = 42.7px nominal. Bigger than the
+	     name themes' 41px on purpose: this is the fallback for the 26 systems with no logo, and it
+	     has to hold its own beside a 72px logo rather than match a 41px name. -->
+	<lineSpacing>1.171</lineSpacing><!-- line height 66px -->
 	<padding>0 0 0 0.0041667</padding><!-- 2px bottom padding -> centred name sits 1px higher in the row (needs ES build that themes carousel padding) -->
 	<forceUppercase>false</forceUppercase>
 	<alignment>left</alignment>
