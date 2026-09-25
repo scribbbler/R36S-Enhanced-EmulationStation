@@ -47,7 +47,7 @@ The selected row gets a left-hugging white pill with black text.
 	<logoScale>1.0</logoScale><!-- uniform: no enlargement of the selected item; every row same size -->
 	<maxLogoCount>3</maxLogoCount><!-- 3 rows visible, selected centered: 380/3 = 127px pitch, the
 	     room a 72px logo needs. At 5 rows the pitch was 76px and the box could not grow. -->
-	<logoAlignment>left</logoAlignment><!-- left-align the system names (indent = logoSize.x/10 = 48px) -->
+	<logoAlignment>left</logoAlignment><!-- left-align the logos (indent = logoSize.x/10 = 51px) -->
 	<pos>0 0.0875</pos><!-- v4: region top 42px -> selected pill at y 196..268 (rendered Figma) -->
 	<size>1 0.7916667</size><!-- 380px -> row pitch 380/3 = 127px -->
 	<!-- no logoPos => selection row stays vertically centered; pill is centered fixed-width -->
