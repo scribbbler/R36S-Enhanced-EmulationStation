@@ -18,6 +18,7 @@
 #include "FileSorts.h"
 #include "utils/ThreadPool.h"
 #include "utils/AsyncUtil.h"
+#include <algorithm>
 
 std::string myCollectionsName = "collections";
 
@@ -310,6 +311,8 @@ void CollectionSystemManager::updateSystemsList()
 
 	// add auto enabled ones
 	addEnabledCollectionsToDisplayedSystems(&mAutoCollectionSystemsData, &map);
+
+	pinCollectionsToFront();
 	/*
 	// create views for collections, before reload
 	for(auto sysIt = SystemData::sSystemVector.cbegin(); sysIt != SystemData::sSystemVector.cend(); sysIt++)
@@ -324,6 +327,32 @@ void CollectionSystemManager::updateSystemsList()
 	if(mIsEditingCustom && !mEditingCollectionSystemData->isEnabled)
 	{
 		exitEditMode();
+	}
+}
+
+// Collections are appended after the consoles as they are enabled, which buries the
+// two rows a player navigates by. Move them to the head of the list instead, so the
+// home screen opens on "Last Played" -- ViewController::goToStart() with no
+// StartupSystem set lands on sSystemVector.at(0).
+//
+// Only these two are pinned. Any other collection the user turns on keeps the order
+// it was added in, because the point is a short predictable top of the list, not
+// collections-before-consoles as a rule.
+void CollectionSystemManager::pinCollectionsToFront()
+{
+	static const char* pinned[] = { "recent", "favorites" };
+
+	auto& systems = SystemData::sSystemVector;
+
+	// Walk the wanted order backwards, rotating each match to position 0, so the
+	// first name in the list ends up first on screen.
+	for (int i = (int)(sizeof(pinned) / sizeof(pinned[0])) - 1; i >= 0; i--)
+	{
+		auto it = std::find_if(systems.begin(), systems.end(),
+			[i](SystemData* sys) { return sys->isCollection() && sys->getName() == pinned[i]; });
+
+		if (it != systems.end())
+			std::rotate(systems.begin(), it, it + 1);
 	}
 }
 

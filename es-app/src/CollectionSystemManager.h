@@ -133,6 +133,7 @@ private:
 
 	void removeCollectionsFromDisplayedSystems();
 	void addEnabledCollectionsToDisplayedSystems(std::map<std::string, CollectionSystemData>* colSystemData, std::unordered_map<std::string, FileData*>* pMap);
+	void pinCollectionsToFront();
 
 	std::vector<std::string> getSystemsFromConfig();
 	std::vector<std::string> getSystemsFromTheme();

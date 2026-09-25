@@ -203,7 +203,10 @@ void Settings::setDefaults()
 	mBoolMap["CaptionsCompatibility"] = true;
 	// Audio out device for Video playback using OMX player.
 	mStringMap["OMXAudioDev"] = "both";
-	mStringMap["CollectionSystemsAuto"] = "";
+	// "Last Played" and "Favorites" are the two rows a player actually navigates by,
+	// so they are on out of the box; CollectionSystemManager pins them above the
+	// consoles. Anything already in es_settings.cfg still wins over this default.
+	mStringMap["CollectionSystemsAuto"] = "recent,favorites";
 	mStringMap["CollectionSystemsCustom"] = "";
 	mBoolMap["CollectionShowSystemInfo"] = true;
 	mBoolMap["SortAllSystems"] = false;
