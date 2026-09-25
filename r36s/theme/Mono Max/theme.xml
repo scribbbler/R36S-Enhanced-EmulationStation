@@ -37,7 +37,12 @@ The selected row gets a left-hugging white pill with black text.
 	<origin>0 0</origin>
 	<type>vertical</type>
 	<color>00000000</color><!-- transparent; black screen behind -->
-	<logoSize>0.5 0.15</logoSize><!-- 320x72 logo box; indent = 320/10 = 32px, matching the name themes -->
+	<logoSize>0.5 0.1</logoSize><!-- 320x48 logo box; indent = 320/10 = 32px, matching the name themes.
+	     The logos are tight-cropped, so this box IS the drawn height: at 0.15 they filled the
+	     whole 72px row and touched the pill. 48px leaves 12px of pill above and below, and
+	     matches logoText's 48px line height so an unthemed system's name fits the same box.
+	     Row pitch, pill and indent are all independent of this (size.y/maxLogoCount,
+	     selectorHeight, logoSize.x) -- only the drawn logo changes. -->
 	<logoScale>1.0</logoScale><!-- uniform: no enlargement of the selected item; every row same size -->
 	<maxLogoCount>5</maxLogoCount><!-- 5 rows visible, selected centered -->
 	<logoAlignment>left</logoAlignment><!-- left-align the system names (indent = logoSize.x/10 = 48px) -->
