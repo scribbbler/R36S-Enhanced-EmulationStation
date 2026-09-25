@@ -37,8 +37,9 @@ The selected row gets a left-hugging white pill with black text.
 	<origin>0 0</origin>
 	<type>vertical</type>
 	<color>00000000</color><!-- transparent; black screen behind -->
-	<logoSize>0.95 0.15</logoSize><!-- 608x72 logo box, centred at (640-608)/2 = 16px, so 8px
-	     inside the 624px pill on each side.
+	<logoSize>0.76 0.1466667</logoSize><!-- 486x70 is the UNSELECTED box; logoScale below takes the
+	     selected row to 608x88, centred at (640-608)/2 = 16px, so 8px inside the 624px pill on
+	     each side and 8px of pill above and below.
 	     The logos are tight-cropped, so this box IS the drawn size, and WIDTH is what limits
 	     most of them: the set runs to 10.9:1, so at 320px wide the widest draw 29px however
 	     tall the box gets. Centring is what buys the width -- a left-aligned vertical carousel
@@ -46,7 +47,10 @@ The selected row gets a left-hugging white pill with black text.
 	     logos right; a centred one uses (size.x - logoSize.x)/2 and has no such tie. Measured
 	     across the 152 system logos: 320x48 spans 29-48px, 512x72 spans 47-72px, this spans
 	     56-72px. Row pitch and pill are independent (size.y/maxLogoCount, selectorHeight). -->
-	<logoScale>1.0</logoScale><!-- uniform: no enlargement of the selected item; every row same size -->
+	<logoScale>1.25</logoScale><!-- the selected row draws a quarter larger than the rest.
+	     SystemView fits EVERY logo to logoSize * logoScale and then divides the per-row scale by
+	     logoScale again, so the selected row lands at logoSize * logoScale and the others at
+	     logoSize. logoSize above is therefore the unselected size, not the maximum. -->
 	<maxLogoCount>3</maxLogoCount><!-- 3 rows visible, selected centered: 380/3 = 127px pitch, the
 	     room a 72px logo needs. At 5 rows the pitch was 76px and the box could not grow. -->
 	<logoAlignment>center</logoAlignment><!-- centred in the pill: SystemView puts the logo's own
