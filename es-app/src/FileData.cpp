@@ -20,6 +20,7 @@
 #include "Gamelist.h"
 #include "guis/arkos4clone/FreqProfile.h"
 #include <algorithm>
+#include <chrono>
 
 FileData::FileData(FileType type, const std::string& path, SystemData* system)
 	: mType(type), mSystem(system), mParent(NULL), mMetadata(type == GAME ? GAME_METADATA : FOLDER_METADATA) // metadata is REALLY set in the constructor!
@@ -274,6 +275,23 @@ FileData* FileData::getSourceFileData()
 	return this;
 }
 
+// A game that never started returns almost immediately; one that ran for a while and
+// then crashed or was force-quit still counts as played, and is exactly the session a
+// player most wants to find again in "last played".
+// Measured against a monotonic clock: these devices have no RTC battery, so the wall
+// clock can jump by years the moment wi-fi brings NTP up mid-session.
+static const int MIN_PLAYED_SECONDS = 10;
+
+static void markAsPlayed(FileData* game)
+{
+	int timesPlayed = game->getMetadata().getInt("playcount") + 1;
+	game->getMetadata().set("playcount", std::to_string(static_cast<long long>(timesPlayed)));
+	game->getMetadata().set("lastplayed", Utils::Time::DateTime(Utils::Time::now()));
+
+	CollectionSystemManager::get()->refreshCollectionSystems(game);
+	saveToGamelistRecovery(game);
+}
+
 void FileData::launchGame(Window* window)
 {
 	LOG(LogInfo) << "Attempting to launch game...";
@@ -326,19 +344,11 @@ void FileData::launchGame(Window* window)
 	command = Utils::String::replace(command, "%SYSTEM%", getSystemName());
 	command = Utils::String::replace(command, "%HOME%", Utils::FileSystem::getHomePath());
 
-	if (Utils::FileSystem::exists("/usr/local/bin/quickmode.sh"))
-	{
-	    FileData* gameToUpdate = getSourceFileData();
-
-    	int timesPlayed = gameToUpdate->getMetadata().getInt("playcount") + 1;
-	    gameToUpdate->getMetadata().set("playcount", std::to_string(static_cast<long long>(timesPlayed)));
-
-	    //update last played time
-	    gameToUpdate->getMetadata().set("lastplayed", Utils::Time::DateTime(Utils::Time::now()));
-	    CollectionSystemManager::get()->refreshCollectionSystems(gameToUpdate);
-
-	    saveToGamelistRecovery(gameToUpdate);
-    }
+	// Quick Mode can power the device off mid-game, so ES never resumes to record the
+	// play afterwards; count it up front instead.
+	const bool quickMode = Utils::FileSystem::exists("/usr/local/bin/quickmode.sh");
+	if (quickMode)
+		markAsPlayed(getSourceFileData());
 
 	Scripting::fireEvent("game-start", rom, basename);
 
@@ -347,10 +357,14 @@ void FileData::launchGame(Window* window)
 
 	LOG(LogInfo) << "	" << command;
 
+	const auto launchedAt = std::chrono::steady_clock::now();
 	int exitCode = runSystemCommand(command, getDisplayName(), hideWindow ? NULL : window);
+	const int playedSeconds = (int)std::chrono::duration_cast<std::chrono::seconds>(
+		std::chrono::steady_clock::now() - launchedAt).count();
 	if (exitCode != 0)
 	{
-		LOG(LogWarning) << "...launch terminated with nonzero exit code " << exitCode << "!";
+		LOG(LogWarning) << "...launch terminated with nonzero exit code " << exitCode
+			<< " after " << playedSeconds << "s!";
 	}
 
 	Scripting::fireEvent("game-end");
@@ -362,19 +376,8 @@ void FileData::launchGame(Window* window)
 	window->normalizeNextUpdate();
 
 	//update number of times the game has been launched
-	if ((exitCode == 0) && !(Utils::FileSystem::exists("/usr/local/bin/quickmode.sh")))
-	{
-		FileData* gameToUpdate = getSourceFileData();
-
-		int timesPlayed = gameToUpdate->getMetadata().getInt("playcount") + 1;
-		gameToUpdate->getMetadata().set("playcount", std::to_string(static_cast<long long>(timesPlayed)));
-
-		//update last played time
-		gameToUpdate->getMetadata().set("lastplayed", Utils::Time::DateTime(Utils::Time::now()));
-		CollectionSystemManager::get()->refreshCollectionSystems(gameToUpdate);
-
-		saveToGamelistRecovery(gameToUpdate);
-	}
+	if (!quickMode && (exitCode == 0 || playedSeconds >= MIN_PLAYED_SECONDS))
+		markAsPlayed(getSourceFileData());
 
 	// music
 	if (Settings::getInstance()->getBool("audio.bgmusic"))
