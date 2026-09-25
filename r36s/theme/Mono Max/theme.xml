@@ -37,17 +37,21 @@ The selected row gets a left-hugging white pill with black text.
 	<origin>0 0</origin>
 	<type>vertical</type>
 	<color>00000000</color><!-- transparent; black screen behind -->
-	<logoSize>0.8 0.15</logoSize><!-- 512x72 logo box; indent = 512/10 = 51px.
+	<logoSize>0.95 0.15</logoSize><!-- 608x72 logo box, centred at (640-608)/2 = 16px, so 8px
+	     inside the 624px pill on each side.
 	     The logos are tight-cropped, so this box IS the drawn size, and WIDTH is what limits
 	     most of them: the set runs to 10.9:1, so at 320px wide the widest draw 29px however
-	     tall the box gets. 512x72 puts the whole set between 47px and 72px. Widening costs
-	     indent -- SystemView hardcodes it to logoSize.x/10 for a left-aligned vertical
-	     carousel, with no logoPos override -- so 51px here rather than the name themes' 32px.
-	     Row pitch and pill are independent of this (size.y/maxLogoCount, selectorHeight). -->
+	     tall the box gets. Centring is what buys the width -- a left-aligned vertical carousel
+	     derives its indent from logoSize.x/10 with no logoPos override, so widening pushed the
+	     logos right; a centred one uses (size.x - logoSize.x)/2 and has no such tie. Measured
+	     across the 152 system logos: 320x48 spans 29-48px, 512x72 spans 47-72px, this spans
+	     56-72px. Row pitch and pill are independent (size.y/maxLogoCount, selectorHeight). -->
 	<logoScale>1.0</logoScale><!-- uniform: no enlargement of the selected item; every row same size -->
 	<maxLogoCount>3</maxLogoCount><!-- 3 rows visible, selected centered: 380/3 = 127px pitch, the
 	     room a 72px logo needs. At 5 rows the pitch was 76px and the box could not grow. -->
-	<logoAlignment>left</logoAlignment><!-- left-align the logos (indent = logoSize.x/10 = 51px) -->
+	<logoAlignment>center</logoAlignment><!-- centred in the pill: SystemView puts the logo's own
+	     centre at (size.x - logoSize.x)/2 + logoSize.x/2 = 320, the pill's centre. Also frees
+	     logoSize.x from the indent, which is why the box can be 608 wide. -->
 	<pos>0 0.0875</pos><!-- v4: region top 42px -> selected pill at y 196..268 (rendered Figma) -->
 	<size>1 0.7916667</size><!-- 380px -> row pitch 380/3 = 127px -->
 	<!-- no logoPos => selection row stays vertically centered; pill is centered fixed-width -->
@@ -69,7 +73,7 @@ The selected row gets a left-hugging white pill with black text.
 	<lineSpacing>1.171</lineSpacing><!-- line height 66px -->
 	<padding>0 0 0 0.0041667</padding><!-- 2px bottom padding -> centred name sits 1px higher in the row (needs ES build that themes carousel padding) -->
 	<forceUppercase>false</forceUppercase>
-	<alignment>left</alignment>
+	<alignment>center</alignment><!-- matches logoAlignment, so a system with no logo centres like one with -->
 	<color>F7FBF7</color><!-- off-white (#F7FBF7); selected row overridden to black by logoSelectedColor -->
     </text>
     <text name="systemInfo">
@@ -177,8 +181,10 @@ The selected row gets a left-hugging white pill with black text.
          <fontSize>0.050889</fontSize><!-- 32px design (24.43 nominal x 1.31 engine boost), Figma game pill -->
          <pos>0.00625 0.1</pos><!-- v2: top 48px -> pill top 47 (rendered Figma) -->
          <size>0.9875 0.7875</size><!-- pill width 632px (4px each side); 378px = 7 rows x 54px pitch (Figma) -->
-         <alignment>left</alignment>
-         <horizontalMargin>0.025</horizontalMargin><!-- 16px text inset inside the pill (Figma px-16) -->
+         <alignment>center</alignment><!-- Max centres its game names too, so the gamelist reads the
+              same way as the carousel it was reached from -->
+         <horizontalMargin>0.025</horizontalMargin><!-- 16px inset each side, so a long name stops short
+              of the pill edge instead of running into the radius -->
          <origin>0 0</origin>
          <lineSpacing>1.611</lineSpacing><!-- v2: row pitch 53px (glyph height 32.9 measured on device) -->
          <selectorOffsetY>-0.0020833</selectorOffsetY><!-- pill 1px above cell top -> pill top at exactly 50px like the design -->
