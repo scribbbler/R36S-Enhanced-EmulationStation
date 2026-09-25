@@ -382,8 +382,8 @@ void CollectionSystemManager::updateCollectionSystem(FileData* file, CollectionS
 		else
 		{
 			// we didn't find it here - we need to check if we should add it
-			if (name == "recent" && file->getMetadata().get("playcount") > "0" && includeFileInAutoCollections(file) ||
-				name == "favorites" && file->getMetadata().get("favorite") == "true") {
+			if ((name == "recent" && file->getMetadata().getInt("playcount") > 0 && includeFileInAutoCollections(file)) ||
+				(name == "favorites" && file->getMetadata().get("favorite") == "true")) {
 				CollectionFileData* newGame = new CollectionFileData(file, curSys);
 				rootFolder->addChild(newGame);
 				curSys->addToIndex(newGame);
@@ -886,10 +886,10 @@ void CollectionSystemManager::populateAutoCollection(CollectionSystemData* sysDa
 				switch(sysDecl.type) 
 				{
 					case AUTO_LAST_PLAYED:
-						include = include && (*gameIt)->getMetadata().get("playcount") > "0";
+						include = include && (*gameIt)->getMetadata().getInt("playcount") > 0;
 						break;
 					case AUTO_NEVER_PLAYED:
-						include = include && !((*gameIt)->getMetadata("playcount") > "0");
+						include = include && (*gameIt)->getMetadata().getInt("playcount") <= 0;
 						break;
 					case AUTO_FAVORITES:
 						// we may still want to add files we don't want in auto collections in "favorites"
