@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-theme name:     Mono Classic
+theme name:     Mono Dark
 Creator:        Saurabh Das
-Family:         Mono (iPod Classic look: white, gray chrome title bar, blue gradient selection bars (work in progress))
+Family:         Mono (the Mono family flagship: black, text-only, capsule selection)
 -->
 <theme>
     <formatVersion>7</formatVersion>
@@ -31,20 +31,19 @@ The selected row gets a left-hugging white pill with black text.
 	<origin>0 0</origin>
 	<type>vertical</type>
 	<color>00000000</color><!-- transparent; black screen behind -->
-	<logoSize>0.453125 0.15</logoSize><!-- row 72px tall; indent = 0.453125x640/10 = 29px (rendered Figma: row x4 + 25px pad) -->
+	<logoSize>0.5 0.15</logoSize><!-- v4: indent = 0.5x640/10 = 32px (row x8 + 24px pad) -->
 	<logoScale>1.0</logoScale><!-- uniform: no enlargement of the selected item; every row same size -->
 	<maxLogoCount>5</maxLogoCount><!-- 5 rows visible, selected centered -->
 	<logoAlignment>left</logoAlignment><!-- left-align the system names (indent = logoSize.x/10 = 48px) -->
-	<pos>0 0.0958333</pos><!-- Figma: rows region top 46px -> rows land at y 48/124/200/276/352 -->
+	<pos>0 0.0875</pos><!-- v4: region top 42px -> selected pill at y 196..268 (rendered Figma) -->
 	<size>1 0.7916667</size><!-- 380px -> row pitch 380/5 = 76px (72px row + 4px gap), per Figma -->
 	<!-- no logoPos => selection row stays vertically centered; pill is centered fixed-width -->
-	<selectorColor>4FA0F0FF</selectorColor><!-- iPod blue gradient (top) -->
-	<selectorColorEnd>1257C9FF</selectorColorEnd><!-- iPod blue gradient (bottom); needs the gradient-capable ES build -->
-	<selectorWidth>1.0</selectorWidth><!-- full-width bar (authentic iPod) -->
+	<selectorColor>F7FBF7FF</selectorColor><!-- off-white pill (#F7FBF7, matches design) -->
+	<selectorWidth>0.975</selectorWidth><!-- v4: pill 624px, x 8..632 (rendered Figma) -->
 	<selectorHeight>0.15</selectorHeight><!-- pill height 72px (Figma row height) -->
-	<selectorRadius>0.0</selectorRadius><!-- square bar (authentic iPod) -->
-	<logoColor>000000FF</logoColor><!-- unselected rows: off-white (#E0E0E0) -->
-	<logoSelectedColor>FFFFFFFF</logoSelectedColor><!-- selected row: white on the blue bar -->
+	<selectorRadius>0.075</selectorRadius><!-- full pill (half of 72px) -->
+	<logoColor>F7FBF7FF</logoColor><!-- unselected rows: off-white (#F7FBF7) -->
+	<logoSelectedColor>000000FF</logoSelectedColor><!-- selected row: black on the pill -->
 	<scrollSound>./audio/move.wav</scrollSound>
     </carousel>
 
@@ -55,12 +54,12 @@ The selected row gets a left-hugging white pill with black text.
 	<padding>0 0 0 0.0041667</padding><!-- 2px bottom padding -> centred name sits 1px higher in the row (needs ES build that themes carousel padding) -->
 	<forceUppercase>false</forceUppercase>
 	<alignment>left</alignment>
-	<color>000000</color><!-- off-white (#E0E0E0); selected row overridden to black by logoSelectedColor -->
+	<color>F7FBF7</color><!-- off-white (#F7FBF7); selected row overridden to black by logoSelectedColor -->
     </text>
     <text name="systemInfo">
 	<text> </text>
 	<pos>1 1</pos>
-	<backgroundColor>FFFFFF</backgroundColor>
+	<backgroundColor>000000</backgroundColor>
 	<fontPath>./fonts/BPreplay-Bold.otf</fontPath>
 	<fontSize>0.00</fontSize>
 	<zIndex>5</zIndex>	     
@@ -75,14 +74,14 @@ The selected row gets a left-hugging white pill with black text.
 	<pos>0.0375 0.9041667</pos><!-- 24px margin; grid top 434 -> pill 426..474 (matches baked art) -->
 	<origin>0 0</origin>
 	<fontSize>0.0334</fontSize><!-- v2: 21px design (16.03 nominal x 1.31 boost) -->
-	<textColor>000000</textColor>
+	<textColor>F7FBF7</textColor>
 	<iconColor>FFFFFF</iconColor><!-- no tint: the icons carry their theme's own colour, and the shift multiplies -->
 	<iconSize>0.0666667</iconSize><!-- v2: 32px button icons -->
 	<iconTextSpacing>0.0125</iconTextSpacing><!-- 8px icon-to-label gap (Figma) -->
 	<entrySpacing>0.034375</entrySpacing><!-- v2: 22px between entries -->
 	<textUppercase>true</textUppercase><!-- applies to system labels only; overrides below are verbatim -->
 
-	<backgroundColor>E6E6E6FF</backgroundColor><!-- iPod: light gray pill --><!-- 10% black on E0E0E0 paper (mirrors Figma 10% white) -->
+	<backgroundColor>202420FF</backgroundColor><!-- v2 group pill (#202420, Figma) -->
 	<backgroundWidth>0</backgroundWidth><!-- v2: content-fit pills -->
 	<backgroundRadius>0.05</backgroundRadius><!-- 24px: half of the 48px pill, so it is a true stadium -->
 	<backgroundPadding>0.015625 0.0166667</backgroundPadding><!-- 10px x, 8px y -> 48px pill, top at 426 (Figma On-Screen Help) -->
@@ -107,14 +106,14 @@ The selected row gets a left-hugging white pill with black text.
 	<pos>0.0375 0.9041667</pos><!-- 24px margin; grid top 434 -> pill 426..474 (matches baked art) -->
 	<origin>0 0</origin>
 	<fontSize>0.0334</fontSize>
-	<textColor>000000</textColor>
+	<textColor>F7FBF7</textColor>
 	<iconColor>FFFFFF</iconColor><!-- no tint: the icons carry their theme's own colour, and the shift multiplies -->
 	<iconSize>0.0666667</iconSize>
 	<iconTextSpacing>0.0125</iconTextSpacing>
 	<entrySpacing>0.034375</entrySpacing>
 	<textUppercase>true</textUppercase>
 
-	<backgroundColor>E6E6E6FF</backgroundColor><!-- iPod: light gray pill --><!-- 10% black on E0E0E0 paper (mirrors Figma 10% white) -->
+	<backgroundColor>202420FF</backgroundColor><!-- v2 group pill (#202420, Figma) -->
 	<backgroundWidth>0</backgroundWidth>
 	<backgroundRadius>0.05</backgroundRadius><!-- 24px: half of the 48px pill, so it is a true stadium -->
 	<backgroundPadding>0.015625 0.0166667</backgroundPadding><!-- 10px x, 8px y -> 48px pill, top at 426 (Figma On-Screen Help) -->
@@ -154,22 +153,21 @@ The selected row gets a left-hugging white pill with black text.
 	<color>ffffff</color>
     </image>
     <textlist name="gamelist">
-         <selectorColor>4FA0F0FF</selectorColor><!-- iPod blue gradient (top) -->
-         <selectorColorEnd>1257C9FF</selectorColorEnd><!-- iPod blue gradient (bottom) -->
-         <selectedColor>FFFFFF</selectedColor><!-- white text on the blue bar -->
-         <primaryColor>000000</primaryColor><!-- unselected game text: off-white -->
-         <secondaryColor>000000</secondaryColor>
+         <selectorColor>F7FBF7</selectorColor><!-- off-white pill (#F7FBF7) -->
+         <selectedColor>000000</selectedColor><!-- black text on the pill -->
+         <primaryColor>F7FBF7</primaryColor><!-- unselected game text: off-white -->
+         <secondaryColor>F7FBF7</secondaryColor>
          <fontPath>./fonts/BPreplay-Bold.otf</fontPath>
          <fontSize>0.050889</fontSize><!-- 32px design (24.43 nominal x 1.31 engine boost), Figma game pill -->
-         <pos>0 0.10625</pos><!-- left edge 4px; top 51px -> text rows land at 64+54k (measured on device) -->
-         <size>1.0 0.7875</size><!-- pill width 632px (4px each side); 378px = 7 rows x 54px pitch (Figma) -->
+         <pos>0.00625 0.1</pos><!-- v2: top 48px -> pill top 47 (rendered Figma) -->
+         <size>0.9875 0.7875</size><!-- pill width 632px (4px each side); 378px = 7 rows x 54px pitch (Figma) -->
          <alignment>left</alignment>
-         <horizontalMargin>0.03125</horizontalMargin><!-- 16px text inset inside the pill (Figma px-16) -->
+         <horizontalMargin>0.025</horizontalMargin><!-- 16px text inset inside the pill (Figma px-16) -->
          <origin>0 0</origin>
-         <lineSpacing>1.641</lineSpacing><!-- row pitch 54px (BPreplay-Bold@32 glyph height measures 32.9px on device) -->
+         <lineSpacing>1.611</lineSpacing><!-- v2: row pitch 53px (glyph height 32.9 measured on device) -->
          <selectorOffsetY>-0.0020833</selectorOffsetY><!-- pill 1px above cell top -> pill top at exactly 50px like the design -->
          <selectorHeight>0.1083333</selectorHeight><!-- pill height 52px (Figma) -->
-         <selectorRadius>0.0</selectorRadius><!-- square bar (authentic iPod) -->
+         <selectorRadius>0.0541667</selectorRadius><!-- full pill (half of 52px) -->
 	<scrollSound>./audio/move.wav</scrollSound>
     </textlist>
 <!-- Style the built-in gamelist header (shows the system full name). A separate
@@ -179,7 +177,7 @@ The selected row gets a left-hugging white pill with black text.
          <size>0.96 0.05</size>
          <pos>0.02 0.025</pos>
          <alignment>center</alignment>
-         <color>000000</color>
+         <color>F7FBF7</color>
          <fontPath>./fonts/BPreplay-Bold.otf</fontPath><!-- bold gamelist system name -->
          <fontSize>0.03181</fontSize><!-- 20px design ÷ 1.31 boost -> renders ~20px, matches top bar -->
          <zIndex>2</zIndex>
@@ -220,37 +218,36 @@ Background of Ark menü
     <menuText name="menutext">
 	<fontPath>./fonts/BPreplay-Bold.otf</fontPath>
 	<fontSize>0.036578</fontSize><!-- 23px design (17.56 nominal x 1.31 boost), Figma menu v3 -->
-	<color>000000</color><!-- unselected menu row: off-white -->
-	<selectorColor>4FA0F0FF</selectorColor><!-- iPod blue gradient (top) -->
-	<selectorColorEnd>1257C9FF</selectorColorEnd><!-- iPod blue gradient (bottom) -->
-	<selectedColor>FFFFFF</selectedColor><!-- white text on the blue bar -->
-	<selectorRadius>0.0</selectorRadius><!-- square full-width bar (authentic iPod) -->
-	<separatorColor>C8C8C8FF</separatorColor><!-- thin row separators (iPod) -->
+	<color>F7FBF7</color><!-- unselected menu row: off-white -->
+	<selectorColor>F7FBF7</selectorColor><!-- off-white pill (#F7FBF7) on selected menu row -->
+	<selectedColor>000000</selectedColor><!-- black text on the pill -->
+	<selectorRadius>0.0375</selectorRadius><!-- full pill (half of 36px) -->
+	<separatorColor>00000000</separatorColor><!-- fully transparent: no separators -->
     </menuText>
 
     <menuText name="menutitle">
 	<fontPath>./fonts/BPreplay-Bold.otf</fontPath><!-- bold menu + keyboard title -->
 	<fontSize>0.03181</fontSize><!-- 20px design ÷ 1.31 boost -> renders ~20px, matches top bar -->
-	<color>000000</color>
+	<color>F7FBF7</color>
     </menuText>
 
 	<menuText name="menufooter">
 	<fontPath>./fonts/BPreplay-Regular.otf</fontPath>
 	<fontSize>0.02863</fontSize><!-- 18px version text ÷ 1.31 boost -> renders ~18px -->
-	<color>000000</color><!-- off-white version text -->
+	<color>F7FBF7</color><!-- off-white version text -->
     </menuText>
 
 	<menuText name="menutextsmall">
 	<fontPath>./fonts/BPreplay-Regular.otf</fontPath>
 	<fontSize>.029</fontSize>
-	<color>000000</color>
+	<color>F7FBF7</color>
     </menuText>
 	</view>
   
   	<view name="screen">
          <text name="clock">
 	     <fontPath>./fonts/BPreplay-Bold-Clock.otf</fontPath><!-- bold clock digits with centred ':' -->
-	     <color>000000</color>
+	     <color>F7FBF7</color>
          <fontSize>0.03181</fontSize><!-- 20px design ÷ 1.31 boost -> renders ~20px -->
          <lineSpacing>1.4</lineSpacing><!-- line height 28px (28/20) -->
          <pos>0.0375 0.0166666667</pos><!-- 24, 8px @640x480 (Figma side padding 24px) -->
@@ -264,7 +261,7 @@ Color of battery
 -->
    <view name="screen">
 	<batteryIndicator name="batteryIndicator">
-	<color>000000</color>
+	<color>F7FBF7</color>
 	<pos>0 0.0166666667</pos><!-- 8px from top @480 -->
 	<size>0.96875 0.0666666667</size><!-- 620 x 32px; battery right edge 20px from screen edge (Figma v3) -->
 	<horizontalAlignment>right</horizontalAlignment>
@@ -298,7 +295,7 @@ If a file is missing, that key falls back to its built-in Unicode glyph.
 	<posY>0.2416666667</posY><!-- key grid top at 116px from screen top (116/480) -->
 	<keySpacing>0.009375</keySpacing><!-- 6px gap between keys (3px padding each side); keys become 42px tiles in 48px cells -->
 	<keyRadius>0.0166666667</keyRadius><!-- 8px key corner radius (8/480) -->
-	<keyColor>E0E0E0FF</keyColor><!-- recessed keys on the #F3F3F3 paper; the letters carry the contrast -->
+	<keyColor>1D1D1DFF</keyColor><!-- keys lifted off the black paper; the letters carry the contrast -->
 	<keyPressColor>CCCCCCFF</keyPressColor><!-- key flash color on press -->
 	<keyPressMs>150</keyPressMs><!-- flash duration; tune freely, no rebuild needed -->
     </keyboard>
@@ -345,6 +342,13 @@ Requires the custom EmulationStation build that reads screensaverClock.
 Theme Configuration subsets: declared last so the selected overlay
 is applied AFTER the base views above and its overrides win.
 -->
+    <subset name="color-scheme" displayName="Theme Color">
+	<include name="white" displayName="White"/>
+	<include name="amber" displayName="Amber">./settings/color-amber.xml</include>
+	<include name="cyan" displayName="Cyan">./settings/color-cyan.xml</include>
+	<include name="green" displayName="Green">./settings/color-green.xml</include>
+	<include name="pink" displayName="Pink">./settings/color-pink.xml</include>
+    </subset>
 
     <subset name="font-size" displayName="Font Size">
 	<include name="medium" displayName="Medium"/>
