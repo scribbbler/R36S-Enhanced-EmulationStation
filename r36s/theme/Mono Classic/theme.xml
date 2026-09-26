@@ -76,7 +76,7 @@ The selected row gets a left-hugging white pill with black text.
 	<origin>0 0</origin>
 	<fontSize>0.0334</fontSize><!-- v2: 21px design (16.03 nominal x 1.31 boost) -->
 	<textColor>000000</textColor>
-	<iconColor>000000</iconColor>
+	<iconColor>FFFFFF</iconColor><!-- no tint: the icons carry their theme's own colour, and the shift multiplies -->
 	<iconSize>0.0666667</iconSize><!-- v2: 32px button icons -->
 	<iconTextSpacing>0.0125</iconTextSpacing><!-- 8px icon-to-label gap (Figma) -->
 	<entrySpacing>0.034375</entrySpacing><!-- v2: 22px between entries -->
@@ -86,17 +86,17 @@ The selected row gets a left-hugging white pill with black text.
 	<backgroundWidth>0</backgroundWidth><!-- v2: content-fit pills -->
 	<backgroundRadius>0.05</backgroundRadius><!-- 24px: half of the 48px pill, so it is a true stadium -->
 	<backgroundPadding>0.015625 0.0166667</backgroundPadding><!-- v2: 10px x, 8px y -> 48px pill -->
-	<iconX>./art/buttons/x.png</iconX>
-	<iconY>./art/buttons/y.png</iconY>
-	<iconA>./art/buttons/a.png</iconA>
-	<iconB>./art/buttons/b.png</iconB>
-	<iconStart>./art/buttons/start.png</iconStart>
-	<iconSelect>./art/buttons/select.png</iconSelect>
-	<iconL>./art/buttons/l.png</iconL>
-	<iconR>./art/buttons/r.png</iconR>
-	<iconUpDown>./art/buttons/updown.png</iconUpDown>
-	<iconLeftRight>./art/buttons/leftright.png</iconLeftRight>
-	<iconUpDownLeftRight>./art/buttons/updownleftright.png</iconUpDownLeftRight>
+	<iconX>./art/buttons/x.svg</iconX>
+	<iconY>./art/buttons/y.svg</iconY>
+	<iconA>./art/buttons/a.svg</iconA>
+	<iconB>./art/buttons/b.svg</iconB>
+	<iconStart>./art/buttons/start.svg</iconStart>
+	<iconSelect>./art/buttons/select.svg</iconSelect>
+	<iconL>./art/buttons/l.svg</iconL>
+	<iconR>./art/buttons/r.svg</iconR>
+	<iconUpDown>./art/buttons/updown.svg</iconUpDown>
+	<iconLeftRight>./art/buttons/leftright.svg</iconLeftRight>
+	<iconUpDownLeftRight>./art/buttons/updownleftright.svg</iconUpDownLeftRight>
         </helpsystem>
     </view>
 
@@ -108,7 +108,7 @@ The selected row gets a left-hugging white pill with black text.
 	<origin>0 0</origin>
 	<fontSize>0.0334</fontSize>
 	<textColor>000000</textColor>
-	<iconColor>000000</iconColor>
+	<iconColor>FFFFFF</iconColor><!-- no tint: the icons carry their theme's own colour, and the shift multiplies -->
 	<iconSize>0.0666667</iconSize>
 	<iconTextSpacing>0.0125</iconTextSpacing>
 	<entrySpacing>0.034375</entrySpacing>
@@ -118,17 +118,17 @@ The selected row gets a left-hugging white pill with black text.
 	<backgroundWidth>0</backgroundWidth>
 	<backgroundRadius>0.05</backgroundRadius><!-- 24px: half of the 48px pill, so it is a true stadium -->
 	<backgroundPadding>0.015625 0.0166667</backgroundPadding>
-	<iconX>./art/buttons/x.png</iconX>
-	<iconY>./art/buttons/y.png</iconY>
-	<iconB>./art/buttons/b.png</iconB>
-	<iconA>./art/buttons/a.png</iconA>
-	<iconStart>./art/buttons/start.png</iconStart>
-	<iconSelect>./art/buttons/select.png</iconSelect>
-	<iconL>./art/buttons/l.png</iconL>
-	<iconR>./art/buttons/r.png</iconR>
-	<iconUpDown>./art/buttons/updown.png</iconUpDown>
-	<iconLeftRight>./art/buttons/leftright.png</iconLeftRight>
-	<iconUpDownLeftRight>./art/buttons/updownleftright.png</iconUpDownLeftRight>
+	<iconX>./art/buttons/x.svg</iconX>
+	<iconY>./art/buttons/y.svg</iconY>
+	<iconB>./art/buttons/b.svg</iconB>
+	<iconA>./art/buttons/a.svg</iconA>
+	<iconStart>./art/buttons/start.svg</iconStart>
+	<iconSelect>./art/buttons/select.svg</iconSelect>
+	<iconL>./art/buttons/l.svg</iconL>
+	<iconR>./art/buttons/r.svg</iconR>
+	<iconUpDown>./art/buttons/updown.svg</iconUpDown>
+	<iconLeftRight>./art/buttons/leftright.svg</iconLeftRight>
+	<iconUpDownLeftRight>./art/buttons/updownleftright.svg</iconUpDownLeftRight>
         </helpsystem>
     </view>
    
