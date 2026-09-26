@@ -7,7 +7,10 @@ SwitchComponent::SwitchComponent(Window* window, bool state) : GuiComponent(wind
 {
 	auto menuTheme = ThemeData::getMenuTheme();
 
-	float height = Font::get(FONT_SIZE_MEDIUM)->getLetterHeight();	
+	// Same height as every other menu icon, and measured off the theme's own
+	// menu font rather than a fraction of the screen, so it follows a theme
+	// that resizes its menu text.
+	float height = MENU_ICON_HEIGHT(menuTheme->Text.font);
 
 	mImage.setImage(ThemeData::getMenuTheme()->Icons.off);
 	mImage.setResize(0, height);

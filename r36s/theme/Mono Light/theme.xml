@@ -221,6 +221,15 @@ Background of Ark menü
 	<iconScript>./art/icons/settings.svg</iconScript><!-- a runnable .sh in that menu -->
     </menuIcons>
 
+    <menuSwitch name="menuswitch">
+	<pathOn>./art/icons/toggle-on.svg</pathOn><!-- yes/no rows -->
+	<pathOff>./art/icons/toggle-off.svg</pathOff>
+    </menuSwitch>
+
+    <menuSlider name="menuslider">
+	<path>./art/icons/slider-knob.svg</path><!-- the track is drawn; this is the knob -->
+    </menuSlider>
+
     <menuCheckbox name="menucheckbox">
 	<pathChecked>./art/icons/checkbox-on.svg</pathChecked><!-- multi-select rows, e.g. Visible Systems -->
 	<pathUnchecked>./art/icons/checkbox-off.svg</pathUnchecked>

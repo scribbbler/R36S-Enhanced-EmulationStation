@@ -101,8 +101,9 @@ void MenuComponent::addWithLabel(const std::string& label, const std::shared_ptr
 		}
 	}
 
-	row.addElement(std::make_shared<TextComponent>(mWindow, Utils::String::toUpper(label), theme->Text.font, theme->Text.color), true);
-	row.addElement(comp, false, invert_when_selected);
+	const bool compTakesWidth = comp->wantsRowWidth();
+	row.addElement(std::make_shared<TextComponent>(mWindow, Utils::String::toUpper(label), theme->Text.font, theme->Text.color), !compTakesWidth);
+	row.addElement(comp, compTakesWidth, invert_when_selected);
 	addRow(row, setCursorHere);
 }
 

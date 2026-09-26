@@ -79,6 +79,12 @@ public:
     void setSize(float w, float h);
     virtual void onSizeChanged() {};
 
+	// A labelled row gives its spare width to the label by default. A control
+	// that is a track rather than a glyph -- a slider -- wants it instead, so
+	// the track is as long as the row allows rather than a fixed fraction of
+	// the screen that its own value label then eats into.
+	virtual bool wantsRowWidth() const { return false; }
+
 	virtual void setColor(unsigned int color) {};
 
 	virtual Vector2f getRotationSize() const { return getSize(); };
