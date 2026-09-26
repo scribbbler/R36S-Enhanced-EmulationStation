@@ -139,7 +139,23 @@ void ImageComponent::resize()
 	mSize[0] = Math::round(mSize.x());
 	mSize[1] = Math::round(mSize.y());
 
-	mTexture->rasterizeAt(mSize.x(), mSize.y());
+	// Only a size the caller actually asked for may pin the texture.
+	//
+	// Textures are cached by path alone -- size is not part of the key -- so one
+	// SVG serves every component that draws it, and TextureData::setSourceSize
+	// re-rasterises upward only, which keeps the texture at least as large as
+	// its largest consumer. That part is right. What was wrong is that an
+	// unsized component falls back to the image's natural size a few lines
+	// above, and rasterising at that staked a claim on behalf of a caller that
+	// never made one -- pinning the texture to the file's own dimensions and
+	// leaving every later, smaller consumer to be minified by GL, which has no
+	// mipmaps.
+	//
+	// Skipping still draws at natural size: that is exactly what the rasteriser
+	// falls back to when no source size has been set. Components that do ask
+	// for a size still register it, so the largest of them still wins.
+	if (mTargetSize != Vector2f::Zero())
+		mTexture->rasterizeAt(mSize.x(), mSize.y());
 
 	onSizeChanged();
 }
