@@ -15,8 +15,9 @@
 # Dependency makefiles
 *.d
 
-# Compiled executable
-emulationstation
+# Compiled executable. Anchored to the repo root: unanchored, and with
+# core.ignorecase true on macOS, it also swallowed r36s/tools/EmulationStation/.
+/emulationstation
 
 # build directory
 build
