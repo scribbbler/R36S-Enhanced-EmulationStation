@@ -1331,6 +1331,25 @@ void ClockScreenSaver::render(const Transform4x4f& transform)
 	Renderer::setMatrix(Transform4x4f::Identity());
 	Renderer::drawRect(0.0f, 0.0f, Renderer::getScreenWidth(), Renderer::getScreenHeight(), 0x000000FF);
 
+	// The two flip cards, each split across the middle by a seam of background
+	// showing through -- that seam is what reads as a flip clock rather than as
+	// two rounded boxes -- and the colon, two dots in the gap between them,
+	// drawn rather than typed so they stay put whatever the digits do.
+	//
+	// These are raw Renderer calls, so they use whatever matrix is current: they
+	// have to be drawn here, while the identity matrix set above still holds.
+	// Every component rendered below leaves its own matrix behind, so drawing
+	// after them puts the cards wherever the last label happened to sit. It is
+	// also the right order -- the digits belong on top of their cards.
+	for (int i = 0; i < 2; i++)
+	{
+		Renderer::drawRoundRect(mCardX[i], mCardY, mCardW, mCardH, mCardRadius, mCardColor);
+		Renderer::drawRect(mCardX[i], mCardY + (mCardH - mSplitH) / 2.0f, mCardW, mSplitH, 0x000000FF);
+	}
+
+	for (int i = 0; i < 2; i++)
+		Renderer::drawRoundRect(mColonX, mColonY[i], mColonSize, mColonSize, mColonSize / 3.0f, mInkColor);
+
 	// Padlock centered at the top in every state (the clock always locks input).
 	if (mLockImage)
 		mLockImage->render(transform);
@@ -1350,20 +1369,6 @@ void ClockScreenSaver::render(const Transform4x4f& transform)
 		if (mLabelDate)
 			mLabelDate->render(transform);
 	}
-
-	// The two flip cards, each split across the middle by a seam of background
-	// showing through -- that seam is what reads as a flip clock rather than as
-	// two rounded boxes.
-	for (int i = 0; i < 2; i++)
-	{
-		Renderer::drawRoundRect(mCardX[i], mCardY, mCardW, mCardH, mCardRadius, mCardColor);
-		Renderer::drawRect(mCardX[i], mCardY + (mCardH - mSplitH) / 2.0f, mCardW, mSplitH, 0x000000FF);
-	}
-
-	// Colon: two dots in the gap between the cards, drawn rather than typed so
-	// they stay put whatever the digits do.
-	for (int i = 0; i < 2; i++)
-		Renderer::drawRoundRect(mColonX, mColonY[i], mColonSize, mColonSize, mColonSize / 3.0f, mInkColor);
 
 	if (mLabelHour)
 		mLabelHour->render(transform);
