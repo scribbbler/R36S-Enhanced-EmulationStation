@@ -137,7 +137,12 @@ float SliderComponent::getValue()
 void SliderComponent::onSizeChanged()
 {
 	if(!mSuffix.empty())
-		mFont = Font::get((int)(mSize.y()), FONT_PATH_LIGHT);
+		// The theme's own menu font, so the value reads as part of the row.
+		// This used to be Font::get(mSize.y(), FONT_PATH_LIGHT) -- a size taken
+		// from the control's height and a light condensed face bundled with ES,
+		// which is why "560Mb" came out bigger than the label beside it and in
+		// a different weight.
+		mFont = ThemeData::getMenuTheme()->Text.font;
 	
 	onValueChanged();
 }
