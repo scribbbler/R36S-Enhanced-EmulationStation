@@ -72,8 +72,16 @@ std::shared_ptr<ComponentGrid> HelpComponent::buildGrid(const std::vector<HelpPr
 	{
 		auto icon = std::make_shared<ImageComponent>(mWindow);
 
+		// Ask for the display height BEFORE loading. setImage rasterises at
+		// whatever size the component is when it runs, and TextureData's
+		// setSourceSize only re-rasterises when the size GROWS -- so resizing
+		// afterwards leaves a 96px icon at 96px and lets GL minify it to 32,
+		// with GL_LINEAR and no mipmaps. That is what made the icons ragged,
+		// and it happened to SVG and PNG alike.
+		icon->setResize(0, iconH);
+
 		if (mStyle.iconMap.find(it->first) != mStyle.iconMap.end() && Utils::FileSystem::exists(mStyle.iconMap[it->first]))
-			icon->setImage(mStyle.iconMap[it->first]);
+			icon->setImage(mStyle.iconMap[it->first], false, MaxSizeInfo(iconH, iconH));
 		else
 			icon->setImage(getIconTexture(it->first.c_str()));
 
