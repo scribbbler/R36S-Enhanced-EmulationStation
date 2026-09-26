@@ -89,6 +89,8 @@ private:
 	void refreshBattery();
 	// Split the clock into the two cards and the AM/PM corner label.
 	void applyTime(struct tm* t);
+	TextComponent* makeCentredLabel(float cx, float cy, float w, float h,
+		const std::shared_ptr<Font>& font);
 	// Center the charging line ("[battery] NN% Charged") on the date row.
 	void layoutChargeLine();
 

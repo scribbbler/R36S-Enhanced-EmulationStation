@@ -1130,34 +1130,18 @@ ClockScreenSaver::ClockScreenSaver(Window* window) : GuiComponent(window)
 	mChargeIconW = H * 0.10f;        // 48px on a 480px panel
 	mChargeGap   = H * 0.021f;       // 10px gap between icon and label
 
-	// Hours and minutes, one per card, each centred on its own card rather than
-	// on the panel. The colon sits in the gap between them and is drawn, not typed.
-	TextComponent** digits[2] = { &mLabelHour, &mLabelMinute };
-	for (int i = 0; i < 2; i++)
-	{
-		TextComponent* d = new TextComponent(mWindow);
-		d->setOrigin(0.5f, 0.5f);
-		d->setPosition(mCardX[i] + mCardW / 2.0f, mCardY + mCardH / 2.0f);
-		d->setSize(mCardW, (float)fh);
-		d->setHorizontalAlignment(ALIGN_CENTER);
-		d->setVerticalAlignment(ALIGN_CENTER);
-		d->setColor(mInkColor);
-		d->setFont(font);
-		*digits[i] = d;
-	}
+	// Hours and minutes sit one per card, each centred on its own card rather
+	// than on the panel, and the colon centres in the gap between them -- the
+	// font's own glyph, since BPreplay-Bold-Clock carries a vertically centred
+	// colon for exactly this and drawing dots would only approximate whatever
+	// font the theme actually set.
+	const float midY  = mCardY + mCardH / 2.0f;
+	const float gapX  = mCardX[0] + mCardW;
+	const float gapW  = mCardX[1] - gapX;
 
-	// The colon is the font's own glyph, centred in the 32px gap between the
-	// cards. BPreplay-Bold-Clock carries a vertically centred colon for exactly
-	// this, so drawing dots instead only approximated whatever the theme's font
-	// already does.
-	mLabelColon = new TextComponent(mWindow);
-	mLabelColon->setOrigin(0.5f, 0.5f);
-	mLabelColon->setPosition((mCardX[0] + mCardW + mCardX[1]) / 2.0f, mCardY + mCardH / 2.0f);
-	mLabelColon->setSize(mCardX[1] - (mCardX[0] + mCardW), (float)fh);
-	mLabelColon->setHorizontalAlignment(ALIGN_CENTER);
-	mLabelColon->setVerticalAlignment(ALIGN_CENTER);
-	mLabelColon->setColor(mInkColor);
-	mLabelColon->setFont(font);
+	mLabelHour   = makeCentredLabel(mCardX[0] + mCardW / 2.0f, midY, mCardW, (float)fh, font);
+	mLabelMinute = makeCentredLabel(mCardX[1] + mCardW / 2.0f, midY, mCardW, (float)fh, font);
+	mLabelColon  = makeCentredLabel(gapX + gapW / 2.0f,        midY, gapW,   (float)fh, font);
 	mLabelColon->setText(":");
 
 	// AM/PM in the first card's top-left corner, 12px in and 7px down.
@@ -1250,6 +1234,22 @@ ClockScreenSaver::ClockScreenSaver(Window* window) : GuiComponent(window)
 	mBattLabel->setFont(ph, dateFont); // same as the date it replaces
 
 	refreshBattery();
+}
+
+// Every label on the clock face is built the same way -- centred on a point, in
+// the clock font, in the theme's ink -- so only the box it centres in differs.
+TextComponent* ClockScreenSaver::makeCentredLabel(float cx, float cy, float w, float h,
+	const std::shared_ptr<Font>& font)
+{
+	TextComponent* t = new TextComponent(mWindow);
+	t->setOrigin(0.5f, 0.5f);
+	t->setPosition(cx, cy);
+	t->setSize(w, h);
+	t->setHorizontalAlignment(ALIGN_CENTER);
+	t->setVerticalAlignment(ALIGN_CENTER);
+	t->setColor(mInkColor);
+	t->setFont(font);
+	return t;
 }
 
 // Hours on the first card, minutes on the second, AM/PM in the corner. The
