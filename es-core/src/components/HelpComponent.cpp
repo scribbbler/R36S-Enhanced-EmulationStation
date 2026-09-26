@@ -90,9 +90,18 @@ std::shared_ptr<ComponentGrid> HelpComponent::buildGrid(const std::vector<HelpPr
 			labelText = mStyle.uppercase ? Utils::String::toUpper(it->second) : it->second;
 
 		auto lbl = std::make_shared<TextComponent>(mWindow, labelText, font, mStyle.textColor);
+		// A chip is one line, so the default 1.5 line spacing is pure leading --
+		// and it is split unevenly around the glyphs, which left every label
+		// sitting a pixel low once the grid centred the box rather than the ink.
+		lbl->setLineSpacing(1.0f);
 		labels.push_back(lbl);
 
-		width += icon->getSize().x() + lbl->getSize().x() + mStyle.iconTextSpacing + mStyle.entrySpacing;
+		// entrySpacing separates one entry from the NEXT, so the last entry does
+		// not get one -- counting it there padded the right of every pill by a
+		// whole entry gap while the left kept only its background padding.
+		width += icon->getSize().x() + lbl->getSize().x() + mStyle.iconTextSpacing;
+		if (it + 1 != prompts.cend())
+			width += mStyle.entrySpacing;
 	}
 
 	grid->setSize(width, gridH);
@@ -102,6 +111,7 @@ std::shared_ptr<ComponentGrid> HelpComponent::buildGrid(const std::vector<HelpPr
 		grid->setColWidthPerc(col, icons.at(i)->getSize().x() / width);
 		grid->setColWidthPerc(col + 1, mStyle.iconTextSpacing / width);
 		grid->setColWidthPerc(col + 2, labels.at(i)->getSize().x() / width);
+		grid->setColWidthPerc(col + 3, (i + 1 < icons.size() ? mStyle.entrySpacing : 0.0f) / width);
 
 		grid->setEntry(icons.at(i), Vector2i(col, 0), false, false);
 		grid->setEntry(labels.at(i), Vector2i(col + 2, 0), false, false);
