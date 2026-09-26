@@ -777,14 +777,11 @@ std::vector<HelpPrompt> ViewController::getHelpPrompts()
 
 	prompts = mCurrentView->getHelpPrompts();
 
-	// While the clock screensaver locks input, keep the help bar fully empty.
-	// (The view already returns no prompts; don't force the Start=MENU prompt
-	// back in, or a lone "Menu" pill would stay on screen.)
-	bool clockLocked = mCurrentView->isKindOf<SystemView>()
-		&& ((SystemView*)mCurrentView.get())->isClockSaverActive();
-
-	if(!UIModeController::getInstance()->isUIModeKid() && !clockLocked)
-		prompts.push_back(HelpPrompt("start", _("MENU")));
+	// No Start=MENU chip. Every view names its own prompts and none of the
+	// designs carry one: the carousel bar is Random / Search / Open and the
+	// gamelist is Random / Favorite / Back / Launch. Start still opens the
+	// menu -- it simply has no chip, the same way Select has none. Forcing one
+	// in here also put it in front of the prompts the view actually chose.
 
 	return prompts;
 }

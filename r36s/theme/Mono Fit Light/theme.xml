@@ -73,7 +73,7 @@ The selected row gets a left-hugging white pill with black text.
     <!-- Carousel help bar: Clock (Select) / Menu (Start)  |  Search (Y) / Random (X) -->
     <view name="system">
         <helpsystem name="help">
-        <fontPath>./fonts/BPreplay-Regular.otf</fontPath>
+        <fontPath>./fonts/BPreplay-Bold.otf</fontPath><!-- the design sets the help labels bold -->
 	<pos>0.0375 0.9041667</pos><!-- 24px margin; grid top 434 -> pill 426..474 (matches baked art) -->
 	<origin>0 0</origin>
 	<fontSize>0.0334</fontSize><!-- v2: 21px design (16.03 nominal x 1.31 boost) -->
@@ -105,7 +105,7 @@ The selected row gets a left-hugging white pill with black text.
     <!-- Gamelist help bar: Options (Select) / Menu (Start)  |  Favorite (Y) / Random (X) -->
     <view name="basic, detailed, video">
         <helpsystem name="help">
-        <fontPath>./fonts/BPreplay-Regular.otf</fontPath>
+        <fontPath>./fonts/BPreplay-Bold.otf</fontPath><!-- the design sets the help labels bold -->
 	<pos>0.0375 0.9041667</pos><!-- 24px margin; grid top 434 -> pill 426..474 (matches baked art) -->
 	<origin>0 0</origin>
 	<fontSize>0.0334</fontSize>

@@ -744,14 +744,18 @@ void Window::setHelpPrompts(const std::vector<HelpPrompt>& prompts, const HelpSt
 		}
 	}
 
-	// sort prompts so it goes [dpad_all] [dpad_u/d] [dpad_l/r] [a/b/x/y/l/r] [start/select]
+	// Order the prompts the way the help bar reads left to right. The two pills
+	// want different button orders -- the left one shows X before Y, the right
+	// one B before A -- so the sequence below is the design's reading order
+	// rather than the pad's button order, and the sort runs up it.
 	std::sort(addPrompts.begin(), addPrompts.end(), [](const HelpPrompt& a, const HelpPrompt& b) -> bool {
 
 		static const char* map[] = {
 			"up/down/left/right",
 			"up/down",
 			"left/right",
-			"a", "b", "x", "y", "l", "r",
+			"x", "y",            // left pill
+			"b", "a", "l", "r",  // right pill
 			"start", "select",
 			NULL
 		};
@@ -768,7 +772,7 @@ void Window::setHelpPrompts(const std::vector<HelpPrompt>& prompts, const HelpSt
 			i++;
 		}
 
-		return aVal > bVal;
+		return aVal < bVal;
 	});
 
 	mHelp->setPrompts(addPrompts);
