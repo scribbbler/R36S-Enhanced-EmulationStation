@@ -66,6 +66,28 @@ SKIP_SYSTEMS = {
 # Launcher stubs that ES lists like games but which are not games.
 STUB_NAMES = {"scan_for_new_games", "menu"}
 
+# Titles for arcade sets missing from EmulationStation's mamenames.xml, kept
+# beside this script. Only consulted when the gamelist has no name of its own.
+EXTRA_NAMES_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                "mame-extra-names.tsv")
+
+
+def load_extra_names():
+    out = {}
+    try:
+        fh = open(EXTRA_NAMES_FILE, encoding="utf-8")
+    except OSError:
+        return out
+    with fh:
+        for line in fh:
+            line = line.rstrip("\n")
+            if not line or line.startswith("#") or "\t" not in line:
+                continue
+            code, title = line.split("\t", 1)
+            if code and title:
+                out[code.strip()] = title.strip()
+    return out
+
 
 def find_cfg(roms_root=None):
     candidates = list(CFG_CANDIDATES)
@@ -158,7 +180,8 @@ def esc(s):
     return html.escape(s, quote=False)
 
 
-def render(entries, existing):
+def render(entries, existing, extra=None):
+    extra = extra or {}
     lines = ['<?xml version="1.0"?>', "<gameList>"]
     for path in entries:
         meta = dict(existing.get(path, {}))
@@ -172,6 +195,8 @@ def render(entries, existing):
         # Dark Kombat". Writing the stem as an explicit <name> overrides that
         # lookup and leaves the short MAME code on screen. ES omits the name
         # for the same reason when it saves a gamelist itself.
+        if not name or name == stem:
+            name = extra.get(stem, "")
         if name and name != stem:
             lines.append("\t\t<name>%s</name>" % esc(name))
         for t in KEEP_TAGS:
@@ -207,6 +232,11 @@ def main():
     if not dry:
         os.makedirs(backup, exist_ok=True)
 
+    extra = load_extra_names()
+    if extra:
+        print("Extra arcade titles available: %d" % len(extra))
+        print()
+
     rows, skipped = [], []
     for name, rom_dir, exts in systems(cfg, roms_root):
         if name in SKIP_SYSTEMS:
@@ -232,7 +262,7 @@ def main():
                     print("  SKIPPED %-14s could not back up: %s" % (name, e))
                     continue
             with open(gamelist, "w", encoding="utf-8") as fh:
-                fh.write(render(entries, existing))
+                fh.write(render(entries, existing, extra))
 
         rows.append((name, len(entries), len(existing) - len(dropped),
                      len(added), len(dropped), new_file))

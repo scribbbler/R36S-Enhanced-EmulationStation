@@ -1,0 +1,31 @@
+# Titles for arcade sets that EmulationStation's bundled mamenames.xml
+# does not carry - mostly US/Euro revisions and one Neo Geo homebrew.
+# Verified against adb.arcadeitalia.net, and for totc against MAME's own
+# hash/neogeo.xml. Format: <mame set name><TAB><title>
+#
+# Rebuild Gamelists uses these only when the gamelist has no name of its
+# own, so anything you scrape or rename later wins over this file.
+3wonderu	Three Wonders (US 910520)
+aligatun	Alligator Hunt (unprotected)
+bubsympu	Bubble Symphony (Ver 2.5A 1994/10/05)
+buckyua	Bucky O'Hare (ver UA)
+captavnu	Captain America and The Avengers (US Rev 1.9)
+ddragn2u	Double Dragon II - The Revenge (US)
+dw	Dynasty Wars (World)
+grdius3e	Gradius III (World ?)
+gunsmoku	Gun.Smoke (US set 1)
+ikari3nr	Ikari III - The Rescue (8-Way Joystick)
+landmkrp	Land Maker (Ver 2.02O 1998/06/02) (Prototype)
+mainev2p	The Main Event (2 Players ver. X)
+mooua	Wild West C.O.W.-Boys of Moo Mesa (ver UA)
+mystwaru	Mystic Warriors (ver UAA)
+noboranb	Noboranka (Japan)
+puyopuya	Puyo Puyo (Japan) (Rev A)
+puzloopu	Puzz Loop (USA)
+robocp2u	Robocop 2 (US v0.05)
+sfzch	Street Fighter Zero (CPS Changer, Japan 951020)
+slammasu	Saturday Night Slam Masters (US 930713)
+spidey	Spider-Man: The Videogame (World)
+totc	Treasures of The Caribbean
+vendet2p	Vendetta (World 2 Players ver. W)
+xmen2p	X-Men (2 Players ver AAA)
