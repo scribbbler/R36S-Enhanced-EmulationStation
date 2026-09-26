@@ -7,7 +7,11 @@
 
 // Proportions taken from the Figma slider states, which are drawn in a 36x24
 // box: a 2px track, a 10px knob, and the unfilled remainder at half strength.
-#define KNOB_RATIO   (10.0f / 24.0f)
+#define TRACK_ASPECT (36.0f / 24.0f)
+// The design's knob is 10px in a 24px box. The control draws at 20px here, so
+// that ratio gives 8px and reads small -- 12/24 restores the knob's actual
+// drawn size at the height we use.
+#define KNOB_RATIO   (12.0f / 24.0f)
 #define TRACK_RATIO  ( 2.0f / 24.0f)
 #define TRACK_DIM    0.5f
 #define SUFFIX_GAP   8.0f
@@ -27,9 +31,24 @@ SliderComponent::SliderComponent(Window* window, float min, float max, float inc
 	mKnob.setImage(ThemeData::getMenuTheme()->Icons.knob); // ":/slider_knob.svg");
 	mKnob.setColorShift(mColor);
 
-	// Width comes from the row (see wantsRowWidth); this is only a starting
-	// value. Height matches the rest of the menu chrome.
-	setSize(Renderer::getScreenWidth() * 0.15f, MENU_ICON_HEIGHT(menuTheme->Text.font));
+	// The slider is the same 36x24 box the design gives every menu control, at
+	// the height the rest of the chrome uses -- not a fraction of the screen,
+	// and not the row's leftover width. The value sits beside it, and the space
+	// reserved for it is the width of the largest value it can hold, so the
+	// track does not shift as the number grows.
+	mFont = menuTheme->Text.font;
+
+	const float h = MENU_ICON_HEIGHT(menuTheme->Text.font);
+	float w = Math::round(h * TRACK_ASPECT);
+	if (!mSuffix.empty() && mFont)
+	{
+		std::stringstream ss;
+		ss << std::fixed;
+		ss.precision(0);
+		ss << mMax << mSuffix;
+		w += SUFFIX_GAP + mFont->sizeText(ss.str()).x();
+	}
+	setSize(w, h);
 }
 
 void SliderComponent::setColor(unsigned int color) {

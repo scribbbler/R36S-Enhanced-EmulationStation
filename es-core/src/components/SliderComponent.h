@@ -24,7 +24,6 @@ public:
 	void render(const Transform4x4f& parentTrans) override;
 
 	void onSizeChanged() override;
-	bool wantsRowWidth() const override { return true; }
 
 	virtual std::vector<HelpPrompt> getHelpPrompts() override;
 	virtual void setColor(unsigned int color);

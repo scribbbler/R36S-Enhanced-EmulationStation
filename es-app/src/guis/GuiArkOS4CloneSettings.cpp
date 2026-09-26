@@ -1539,11 +1539,20 @@ void GuiArkOS4CloneSettings::openBatteryPlusSettings()
     int voltage = BatteryPlus::getVoltageMv();
     std::string mode = BatteryPlus::getMode();
 
-    std::string info = "Percent: " + percent + "  Status: " + status;
+    // One fact per row. These were a single string -- "Percent: N/A  Status:
+    // Unknown  Voltage: 3736mV  Mode: pmic" -- and a labelled row gives its
+    // spare width to the label, so a value that long left the label with none
+    // of it: the row read as an unlabelled band of text that scrolled away.
+    auto theme = ThemeData::getMenuTheme();
+    auto info = [&](const std::string& label, const std::string& value) {
+        s->addWithLabel(label, std::make_shared<TextComponent>(mWindow, value, theme->Text.font, theme->Text.color));
+    };
+
+    info(_("PERCENT"), percent);
+    info(_("STATUS"), status);
     if (voltage > 0)
-        info += "  Voltage: " + std::to_string(voltage) + "mV";
-    info += "  Mode: " + mode;
-    s->addWithLabel(_("BATTERY INFO"), std::make_shared<TextComponent>(mWindow, info, Font::get(FONT_SIZE_SMALL), 0x777777FF));
+        info(_("VOLTAGE"), std::to_string(voltage) + "mV");
+    info(_("MODE"), mode);
 
     // Enable/Disable toggle
     bool enabled = BatteryPlus::isEnabled();
