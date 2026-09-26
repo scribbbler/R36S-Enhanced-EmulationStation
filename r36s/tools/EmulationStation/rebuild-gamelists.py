@@ -162,10 +162,18 @@ def render(entries, existing):
     lines = ['<?xml version="1.0"?>', "<gameList>"]
     for path in entries:
         meta = dict(existing.get(path, {}))
-        name = meta.pop("name", "") or os.path.splitext(os.path.basename(path))[0]
+        stem = os.path.splitext(os.path.basename(path))[0]
+        name = meta.pop("name", "")
         lines.append("\t<game>")
         lines.append("\t\t<path>%s</path>" % esc(path))
-        lines.append("\t\t<name>%s</name>" % esc(name))
+        # Never write a name that is merely the filename. EmulationStation
+        # derives that itself - and for arcade and neogeo it runs the stem
+        # through mamenames.xml first, so "aodk" is shown as "Aggressors of
+        # Dark Kombat". Writing the stem as an explicit <name> overrides that
+        # lookup and leaves the short MAME code on screen. ES omits the name
+        # for the same reason when it saves a gamelist itself.
+        if name and name != stem:
+            lines.append("\t\t<name>%s</name>" % esc(name))
         for t in KEEP_TAGS:
             if meta.get(t):
                 lines.append("\t\t<%s>%s</%s>" % (t, esc(meta[t]), t))
