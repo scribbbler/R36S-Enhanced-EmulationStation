@@ -348,7 +348,9 @@ Requires the custom EmulationStation build that reads screensaverClock.
    <view name="screen">
 	<text name="screensaverClock">
 	<fontPath>./fonts/BPreplay-Bold-Clock.otf</fontPath><!-- Bold with a vertically-centred ':' (screensaver only) -->
-	<fontSize>0.159</fontSize><!-- 100px digits ÷ 1.31 boost; the date row is 0.36x -->
+	<fontSize>0.18</fontSize><!-- the digit size, and only the digits: the date row is its own
+	     fixed size now. Measured against the Figma frame, where a digit's ink is 86px tall and
+	     53px wide; 0.159 rendered it at 76 x 47, so this is that 1.13x short. -->
 	<color>F7FBF7</color><!-- digits, colon and the AM/PM corner -->
 	<backgroundColor>1F1F1F</backgroundColor><!-- the two flip cards, lifted off the black ground -->
     </text>

@@ -1096,6 +1096,9 @@ ClockScreenSaver::ClockScreenSaver(Window* window) : GuiComponent(window)
 	// cards. Every figure is a fraction of the panel so it holds at any size.
 	const float lockY = H * 0.0458333f; // 22px: centre of the 24px lock at y 10
 	const float dateY = H * 0.2708333f; // 130px: centre of the 40px date row at y 110
+	// The date row is its own size in the frame rather than a fraction of the
+	// digits, so it stays put when the digits are resized.
+	const float dateFont = H * 0.0573f; // renders the 36px row
 	mDateY = dateY;
 
 	mCardW      = W * 0.28125f;    // 180px
@@ -1106,10 +1109,8 @@ ClockScreenSaver::ClockScreenSaver(Window* window) : GuiComponent(window)
 	mCardRadius = mCardH / 15.0f;  // 12px on a 180px card
 	mSplitH     = H * 0.0083333f;  // 4px: the flip seam across each card
 
-	mColonSize  = W * 0.028125f;   // 18px dots
-	mColonX     = W * 0.4640625f;  // 297px
-	mColonY[0]  = H * 0.4833333f;  // 232px
-	mColonY[1]  = H * 0.5479167f;  // 263px
+	mNotchW     = mCardW * 0.0333333f; // 6px, straddling the card edge
+	mNotchH     = mCardH * 0.0888889f; // 16px, centred on the seam
 
 	// Card fill and ink both come from the theme, so a light variant can invert
 	// the pair: <text name="screensaverClock"> backgroundColor / color.
@@ -1145,10 +1146,24 @@ ClockScreenSaver::ClockScreenSaver(Window* window) : GuiComponent(window)
 		*digits[i] = d;
 	}
 
-	// AM/PM in the first card's top-left corner, 12px in and 15px down.
+	// The colon is the font's own glyph, centred in the 32px gap between the
+	// cards. BPreplay-Bold-Clock carries a vertically centred colon for exactly
+	// this, so drawing dots instead only approximated whatever the theme's font
+	// already does.
+	mLabelColon = new TextComponent(mWindow);
+	mLabelColon->setOrigin(0.5f, 0.5f);
+	mLabelColon->setPosition((mCardX[0] + mCardW + mCardX[1]) / 2.0f, mCardY + mCardH / 2.0f);
+	mLabelColon->setSize(mCardX[1] - (mCardX[0] + mCardW), (float)fh);
+	mLabelColon->setHorizontalAlignment(ALIGN_CENTER);
+	mLabelColon->setVerticalAlignment(ALIGN_CENTER);
+	mLabelColon->setColor(mInkColor);
+	mLabelColon->setFont(font);
+	mLabelColon->setText(":");
+
+	// AM/PM in the first card's top-left corner, 12px in and 7px down.
 	mLabelMeridiem = new TextComponent(mWindow);
 	mLabelMeridiem->setOrigin(0.0f, 0.0f);
-	mLabelMeridiem->setPosition(mCardX[0] + mCardW * 0.0666667f, mCardY + mCardH * 0.0833333f);
+	mLabelMeridiem->setPosition(mCardX[0] + mCardW * 0.0666667f, mCardY + mCardH * 0.0388889f);
 	mLabelMeridiem->setHorizontalAlignment(ALIGN_LEFT);
 	mLabelMeridiem->setVerticalAlignment(ALIGN_TOP);
 	mLabelMeridiem->setColor(mInkColor);
@@ -1164,7 +1179,7 @@ ClockScreenSaver::ClockScreenSaver(Window* window) : GuiComponent(window)
 	mLabelDate->setColor(0xFFFFFFFF);
 	mLabelDate->setGlowColor(0x00000060);
 	mLabelDate->setGlowSize(2);
-	mLabelDate->setFont(ph, sz * 0.36f); // 36px date (0.36 x the 100px time)
+	mLabelDate->setFont(ph, dateFont);
 
 	// Lock icon, centered above the date. Themeable via
 	// <view name="screen"><image name="screensaverLock"><path>.
@@ -1232,7 +1247,7 @@ ClockScreenSaver::ClockScreenSaver(Window* window) : GuiComponent(window)
 	mBattLabel->setColor(0xFFFFFFFF);
 	mBattLabel->setGlowColor(0x00000060);
 	mBattLabel->setGlowSize(2);
-	mBattLabel->setFont(ph, sz * 0.36f); // 36px, same as the date
+	mBattLabel->setFont(ph, dateFont); // same as the date it replaces
 
 	refreshBattery();
 }
@@ -1294,6 +1309,12 @@ ClockScreenSaver::~ClockScreenSaver()
 		mLabelMinute = nullptr;
 	}
 
+	if (mLabelColon != nullptr)
+	{
+		delete mLabelColon;
+		mLabelColon = nullptr;
+	}
+
 	if (mLabelMeridiem != nullptr)
 	{
 		delete mLabelMeridiem;
@@ -1331,31 +1352,19 @@ void ClockScreenSaver::render(const Transform4x4f& transform)
 	Renderer::setMatrix(Transform4x4f::Identity());
 	Renderer::drawRect(0.0f, 0.0f, Renderer::getScreenWidth(), Renderer::getScreenHeight(), 0x000000FF);
 
-	// The two flip cards, each split across the middle by a seam of background
-	// showing through -- that seam is what reads as a flip clock rather than as
-	// two rounded boxes -- and the colon, two dots in the gap between them,
-	// drawn rather than typed so they stay put whatever the digits do.
-	//
-	// These are raw Renderer calls, so they use whatever matrix is current: they
-	// have to be drawn here, while the identity matrix set above still holds.
-	// Every component rendered below leaves its own matrix behind, so drawing
-	// after them puts the cards wherever the last label happened to sit. It is
-	// also the right order -- the digits belong on top of their cards.
+	// The cards go down first so the digits land on top of them. These are raw
+	// Renderer calls and so use whatever matrix is current -- they have to be
+	// drawn while the identity matrix set above still holds, because every
+	// component rendered below leaves its own matrix behind.
 	for (int i = 0; i < 2; i++)
-	{
 		Renderer::drawRoundRect(mCardX[i], mCardY, mCardW, mCardH, mCardRadius, mCardColor);
-		Renderer::drawRect(mCardX[i], mCardY + (mCardH - mSplitH) / 2.0f, mCardW, mSplitH, 0x000000FF);
-	}
-
-	for (int i = 0; i < 2; i++)
-		Renderer::drawRoundRect(mColonX, mColonY[i], mColonSize, mColonSize, mColonSize / 3.0f, mInkColor);
 
 	// Padlock centered at the top in every state (the clock always locks input).
 	if (mLockImage)
 		mLockImage->render(transform);
 
 	// The date row shows either the date, or (while charging) a battery icon +
-	// "NN% Charged". The large time stays visible below in both states.
+	// "NN% Charged". The time stays visible below in both states.
 	if (mCharging)
 	{
 		if (mBattImage)
@@ -1376,8 +1385,28 @@ void ClockScreenSaver::render(const Transform4x4f& transform)
 	if (mLabelMinute)
 		mLabelMinute->render(transform);
 
+	if (mLabelColon)
+		mLabelColon->render(transform);
+
 	if (mLabelMeridiem)
 		mLabelMeridiem->render(transform);
+
+	// The seam and the hinge notches go on top of the digits, not under them --
+	// the fold cuts across the numbers, which is what makes it read as a card
+	// that flips rather than a line behind one. Re-assert the identity matrix
+	// first: the components above each left their own behind.
+	Renderer::setMatrix(Transform4x4f::Identity());
+	for (int i = 0; i < 2; i++)
+	{
+		Renderer::drawRect(mCardX[i], mCardY + (mCardH - mSplitH) / 2.0f, mCardW, mSplitH, 0x000000FF);
+
+		// A pill of background punched through each side, level with the seam.
+		// Half of each sits outside the card, so what reads is a bite taken out
+		// of the edge -- the slot a real flip card pivots in.
+		const float notchY = mCardY + (mCardH - mNotchH) / 2.0f;
+		Renderer::drawRoundRect(mCardX[i] - mNotchW / 2.0f, notchY, mNotchW, mNotchH, mNotchW / 2.0f, 0x000000FF);
+		Renderer::drawRoundRect(mCardX[i] + mCardW - mNotchW / 2.0f, notchY, mNotchW, mNotchH, mNotchW / 2.0f, 0x000000FF);
+	}
 }
 
 void ClockScreenSaver::update(int deltaTime)

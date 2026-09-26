@@ -96,6 +96,7 @@ private:
 	// colon between them and a small AM/PM label in the first card's corner.
 	TextComponent*		mLabelHour;
 	TextComponent*		mLabelMinute;
+	TextComponent*		mLabelColon;
 	TextComponent*		mLabelMeridiem;
 	TextComponent*		mLabelDate;
 	int 				mDateTimeUpdateAccumulator;
@@ -127,9 +128,8 @@ private:
 	float				mCardH;
 	float				mCardRadius;
 	float				mSplitH;
-	float				mColonX;
-	float				mColonY[2];
-	float				mColonSize;
+	float				mNotchW;
+	float				mNotchH;
 	unsigned int		mCardColor;
 	unsigned int		mInkColor;
 };
