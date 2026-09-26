@@ -8,6 +8,10 @@
 // Proportions taken from the Figma slider states, which are drawn in a 36x24
 // box: a 2px track, a 10px knob, and the unfilled remainder at half strength.
 #define TRACK_ASPECT (36.0f / 24.0f)
+// The design's box comes to 30px at the height the chrome draws at, which
+// reads short on the device. The track is widened by this much; the knob is
+// left alone, so only the line it slides along gets longer.
+#define TRACK_EXTRA  8.0f
 // The design's knob is 10px in a 24px box. The control draws at 20px here, so
 // that ratio gives 8px and reads small -- 12/24 restores the knob's actual
 // drawn size at the height we use.
@@ -39,7 +43,7 @@ SliderComponent::SliderComponent(Window* window, float min, float max, float inc
 	mFont = menuTheme->Text.font;
 
 	const float h = MENU_ICON_HEIGHT(menuTheme->Text.font);
-	float w = Math::round(h * TRACK_ASPECT);
+	float w = Math::round(h * TRACK_ASPECT) + TRACK_EXTRA;
 	if (!mSuffix.empty() && mFont)
 	{
 		std::stringstream ss;
