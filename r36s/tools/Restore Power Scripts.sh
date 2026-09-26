@@ -31,7 +31,7 @@ echo
 STILL_QM=0
 COUNT=0
 for base in finish pause; do
-  SRC="$BAK/$base.sh"
+  SRC="$BAK/$base.sh.bak"
   DST="/usr/local/bin/$base.sh"
 
   if [ ! -e "$SRC" ]; then

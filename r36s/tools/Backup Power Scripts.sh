@@ -26,7 +26,7 @@ echo
 COUNT=0
 for base in finish pause; do
   SRC="/usr/local/bin/$base.sh"
-  DST="$BAK/$base.sh"
+  DST="$BAK/$base.sh.bak"   # .sh.bak, not .sh: the Options menu lists every *.sh under /roms/tools
 
   if [ ! -e "$SRC" ]; then
     echo "  MISSING  $SRC -- nothing to back up"

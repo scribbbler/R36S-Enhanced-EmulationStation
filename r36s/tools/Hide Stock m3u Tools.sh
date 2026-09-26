@@ -21,6 +21,11 @@
 # Nothing is destroyed. The scripts move to a backup folder on the SD card,
 # where they stay readable from a desktop machine, and "Restore Stock m3u
 # Tools.sh" puts them back.
+#
+# The backups keep a .sh.bak extension, not .sh. The Options menu is built by
+# walking /opt/system for *.sh, and /opt/system/Tools is /roms/tools - so a
+# backup ending in .sh would come straight back as a submenu entry, and the
+# search below would find its own output on the next run.
 
 SRC="/opt/system"
 BACKUP="/roms/tools/stock-options-backup"
@@ -44,7 +49,7 @@ moved=0
 absent=0
 for name in "${TARGETS[@]}"; do
   # search the whole tree: ES lists any .sh under /opt/system, subfolders included
-  found=$(find "$SRC" -type f -name "$name" 2>/dev/null | head -1)
+  found=$(find "$SRC" -type f -name "$name" -not -path "$BACKUP/*" 2>/dev/null | head -1)
   if [ -z "$found" ]; then
     printf "  already hidden: %s\n" "$name" >> /dev/tty1
     log "not present, nothing to do: $name"
@@ -53,12 +58,12 @@ for name in "${TARGETS[@]}"; do
   fi
 
   # copy first and confirm it landed before removing the original
-  if ! sudo cp -f "$found" "$BACKUP/$name"; then
+  if ! sudo cp -f "$found" "$BACKUP/$name.bak"; then
     printf "  FAILED to back up: %s (left in place)\n" "$name" >> /dev/tty1
     log "ERROR: could not copy $found to backup - original left alone"
     continue
   fi
-  if [ ! -s "$BACKUP/$name" ]; then
+  if [ ! -s "$BACKUP/$name.bak" ]; then
     printf "  FAILED to back up: %s (left in place)\n" "$name" >> /dev/tty1
     log "ERROR: backup of $name is empty - original left alone"
     continue
@@ -66,7 +71,7 @@ for name in "${TARGETS[@]}"; do
 
   sudo rm -f "$found"
   printf "  hidden: %s\n" "$name" >> /dev/tty1
-  log "moved $found -> $BACKUP/$name"
+  log "moved $found -> $BACKUP/$name.bak"
   moved=$((moved + 1))
 done
 
