@@ -340,6 +340,9 @@ std::map<std::string, std::map<std::string, ThemeData::ElementPropertyType>> The
 	{ "menuSwitch",{
 		{ "pathOn", PATH },
 		{ "pathOff", PATH } } },
+	{ "menuCheckbox",{
+		{ "pathChecked", PATH },
+		{ "pathUnchecked", PATH } } },
 	{ "menuTextEdit",{
 		{ "active", PATH },
 		{ "inactive", PATH } } },
@@ -1543,6 +1546,15 @@ ThemeData::ThemeMenu::ThemeMenu(ThemeData* theme)
 			Icons.on = elem->get<std::string>("pathOn");
 		if (elem->has("pathOff") && ResourceManager::getInstance()->fileExists(elem->get<std::string>("pathOff")))
 			Icons.off = elem->get<std::string>("pathOff");
+	}
+
+	elem = theme->getElement("menu", "menucheckbox", "menuCheckbox");
+	if (elem)
+	{
+		if (elem->has("pathChecked") && ResourceManager::getInstance()->fileExists(elem->get<std::string>("pathChecked")))
+			Icons.checkbox_checked = elem->get<std::string>("pathChecked");
+		if (elem->has("pathUnchecked") && ResourceManager::getInstance()->fileExists(elem->get<std::string>("pathUnchecked")))
+			Icons.checkbox_unchecked = elem->get<std::string>("pathUnchecked");
 	}
 
 	elem = theme->getElement("menu", "menuslider", "menuSlider");

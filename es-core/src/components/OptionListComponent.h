@@ -19,8 +19,11 @@
 // always
 // * press a -> open full list
 
-#define CHECKED_PATH ":/checkbox_checked.svg"
-#define UNCHECKED_PATH ":/checkbox_unchecked.svg"
+// The checkbox art comes from the theme, like the rest of the menu chrome:
+//   <menuCheckbox name="menucheckbox"><pathChecked>/<pathUnchecked>
+// falling back to the built-in resources when a theme says nothing.
+#define CHECKED_PATH   (ThemeData::getMenuTheme()->Icons.checkbox_checked)
+#define UNCHECKED_PATH (ThemeData::getMenuTheme()->Icons.checkbox_unchecked)
 
 template<typename T>
 class OptionListComponent : public GuiComponent
@@ -97,8 +100,9 @@ private:
 					{
 						// add checkbox
 						auto checkbox = std::make_shared<ImageComponent>(mWindow);
-						checkbox->setImage(it->selected ? CHECKED_PATH : UNCHECKED_PATH);
 						checkbox->setResize(0, font->getLetterHeight());
+						checkbox->setImage(it->selected ? CHECKED_PATH : UNCHECKED_PATH);
+						checkbox->setColorShift(color);
 						row.addElement(checkbox, false);
 
 						// input handler

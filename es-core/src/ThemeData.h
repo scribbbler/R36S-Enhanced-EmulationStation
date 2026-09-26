@@ -136,6 +136,8 @@ struct IconElement
 	std::string button_filled;
 	std::string on;
 	std::string off;
+	std::string checkbox_checked;
+	std::string checkbox_unchecked;
 	std::string option_arrow;
 	std::string arrow;
 	std::string knob;
@@ -156,7 +158,10 @@ public:
 		MenuElement Text{ 0x777777FF, 0xFFFFFFFF, 0x878787FF, 0xC6C7C6FF, 0x878787FF, true, "", nullptr };
 		MenuElement TextSmall{ 0x777777FF, 0xFFFFFFFF, 0x878787FF, 0xC6C7C6FF, 0x878787FF, true, "", nullptr };
 		MenuElement Footer{ 0xC6C6C6FF, 0xC6C6C6FF, 0xC6C6C6FF, 0xFFFFFFFF, 0xC6C6C6FF, true, "", nullptr };
-		IconElement Icons{ ":/button.png", ":/button_filled.png", ":/on.svg", ":/off.svg", ":/option_arrow.svg", ":/arrow.svg", ":/slider_knob.svg", ":/textinput_ninepatch.png", ":/textinput_ninepatch_active.png" };
+		IconElement Icons{ ":/button.png", ":/button_filled.png", ":/on.svg", ":/off.svg",
+			":/checkbox_checked.svg", ":/checkbox_unchecked.svg",
+			":/option_arrow.svg", ":/arrow.svg", ":/slider_knob.svg",
+			":/textinput_ninepatch.png", ":/textinput_ninepatch_active.png" };
 
 		std::string getMenuIcon(const std::string name)
 		{

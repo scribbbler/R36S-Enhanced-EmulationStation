@@ -241,6 +241,11 @@ Background of Ark menü
 	<optionPath>./art/icons/arrow.svg</optionPath><!-- '<' '>' arrows around option values -->
     </menuArrow>
 
+    <menuCheckbox name="menucheckbox">
+	<pathChecked>./art/icons/checkbox-on.svg</pathChecked><!-- multi-select rows, e.g. Visible Systems -->
+	<pathUnchecked>./art/icons/checkbox-off.svg</pathUnchecked>
+    </menuCheckbox>
+
     <menuText name="menutext">
 	<fontPath>./fonts/BPreplay-Bold.otf</fontPath>
 	<fontSize>0.036578</fontSize><!-- 23px design (17.56 nominal x 1.31 boost), Figma menu v3 -->
