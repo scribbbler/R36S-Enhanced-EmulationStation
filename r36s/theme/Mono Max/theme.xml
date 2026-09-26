@@ -107,8 +107,8 @@ The selected row gets a left-hugging white pill with black text.
 
 	<backgroundColor>202420FF</backgroundColor><!-- v2 group pill (#202420, Figma) -->
 	<backgroundWidth>0</backgroundWidth><!-- v2: content-fit pills -->
-	<backgroundRadius>0.0375</backgroundRadius><!-- full pill (half of 36px) -->
-	<backgroundPadding>0.015625 0.0125</backgroundPadding><!-- 10px x, 6px y -> 44px pill (matches baked art 428..472) -->
+	<backgroundRadius>0.05</backgroundRadius><!-- 24px: half of the 48px pill, so it is a true stadium -->
+	<backgroundPadding>0.015625 0.0166667</backgroundPadding><!-- 10px x, 8px y -> 48px pill, top at 426 (Figma On-Screen Help) -->
 	<iconX>./art/buttons/x.png</iconX>
 	<iconY>./art/buttons/y.png</iconY>
 	<iconA>./art/buttons/a.png</iconA>
@@ -139,8 +139,8 @@ The selected row gets a left-hugging white pill with black text.
 
 	<backgroundColor>202420FF</backgroundColor><!-- v2 group pill (#202420, Figma) -->
 	<backgroundWidth>0</backgroundWidth>
-	<backgroundRadius>0.0375</backgroundRadius>
-	<backgroundPadding>0.015625 0.0125</backgroundPadding><!-- 10px x, 6px y -> 44px pill (matches baked art 428..472) -->
+	<backgroundRadius>0.05</backgroundRadius><!-- 24px: half of the 48px pill, so it is a true stadium -->
+	<backgroundPadding>0.015625 0.0166667</backgroundPadding><!-- 10px x, 8px y -> 48px pill, top at 426 (Figma On-Screen Help) -->
 	<iconX>./art/buttons/x.png</iconX>
 	<iconY>./art/buttons/y.png</iconY>
 	<iconB>./art/buttons/b.png</iconB>

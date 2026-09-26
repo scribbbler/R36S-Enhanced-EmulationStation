@@ -84,7 +84,7 @@ The selected row gets a left-hugging white pill with black text.
 
 	<backgroundColor>E6E6E6FF</backgroundColor><!-- iPod: light gray pill --><!-- 10% black on E0E0E0 paper (mirrors Figma 10% white) -->
 	<backgroundWidth>0</backgroundWidth><!-- v2: content-fit pills -->
-	<backgroundRadius>0.0375</backgroundRadius><!-- full pill (half of 36px) -->
+	<backgroundRadius>0.05</backgroundRadius><!-- 24px: half of the 48px pill, so it is a true stadium -->
 	<backgroundPadding>0.015625 0.0166667</backgroundPadding><!-- v2: 10px x, 8px y -> 48px pill -->
 	<iconX>./art/buttons/x.png</iconX>
 	<iconY>./art/buttons/y.png</iconY>
@@ -116,7 +116,7 @@ The selected row gets a left-hugging white pill with black text.
 
 	<backgroundColor>E6E6E6FF</backgroundColor><!-- iPod: light gray pill --><!-- 10% black on E0E0E0 paper (mirrors Figma 10% white) -->
 	<backgroundWidth>0</backgroundWidth>
-	<backgroundRadius>0.0375</backgroundRadius>
+	<backgroundRadius>0.05</backgroundRadius><!-- 24px: half of the 48px pill, so it is a true stadium -->
 	<backgroundPadding>0.015625 0.0166667</backgroundPadding>
 	<iconX>./art/buttons/x.png</iconX>
 	<iconY>./art/buttons/y.png</iconY>
