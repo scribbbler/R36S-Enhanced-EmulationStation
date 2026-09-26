@@ -139,11 +139,20 @@ struct IconElement
 	std::string checkbox_checked;
 	std::string checkbox_unchecked;
 	std::string option_arrow;
+	std::string option_arrow_left;   // empty -> mirror option_arrow
 	std::string arrow;
 	std::string knob;
 	std::string textinput_ninepatch;
 	std::string textinput_ninepatch_active;
 };
+
+// One size for the menu's icons -- row icons, checkbox, the option arrows and
+// the submenu bracket -- so a row's chrome sits together instead of at three
+// sizes. Measured off the menu font rather than fixed in pixels, so it follows
+// a theme that resizes its menu text. The toggle switch is deliberately not on
+// this: it is a wide pill rather than a square glyph, and sizing it to match
+// would make it the widest thing on the row.
+#define MENU_ICON_HEIGHT(font) ((font)->getLetterHeight() * 1.25f)
 
 class ThemeData
 {
@@ -160,7 +169,7 @@ public:
 		MenuElement Footer{ 0xC6C6C6FF, 0xC6C6C6FF, 0xC6C6C6FF, 0xFFFFFFFF, 0xC6C6C6FF, true, "", nullptr };
 		IconElement Icons{ ":/button.png", ":/button_filled.png", ":/on.svg", ":/off.svg",
 			":/checkbox_checked.svg", ":/checkbox_unchecked.svg",
-			":/option_arrow.svg", ":/arrow.svg", ":/slider_knob.svg",
+			":/option_arrow.svg", "", ":/arrow.svg", ":/slider_knob.svg",
 			":/textinput_ninepatch.png", ":/textinput_ninepatch_active.png" };
 
 		std::string getMenuIcon(const std::string name)

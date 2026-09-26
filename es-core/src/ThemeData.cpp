@@ -355,6 +355,7 @@ std::map<std::string, std::map<std::string, ThemeData::ElementPropertyType>> The
 		{ "filledPath", PATH } } },
 	{ "menuArrow",{
 		{ "path", PATH },
+		{ "optionPathLeft", PATH },
 		{ "optionPath", PATH } } },
 };
 
@@ -1572,6 +1573,9 @@ ThemeData::ThemeMenu::ThemeMenu(ThemeData* theme)
 			Icons.arrow = elem->get<std::string>("path");
 		if (elem->has("optionPath") && ResourceManager::getInstance()->fileExists(elem->get<std::string>("optionPath")))
 			Icons.option_arrow = elem->get<std::string>("optionPath");
+		// A theme may draw the left arrow rather than have it mirrored.
+		if (elem->has("optionPathLeft") && ResourceManager::getInstance()->fileExists(elem->get<std::string>("optionPathLeft")))
+			Icons.option_arrow_left = elem->get<std::string>("optionPathLeft");
 	}
 
 	elem = theme->getElement("menu", "menuicons", "menuIcons");

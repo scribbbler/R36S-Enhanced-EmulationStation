@@ -460,7 +460,7 @@ void GuiGamelistOptions::addTextFilterToMenu()
 	auto searchIcon = theme->getMenuIcon("searchIcon");
 	bracket->setImage(searchIcon.empty() ? ":/search.svg" : searchIcon);
 
-	bracket->setResize(Vector2f(0, lbl->getFont()->getLetterHeight()));
+	bracket->setResize(Vector2f(0, MENU_ICON_HEIGHT(lbl->getFont())));
 	row.addElement(bracket, false);
 
 	auto updateVal = [this](const std::string& newVal)

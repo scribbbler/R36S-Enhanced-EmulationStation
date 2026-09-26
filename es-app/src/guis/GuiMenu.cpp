@@ -2314,7 +2314,7 @@ void GuiMenu::addEntry(std::string name, bool add_arrow, const std::function<voi
 			auto icon = std::make_shared<ImageComponent>(mWindow);
 			icon->setImage(iconPath);
 			icon->setColorShift(theme->Text.color);
-			icon->setResize(0, theme->Text.font->getLetterHeight() * 1.25f);
+			icon->setResize(0, MENU_ICON_HEIGHT(theme->Text.font));
 			row.addElement(icon, false);
 
 			// spacer between icon and text
@@ -2400,7 +2400,7 @@ void GuiMenu::createInputTextRow(GuiSettings *gui, std::string title, const char
 
 	auto bracket = std::make_shared<ImageComponent>(mWindow);
 	bracket->setImage(theme->Icons.arrow);
-	bracket->setResize(Vector2f(0, lbl->getFont()->getLetterHeight()));
+	bracket->setResize(Vector2f(0, MENU_ICON_HEIGHT(lbl->getFont())));
 	row.addElement(bracket, false);
 
 	auto updateVal = [ed, settingsID, password](const std::string &newVal) {

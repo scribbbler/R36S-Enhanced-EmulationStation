@@ -297,7 +297,17 @@ float ComponentList::getRowHeight(const ComponentListRow& row) const
 			height = row.elements.at(i).component->getSize().y();
 	}
 
-	return height + ROW_VERT_PADDING_PX;
+	// Whole pixels. The tallest component in a row is a text component, and its
+	// height comes from the font -- 34.44px for the 23px menu font, never an
+	// integer. Every position in the list is a sum of row heights, so one
+	// fraction here put every row on a different sub-pixel phase; the camera is
+	// rounded at draw time and nothing else was, so as the list scrolled a row
+	// and the selector crossed pixel boundaries at different moments and the
+	// text appeared to shift inside its own pill.
+	//
+	// 37.44 rounds to 37, which is the pitch the list already draws at, so this
+	// changes the jitter and nothing else.
+	return Math::round(height + ROW_VERT_PADDING_PX);
 }
 
 float ComponentList::getTotalRowHeight() const
@@ -327,8 +337,9 @@ void ComponentList::updateElementPosition(const ComponentListRow& row)
 	{
 		const auto comp = row.elements.at(i).component;
 
-		// center vertically
-		comp->setPosition(x, (rowHeight - comp->getSize().y()) / 2 + yOffset);
+		// center vertically -- rounded, because the component's own height is
+		// still fractional even once the row is not
+		comp->setPosition(x, Math::round((rowHeight - comp->getSize().y()) / 2) + yOffset);
 		x += comp->getSize().x();
 	}
 }

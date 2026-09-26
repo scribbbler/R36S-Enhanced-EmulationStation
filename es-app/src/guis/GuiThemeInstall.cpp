@@ -30,7 +30,7 @@ GuiThemeInstall::GuiThemeInstall(Window* window)
 		auto icon = std::make_shared<ImageComponent>(mWindow);
 		icon->setImage(utheme.installed ? ":/star_filled.svg" : ":/star_unfilled.svg");
 		icon->setColorShift(theme->Text.color);
-		icon->setResize(0, theme->Text.font->getLetterHeight() * 1.25f);
+		icon->setResize(0, MENU_ICON_HEIGHT(theme->Text.font));
 		row.addElement(icon, false);
 		*/
 
@@ -43,7 +43,7 @@ GuiThemeInstall::GuiThemeInstall(Window* window)
 		icon->setFont(theme->Text.font);
 		icon->setText(utheme.installed ? _U("\uF021") : _U("\uF019"));
 		icon->setSize(theme->Text.font->getLetterHeight() * 1.5f, 0);
-		//icon->setResize(0, theme->Text.font->getLetterHeight() * 1.25f);
+		//icon->setResize(0, MENU_ICON_HEIGHT(theme->Text.font));
 		row.addElement(icon, false);
 
 

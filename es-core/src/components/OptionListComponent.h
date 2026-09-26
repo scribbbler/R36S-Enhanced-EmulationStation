@@ -22,6 +22,11 @@
 // The checkbox art comes from the theme, like the rest of the menu chrome:
 //   <menuCheckbox name="menucheckbox"><pathChecked>/<pathUnchecked>
 // falling back to the built-in resources when a theme says nothing.
+// Space either side of the value, between it and the arrows. Split evenly by
+// the centring, so this is twice the gap -- and the arrows carry their own
+// bearing on top, roughly 7px at the 20px they draw at.
+#define OPTION_VALUE_PADDING 10
+
 #define CHECKED_PATH   (ThemeData::getMenuTheme()->Icons.checkbox_checked)
 #define UNCHECKED_PATH (ThemeData::getMenuTheme()->Icons.checkbox_unchecked)
 
@@ -100,7 +105,7 @@ private:
 					{
 						// add checkbox
 						auto checkbox = std::make_shared<ImageComponent>(mWindow);
-						checkbox->setResize(0, font->getLetterHeight());
+						checkbox->setResize(0, MENU_ICON_HEIGHT(font));
 						checkbox->setImage(it->selected ? CHECKED_PATH : UNCHECKED_PATH);
 						checkbox->setColorShift(color);
 						row.addElement(checkbox, false);
@@ -199,8 +204,8 @@ public:
 		mText.setHorizontalAlignment(ALIGN_CENTER);
 		addChild(&mText);
 
-		mLeftArrow.setResize(0, mText.getFont()->getLetterHeight());
-		mRightArrow.setResize(0, mText.getFont()->getLetterHeight());
+		mLeftArrow.setResize(0, MENU_ICON_HEIGHT(mText.getFont()));
+		mRightArrow.setResize(0, MENU_ICON_HEIGHT(mText.getFont()));
 
 		if (mMultiSelect)
 		{
@@ -208,9 +213,12 @@ public:
 			mRightArrow.setColorShift(theme->Text.color);
 			addChild(&mRightArrow);
 		} else {
-			mLeftArrow.setImage(ThemeData::getMenuTheme()->Icons.option_arrow); //  ":/option_arrow.svg"
+			// Use the theme's own left arrow when it has one; mirror the right
+			// one when it does not, which is what every theme did before.
+			const std::string& leftArt = ThemeData::getMenuTheme()->Icons.option_arrow_left;
+			mLeftArrow.setImage(leftArt.empty() ? ThemeData::getMenuTheme()->Icons.option_arrow : leftArt);
 			mLeftArrow.setColorShift(theme->Text.color);
-			mLeftArrow.setFlipX(true);
+			mLeftArrow.setFlipX(leftArt.empty());
 			addChild(&mLeftArrow);
 
 			mRightArrow.setImage(ThemeData::getMenuTheme()->Icons.option_arrow); // ":/option_arrow.svg");
@@ -232,8 +240,8 @@ public:
 	// handles positioning/resizing of text and arrows
 	void onSizeChanged() override
 	{
-		mLeftArrow.setResize(0, mText.getFont()->getLetterHeight());
-		mRightArrow.setResize(0, mText.getFont()->getLetterHeight());
+		mLeftArrow.setResize(0, MENU_ICON_HEIGHT(mText.getFont()));
+		mRightArrow.setResize(0, MENU_ICON_HEIGHT(mText.getFont()));
 
 		if(mSize.x() < (mLeftArrow.getSize().x() + mRightArrow.getSize().x()))
 			LOG(LogWarning) << "OptionListComponent too narrow!";
@@ -487,7 +495,7 @@ private:
 
 
 			mText.setSize(0, mText.getSize().y());
-			setSize(mText.getSize().x() + mRightArrow.getSize().x() + 24, mText.getSize().y());
+			setSize(mText.getSize().x() + mRightArrow.getSize().x() + OPTION_VALUE_PADDING, mText.getSize().y());
 			if(mParent) // hack since theres no "on child size changed" callback atm...
 				mParent->onSizeChanged();
 		}else{
@@ -498,7 +506,7 @@ private:
 				{
 					mText.setText(Utils::String::toUpper(it->name));
 					mText.setSize(0, mText.getSize().y());
-					setSize(mText.getSize().x() + mLeftArrow.getSize().x() + mRightArrow.getSize().x() + 24, mText.getSize().y());
+					setSize(mText.getSize().x() + mLeftArrow.getSize().x() + mRightArrow.getSize().x() + OPTION_VALUE_PADDING, mText.getSize().y());
 					if (mParent) // hack since theres no "on child size changed" callback atm...
 						mParent->onSizeChanged();
 					break;

@@ -91,7 +91,7 @@ void MenuComponent::addWithLabel(const std::string& label, const std::shared_ptr
 			auto icon = std::make_shared<ImageComponent>(mWindow);
 			icon->setImage(iconPath);
 			icon->setColorShift(theme->Text.color);
-			icon->setResize(0, theme->Text.font->getLetterHeight() * 1.25f);
+			icon->setResize(0, MENU_ICON_HEIGHT(theme->Text.font));
 			row.addElement(icon, false);
 
 			// spacer between icon and text
@@ -121,7 +121,7 @@ void MenuComponent::addWithDescription(const std::string& label, const std::stri
 			auto icon = std::make_shared<ImageComponent>(mWindow, true);
 			icon->setImage(iconPath);
 			icon->setColorShift(theme->Text.color);
-			icon->setResize(0, theme->Text.font->getLetterHeight() * 1.25f);
+			icon->setResize(0, MENU_ICON_HEIGHT(theme->Text.font));
 			row.addElement(icon, false);
 
 			// spacer between icon and text
@@ -163,7 +163,7 @@ void MenuComponent::addEntry(const std::string name, bool add_arrow, const std::
 			auto icon = std::make_shared<ImageComponent>(mWindow);
 			icon->setImage(iconPath);
 			icon->setColorShift(theme->Text.color);
-			icon->setResize(0, theme->Text.font->getLetterHeight() * 1.25f);
+			icon->setResize(0, MENU_ICON_HEIGHT(theme->Text.font));
 			row.addElement(icon, false);
 
 			// spacer between icon and text
@@ -371,7 +371,7 @@ std::shared_ptr<ImageComponent> makeArrow(Window* window)
 	auto bracket = std::make_shared<ImageComponent>(window);
 	bracket->setImage(ThemeData::getMenuTheme()->Icons.arrow); // ":/arrow.svg");
 	bracket->setColorShift(menuTheme->Text.color);
-	bracket->setResize(0, std::round(menuTheme->Text.font->getLetterHeight()));
+	bracket->setResize(0, std::round(MENU_ICON_HEIGHT(menuTheme->Text.font)));
 	//bracket->setResize(0, Math::round(Font::get(FONT_SIZE_MEDIUM)->getLetterHeight()));
 	return bracket;
 }

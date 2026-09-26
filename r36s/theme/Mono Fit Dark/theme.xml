@@ -216,7 +216,8 @@ Background of Ark menü
 
     <menuArrow name="menuarrow">
 	<path>./art/icons/arrow.svg</path><!-- submenu '>' chevron (also option-list right arrow) -->
-	<optionPath>./art/icons/arrow.svg</optionPath><!-- '<' '>' arrows around option values -->
+	<optionPath>./art/icons/arrow-right.svg</optionPath><!-- the '>' beside an option value -->
+	<optionPathLeft>./art/icons/arrow-left.svg</optionPathLeft><!-- drawn, not mirrored -->
     </menuArrow>
 
     <menuIcons name="menuicons">
