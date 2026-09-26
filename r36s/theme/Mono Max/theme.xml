@@ -348,7 +348,9 @@ Requires the custom EmulationStation build that reads screensaverClock.
    <view name="screen">
 	<text name="screensaverClock">
 	<fontPath>./fonts/BPreplay-Bold-Clock.otf</fontPath><!-- Bold with a vertically-centred ':' (screensaver only) -->
-	<fontSize>0.159</fontSize><!-- 100px time design ÷ 1.31 boost -> renders ~100px; date = 0.36x -->
+	<fontSize>0.159</fontSize><!-- 100px digits ÷ 1.31 boost; the date row is 0.36x -->
+	<color>F7FBF7</color><!-- digits, colon and the AM/PM corner -->
+	<backgroundColor>1F1F1F</backgroundColor><!-- the two flip cards, lifted off the black ground -->
     </text>
 	<!-- While charging, the date line becomes this battery icon + "NN% Charged". -->
 	<image name="screensaverBattery">

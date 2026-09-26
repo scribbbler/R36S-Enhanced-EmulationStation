@@ -87,10 +87,16 @@ public:
 
 private:
 	void refreshBattery();
+	// Split the clock into the two cards and the AM/PM corner label.
+	void applyTime(struct tm* t);
 	// Center the charging line ("[battery] NN% Charged") on the date row.
 	void layoutChargeLine();
 
-	TextComponent*		mLabelTime;
+	// The time is drawn as two flip-clock cards -- hours, then minutes -- with a
+	// colon between them and a small AM/PM label in the first card's corner.
+	TextComponent*		mLabelHour;
+	TextComponent*		mLabelMinute;
+	TextComponent*		mLabelMeridiem;
 	TextComponent*		mLabelDate;
 	int 				mDateTimeUpdateAccumulator;
 	time_t				mDateTimeLastUpdate;
@@ -113,6 +119,19 @@ private:
 	float				mDateY;
 	float				mChargeIconW;
 	float				mChargeGap;
+
+	// flip-clock cards
+	float				mCardX[2];
+	float				mCardY;
+	float				mCardW;
+	float				mCardH;
+	float				mCardRadius;
+	float				mSplitH;
+	float				mColonX;
+	float				mColonY[2];
+	float				mColonSize;
+	unsigned int		mCardColor;
+	unsigned int		mInkColor;
 };
 
 // Screensaver implementation for main window

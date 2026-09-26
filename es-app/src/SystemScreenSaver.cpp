@@ -1024,13 +1024,30 @@ void VideoScreenSaver::update(int deltaTime)
 
 // Format the screensaver clock time, honoring the same "12-hour clock" toggle
 // as the top-left clock (Settings "ClockMode12"): "3:07:45 PM" vs "15:07:45".
-static std::string formatClockTime(struct tm* t)
+// The flip clock shows two cards, so it carries hours and minutes and no
+// seconds -- there is nowhere to put them, and a third card would not be a
+// flip clock. Honors the same "12-hour clock" toggle as the top-left clock
+// (Settings "ClockMode12"); the AM/PM card label is empty in 24-hour mode.
+static std::string formatClockHour(struct tm* t)
 {
-	char out[32];
-	if (Settings::getInstance()->getBool("ClockMode12"))
-		strftime(out, sizeof(out), "%I:%M %p", t); // 12-hour: no seconds
-	else
-		strftime(out, sizeof(out), "%H:%M:%S", t); // 24-hour: with seconds
+	char out[8];
+	strftime(out, sizeof(out), Settings::getInstance()->getBool("ClockMode12") ? "%I" : "%H", t);
+	return std::string(out);
+}
+
+static std::string formatClockMinute(struct tm* t)
+{
+	char out[8];
+	strftime(out, sizeof(out), "%M", t);
+	return std::string(out);
+}
+
+static std::string formatClockMeridiem(struct tm* t)
+{
+	if (!Settings::getInstance()->getBool("ClockMode12"))
+		return std::string();
+	char out[8];
+	strftime(out, sizeof(out), "%p", t);
 	return std::string(out);
 }
 
@@ -1074,26 +1091,68 @@ ClockScreenSaver::ClockScreenSaver(Window* window) : GuiComponent(window)
 	mScreenW = W;
 	mScreenH = H;
 
-	// Layout matches the Figma "clock" frame: a padlock centered at the top,
-	// the date (36px) centered, and the large time (100px) below it.
-	const float lockY = H * 0.0458f; // ~22px: vertical centre of the 44px top band
-	const float dateY = H * 0.37f;   // date / charging line
-	const float timeY = H * 0.517f;  // large time
+	// Layout matches the Figma "clock" frame at 640x480: a padlock centred at
+	// the top, the date (36px) centred below it, and the time on two flip-clock
+	// cards. Every figure is a fraction of the panel so it holds at any size.
+	const float lockY = H * 0.0458333f; // 22px: centre of the 24px lock at y 10
+	const float dateY = H * 0.2708333f; // 130px: centre of the 40px date row at y 110
 	mDateY = dateY;
+
+	mCardW      = W * 0.28125f;    // 180px
+	mCardH      = H * 0.375f;      // 180px
+	mCardY      = H * 0.3458333f;  // 166px
+	mCardX[0]   = W * 0.171875f;   // 110px
+	mCardX[1]   = W * 0.503125f;   // 322px, leaving a 32px gap for the colon
+	mCardRadius = mCardH / 15.0f;  // 12px on a 180px card
+	mSplitH     = H * 0.0083333f;  // 4px: the flip seam across each card
+
+	mColonSize  = W * 0.028125f;   // 18px dots
+	mColonX     = W * 0.4640625f;  // 297px
+	mColonY[0]  = H * 0.4833333f;  // 232px
+	mColonY[1]  = H * 0.5479167f;  // 263px
+
+	// Card fill and ink both come from the theme, so a light variant can invert
+	// the pair: <text name="screensaverClock"> backgroundColor / color.
+	mCardColor = 0x1F1F1FFF;
+	mInkColor  = 0xFFFFFFFF;
+	if (ThemeData* dt = ThemeData::getDefaultTheme())
+	{
+		const ThemeData::ThemeElement* el = dt->getElement("screen", "screensaverClock", "text");
+		if (el != nullptr)
+		{
+			if (el->has("backgroundColor"))
+				mCardColor = el->get<unsigned int>("backgroundColor");
+			if (el->has("color"))
+				mInkColor = el->get<unsigned int>("color");
+		}
+	}
 	mChargeIconW = H * 0.10f;        // 48px on a 480px panel
 	mChargeGap   = H * 0.021f;       // 10px gap between icon and label
 
-	// Create time label (large, centered)
-	mLabelTime = new TextComponent(mWindow);
-	mLabelTime->setOrigin(0.5f, 0.5f);
-	mLabelTime->setPosition(W / 2.0f, timeY);
-	mLabelTime->setSize(W, fh);
-	mLabelTime->setHorizontalAlignment(ALIGN_CENTER);
-	mLabelTime->setVerticalAlignment(ALIGN_CENTER);
-	mLabelTime->setColor(0xFFFFFFFF);
-	mLabelTime->setGlowColor(0x00000080);
-	mLabelTime->setGlowSize(4);
-	mLabelTime->setFont(font);
+	// Hours and minutes, one per card, each centred on its own card rather than
+	// on the panel. The colon sits in the gap between them and is drawn, not typed.
+	TextComponent** digits[2] = { &mLabelHour, &mLabelMinute };
+	for (int i = 0; i < 2; i++)
+	{
+		TextComponent* d = new TextComponent(mWindow);
+		d->setOrigin(0.5f, 0.5f);
+		d->setPosition(mCardX[i] + mCardW / 2.0f, mCardY + mCardH / 2.0f);
+		d->setSize(mCardW, (float)fh);
+		d->setHorizontalAlignment(ALIGN_CENTER);
+		d->setVerticalAlignment(ALIGN_CENTER);
+		d->setColor(mInkColor);
+		d->setFont(font);
+		*digits[i] = d;
+	}
+
+	// AM/PM in the first card's top-left corner, 12px in and 15px down.
+	mLabelMeridiem = new TextComponent(mWindow);
+	mLabelMeridiem->setOrigin(0.0f, 0.0f);
+	mLabelMeridiem->setPosition(mCardX[0] + mCardW * 0.0666667f, mCardY + mCardH * 0.0833333f);
+	mLabelMeridiem->setHorizontalAlignment(ALIGN_LEFT);
+	mLabelMeridiem->setVerticalAlignment(ALIGN_TOP);
+	mLabelMeridiem->setColor(mInkColor);
+	mLabelMeridiem->setFont(ph, H * 0.029f); // 14px
 
 	// Create date label (smaller, above the time)
 	mLabelDate = new TextComponent(mWindow);
@@ -1134,7 +1193,7 @@ ClockScreenSaver::ClockScreenSaver(Window* window) : GuiComponent(window)
 	time_t now = time(NULL);
 	struct tm* timeinfo = localtime(&now);
 
-	mLabelTime->setText(formatClockTime(timeinfo));
+	applyTime(timeinfo);
 	mLabelDate->setText(formatClockDate(timeinfo));
 
 	// --- charging overlay ---------------------------------------------------
@@ -1178,6 +1237,20 @@ ClockScreenSaver::ClockScreenSaver(Window* window) : GuiComponent(window)
 	refreshBattery();
 }
 
+// Hours on the first card, minutes on the second, AM/PM in the corner. The
+// meridiem label is empty in 24-hour mode, so the corner simply stays bare.
+void ClockScreenSaver::applyTime(struct tm* t)
+{
+	if (mLabelHour)
+		mLabelHour->setText(formatClockHour(t));
+
+	if (mLabelMinute)
+		mLabelMinute->setText(formatClockMinute(t));
+
+	if (mLabelMeridiem)
+		mLabelMeridiem->setText(formatClockMeridiem(t));
+}
+
 void ClockScreenSaver::refreshBattery()
 {
 	BatteryInformation info = queryBatteryInformation(false);
@@ -1209,10 +1282,22 @@ void ClockScreenSaver::layoutChargeLine()
 
 ClockScreenSaver::~ClockScreenSaver()
 {
-	if (mLabelTime != nullptr)
+	if (mLabelHour != nullptr)
 	{
-		delete mLabelTime;
-		mLabelTime = nullptr;
+		delete mLabelHour;
+		mLabelHour = nullptr;
+	}
+
+	if (mLabelMinute != nullptr)
+	{
+		delete mLabelMinute;
+		mLabelMinute = nullptr;
+	}
+
+	if (mLabelMeridiem != nullptr)
+	{
+		delete mLabelMeridiem;
+		mLabelMeridiem = nullptr;
 	}
 
 	if (mLabelDate != nullptr)
@@ -1266,8 +1351,28 @@ void ClockScreenSaver::render(const Transform4x4f& transform)
 			mLabelDate->render(transform);
 	}
 
-	if (mLabelTime)
-		mLabelTime->render(transform);
+	// The two flip cards, each split across the middle by a seam of background
+	// showing through -- that seam is what reads as a flip clock rather than as
+	// two rounded boxes.
+	for (int i = 0; i < 2; i++)
+	{
+		Renderer::drawRoundRect(mCardX[i], mCardY, mCardW, mCardH, mCardRadius, mCardColor);
+		Renderer::drawRect(mCardX[i], mCardY + (mCardH - mSplitH) / 2.0f, mCardW, mSplitH, 0x000000FF);
+	}
+
+	// Colon: two dots in the gap between the cards, drawn rather than typed so
+	// they stay put whatever the digits do.
+	for (int i = 0; i < 2; i++)
+		Renderer::drawRoundRect(mColonX, mColonY[i], mColonSize, mColonSize, mColonSize / 3.0f, mInkColor);
+
+	if (mLabelHour)
+		mLabelHour->render(transform);
+
+	if (mLabelMinute)
+		mLabelMinute->render(transform);
+
+	if (mLabelMeridiem)
+		mLabelMeridiem->render(transform);
 }
 
 void ClockScreenSaver::update(int deltaTime)
@@ -1294,8 +1399,7 @@ void ClockScreenSaver::update(int deltaTime)
 
 			struct tm* timeinfo = localtime(&now);
 
-			if (mLabelTime)
-				mLabelTime->setText(formatClockTime(timeinfo));
+			applyTime(timeinfo);
 
 			if (mLabelDate)
 				mLabelDate->setText(formatClockDate(timeinfo));
