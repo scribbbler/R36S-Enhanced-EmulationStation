@@ -134,6 +134,7 @@ private:
 	float				mNotchH;
 	unsigned int		mCardColor;
 	unsigned int		mInkColor;
+	unsigned int		mDimColor;
 };
 
 // Screensaver implementation for main window

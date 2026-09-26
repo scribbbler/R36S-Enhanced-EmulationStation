@@ -1104,8 +1104,8 @@ ClockScreenSaver::ClockScreenSaver(Window* window) : GuiComponent(window)
 	mCardW      = W * 0.28125f;    // 180px
 	mCardH      = H * 0.375f;      // 180px
 	mCardY      = H * 0.3458333f;  // 166px
-	mCardX[0]   = W * 0.171875f;   // 110px
-	mCardX[1]   = W * 0.503125f;   // 322px, leaving a 32px gap for the colon
+	mCardX[0]   = W * 0.19375f;    // 124px -- the pair is centred, 124px either side
+	mCardX[1]   = W * 0.525f;      // 336px, leaving a 32px gap for the colon
 	mCardRadius = mCardH / 15.0f;  // 12px on a 180px card
 	mSplitH     = H * 0.0083333f;  // 4px: the flip seam across each card
 
@@ -1114,7 +1114,7 @@ ClockScreenSaver::ClockScreenSaver(Window* window) : GuiComponent(window)
 
 	// Card fill and ink both come from the theme, so a light variant can invert
 	// the pair: <text name="screensaverClock"> backgroundColor / color.
-	mCardColor = 0x1F1F1FFF;
+	mCardColor = 0x1D1D1DFF;
 	mInkColor  = 0xFFFFFFFF;
 	if (ThemeData* dt = ThemeData::getDefaultTheme())
 	{
@@ -1127,6 +1127,10 @@ ClockScreenSaver::ClockScreenSaver(Window* window) : GuiComponent(window)
 				mInkColor = el->get<unsigned int>("color");
 		}
 	}
+
+	// The date and the padlock sit back at 88%, so the time is what the eye
+	// lands on. Digits, colon and the AM/PM corner stay at full strength.
+	mDimColor = (mInkColor & 0xFFFFFF00) | 0xE0;
 	mChargeIconW = H * 0.10f;        // 48px on a 480px panel
 	mChargeGap   = H * 0.021f;       // 10px gap between icon and label
 
@@ -1160,7 +1164,7 @@ ClockScreenSaver::ClockScreenSaver(Window* window) : GuiComponent(window)
 	mLabelDate->setSize(W, fh * 0.5f);
 	mLabelDate->setHorizontalAlignment(ALIGN_CENTER);
 	mLabelDate->setVerticalAlignment(ALIGN_CENTER);
-	mLabelDate->setColor(0xFFFFFFFF);
+	mLabelDate->setColor(mDimColor);
 	mLabelDate->setGlowColor(0x00000060);
 	mLabelDate->setGlowSize(2);
 	mLabelDate->setFont(ph, dateFont);
@@ -1182,7 +1186,7 @@ ClockScreenSaver::ClockScreenSaver(Window* window) : GuiComponent(window)
 			mLockImage = new ImageComponent(mWindow);
 			mLockImage->setMaxSize(lockSz, lockSz);
 			mLockImage->setImage(lockPath, false, MaxSizeInfo(lockSz, lockSz));
-			mLockImage->setColorShift(0xFFFFFFFF);
+			mLockImage->setColorShift(mDimColor);
 			mLockImage->setOrigin(0.5f, 0.5f);
 			mLockImage->setPosition(W / 2.0f, lockY);
 		}
@@ -1221,14 +1225,14 @@ ClockScreenSaver::ClockScreenSaver(Window* window) : GuiComponent(window)
 	// Rasterize the SVG at the display size so it stays crisp.
 	if (!mBattIconPath.empty())
 		mBattImage->setImage(mBattIconPath, false, MaxSizeInfo(mChargeIconW, chargeIconH));
-	mBattImage->setColorShift(0xFFFFFFFF);
+	mBattImage->setColorShift(mDimColor);
 	mBattImage->setOrigin(0.0f, 0.5f);
 
 	mBattLabel = new TextComponent(mWindow);
 	mBattLabel->setOrigin(0.0f, 0.5f);
 	mBattLabel->setHorizontalAlignment(ALIGN_LEFT);
 	mBattLabel->setVerticalAlignment(ALIGN_CENTER);
-	mBattLabel->setColor(0xFFFFFFFF);
+	mBattLabel->setColor(mDimColor);
 	mBattLabel->setGlowColor(0x00000060);
 	mBattLabel->setGlowSize(2);
 	mBattLabel->setFont(ph, dateFont); // same as the date it replaces

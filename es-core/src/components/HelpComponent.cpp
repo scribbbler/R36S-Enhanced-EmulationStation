@@ -275,8 +275,16 @@ void HelpComponent::render(const Transform4x4f& parentTrans)
 				bw = gs.x() + 2.0f * padX;
 				bx = gp.x() - padX;
 			}
+			// Round both edges to whole pixels rather than rounding the origin
+			// and the width apart. The grid's width is a float sum of glyph
+			// widths, so one pill's right edge can land mid-pixel while the
+			// other's does not, and the two ends of the same capsule then draw
+			// different curves -- which is what made the left pill look flat on
+			// the right while the right pill looked correct.
+			const float x0 = Math::round(bx),      x1 = Math::round(bx + bw);
+			const float y0 = Math::round(by),      y1 = Math::round(by + bh);
 			Renderer::setMatrix(trans);
-			Renderer::drawRoundRect(bx, by, bw, bh, mStyle.backgroundRadius, bg);
+			Renderer::drawRoundRect(x0, y0, x1 - x0, y1 - y0, mStyle.backgroundRadius, bg);
 		}
 		g->render(trans);
 	};

@@ -330,7 +330,7 @@ Requires the custom EmulationStation build that reads screensaverClock.
 	     fixed size now. Measured against the Figma frame, where a digit's ink is 86px tall and
 	     53px wide; 0.159 rendered it at 76 x 47, so this is that 1.13x short. -->
 	<color>F7FBF7</color><!-- digits, colon and the AM/PM corner -->
-	<backgroundColor>1F1F1F</backgroundColor><!-- the two flip cards, lifted off the black ground -->
+	<backgroundColor>1D1D1D</backgroundColor><!-- the two flip cards, lifted off the black ground -->
     </text>
 	<!-- While charging, the date line becomes this battery icon + "NN% Charged". -->
 	<image name="screensaverBattery">
