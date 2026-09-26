@@ -68,8 +68,35 @@ STUB_NAMES = {"scan_for_new_games", "menu"}
 
 # Titles for arcade sets missing from EmulationStation's mamenames.xml, kept
 # beside this script. Only consulted when the gamelist has no name of its own.
-EXTRA_NAMES_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                "mame-extra-names.tsv")
+HERE = os.path.dirname(os.path.abspath(__file__))
+EXTRA_NAMES_FILE = os.path.join(HERE, "mame-extra-names.tsv")
+
+# EmulationStation can turn a MAME set name into a real title by itself, but
+# only if it finds this table at runtime and only for arcade platforms. Rather
+# than depend on that, the rebuilder looks the names up and writes them into
+# the gamelist, where nothing can fail to apply them.
+MAMENAMES_FILES = [
+    os.path.join(HERE, "mamenames.xml"),
+    "/usr/share/emulationstation/resources/mamenames.xml",
+    "/etc/emulationstation/resources/mamenames.xml",
+    "/usr/local/share/emulationstation/resources/mamenames.xml",
+]
+
+
+def load_mame_names(override=None):
+    """MAME set name -> real title, from whichever copy of the table exists."""
+    for path in ([override] if override else []) + MAMENAMES_FILES:
+        if not os.path.isfile(path):
+            continue
+        try:
+            text = open(path, encoding="utf-8", errors="replace").read()
+        except OSError:
+            continue
+        pairs = re.findall(
+            r"<mamename>(.*?)</mamename>\s*<realname>(.*?)</realname>", text, re.S)
+        if pairs:
+            return {k.strip(): html.unescape(v).strip() for k, v in pairs}, path
+    return {}, None
 
 
 def load_extra_names():
@@ -100,7 +127,7 @@ def find_cfg(roms_root=None):
 
 
 def systems(cfg_path, roms_root=None):
-    """(name, rom_dir, {extensions}) for every system with a folder present.
+    """(name, rom_dir, {extensions}, platform) for every system with a folder.
 
     roms_root relocates the /roms prefix, so the same code can be pointed at
     a copy of the card for testing instead of the live one.
@@ -112,6 +139,7 @@ def systems(cfg_path, roms_root=None):
             m = re.search(r"<%s>(.*?)</%s>" % (t, t), block, re.S)
             return m.group(1).strip() if m else ""
         name, path, ext = tag("name"), tag("path"), tag("extension")
+        platform = tag("platform").lower()
         path = path.replace("~", os.path.expanduser("~"))
         if not path.startswith(("/roms/", "/roms2/")):
             continue
@@ -125,7 +153,7 @@ def systems(cfg_path, roms_root=None):
             continue
         exts = {e.lower() for e in ext.split() if e.startswith(".")}
         if exts:
-            out.append((name, rom_dir, exts))
+            out.append((name, rom_dir, exts, platform))
     return out
 
 
@@ -180,8 +208,9 @@ def esc(s):
     return html.escape(s, quote=False)
 
 
-def render(entries, existing, extra=None):
-    extra = extra or {}
+def render(entries, existing, names=None):
+    """names: set name -> real title, or None for systems that do not use them."""
+    names = names or {}
     lines = ['<?xml version="1.0"?>', "<gameList>"]
     for path in entries:
         meta = dict(existing.get(path, {}))
@@ -196,7 +225,7 @@ def render(entries, existing, extra=None):
         # lookup and leaves the short MAME code on screen. ES omits the name
         # for the same reason when it saves a gamelist itself.
         if not name or name == stem:
-            name = extra.get(stem, "")
+            name = names.get(stem, "")
         if name and name != stem:
             lines.append("\t\t<name>%s</name>" % esc(name))
         for t in KEEP_TAGS:
@@ -213,8 +242,11 @@ def render(entries, existing, extra=None):
 def main():
     dry = "--dry-run" in sys.argv
     roms_root = None
+    mamenames_override = None
     backup = BACKUP
     for a in sys.argv[1:]:
+        if a.startswith("--mamenames="):
+            mamenames_override = a.split("=", 1)[1]
         if a.startswith("--roms-root="):
             roms_root = a.split("=", 1)[1].rstrip("/")
             backup = os.path.join(roms_root, "tools/es-custom/gamelist-backup")
@@ -232,13 +264,20 @@ def main():
     if not dry:
         os.makedirs(backup, exist_ok=True)
 
+    mame, mame_src = load_mame_names(mamenames_override)
     extra = load_extra_names()
+    lookup = dict(mame)
+    lookup.update(extra)          # our own titles win over the shipped table
+    if mame_src:
+        print("MAME titles: %d from %s" % (len(mame), mame_src))
+    else:
+        print("MAME titles: none found - arcade names will be left to ES")
     if extra:
-        print("Extra arcade titles available: %d" % len(extra))
-        print()
+        print("plus %d from mame-extra-names.tsv" % len(extra))
+    print()
 
     rows, skipped = [], []
-    for name, rom_dir, exts in systems(cfg, roms_root):
+    for name, rom_dir, exts, platform in systems(cfg, roms_root):
         if name in SKIP_SYSTEMS:
             skipped.append((name, SKIP_SYSTEMS[name]))
             continue
@@ -262,7 +301,10 @@ def main():
                     print("  SKIPPED %-14s could not back up: %s" % (name, e))
                     continue
             with open(gamelist, "w", encoding="utf-8") as fh:
-                fh.write(render(entries, existing, extra))
+                # Only arcade-family systems use MAME set names; everywhere
+                # else the filename already is the title.
+                uses_mame = ("arcade" in platform) or (platform == "neogeo")
+                fh.write(render(entries, existing, lookup if uses_mame else None))
 
         rows.append((name, len(entries), len(existing) - len(dropped),
                      len(added), len(dropped), new_file))
