@@ -336,7 +336,9 @@ std::map<std::string, std::map<std::string, ThemeData::ElementPropertyType>> The
 		{ "iconNetwork", PATH },
 		{ "iconScraper", PATH },
 		{ "iconAdvanced", PATH },
-		{ "iconQuit", PATH } } },
+		{ "iconQuit", PATH },
+		{ "iconFolder", PATH },
+		{ "iconScript", PATH } } },
 	{ "menuSwitch",{
 		{ "pathOn", PATH },
 		{ "pathOff", PATH } } },

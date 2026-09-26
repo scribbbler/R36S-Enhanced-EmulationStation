@@ -241,6 +241,11 @@ Background of Ark menü
 	<optionPath>./art/icons/arrow.svg</optionPath><!-- '<' '>' arrows around option values -->
     </menuArrow>
 
+    <menuIcons name="menuicons">
+	<iconFolder>./art/icons/folder.png</iconFolder><!-- a submenu of tools, e.g. Options -> Tools -->
+	<iconScript>./art/icons/settings.svg</iconScript><!-- a runnable .sh in that menu -->
+    </menuIcons>
+
     <menuCheckbox name="menucheckbox">
 	<pathChecked>./art/icons/checkbox-on.svg</pathChecked><!-- multi-select rows, e.g. Visible Systems -->
 	<pathUnchecked>./art/icons/checkbox-off.svg</pathUnchecked>

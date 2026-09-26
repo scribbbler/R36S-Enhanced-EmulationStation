@@ -99,8 +99,7 @@ bool GuiTools::addScriptsToMenu(MenuComponent& menu, const std::string& folderPa
                     wrapper->close();
                 });
 
-                std::string displayName = _U("\uF07B ") + mResolver->resolve(item);
-                folders.push_back(std::make_pair(displayName, wrapper));
+                folders.push_back(std::make_pair(mResolver->resolve(item), wrapper));
             }
             else
             {
@@ -109,8 +108,7 @@ bool GuiTools::addScriptsToMenu(MenuComponent& menu, const std::string& folderPa
         }
         else if (Utils::String::toLower(Utils::FileSystem::getExtension(fileName)) == ".sh")
         {
-            std::string displayName = _U("\uF013 ") + mResolver->resolve(item);
-            scripts.push_back(std::make_pair(displayName, item));
+            scripts.push_back(std::make_pair(mResolver->resolve(item), item));
         }
     }
 
@@ -132,9 +130,12 @@ bool GuiTools::addScriptsToMenu(MenuComponent& menu, const std::string& folderPa
     {
         SubMenuWrapper* wrapperPtr = folders[i].second;
         std::string entryName = folders[i].first;
+        // The folder and cog used to be Font Awesome characters glued onto the
+        // label. As row icons the theme can supply its own art, and the label
+        // starts where every other menu's does.
         menu.addEntry(entryName, true, [this, wrapperPtr] {
             mWindow->pushGui(wrapperPtr);
-        }, "");
+        }, "iconFolder");
     }
 
     // Add script entries - capture only the script path, not the whole vector
@@ -144,7 +145,7 @@ bool GuiTools::addScriptsToMenu(MenuComponent& menu, const std::string& folderPa
         std::string entryName = scripts[i].first;
         menu.addEntry(entryName, false, [this, scriptPath] {
             launchTool(scriptPath);
-        }, "");
+        }, "iconScript");
     }
 
     return (!folders.empty() || !scripts.empty());
