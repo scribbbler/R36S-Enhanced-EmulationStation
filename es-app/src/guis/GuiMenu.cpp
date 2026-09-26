@@ -2,6 +2,7 @@
 #include "guis/GuiMenu.h"
 #include "guis/GuiTools.h"
 #include "guis/GuiArkOS4CloneSettings.h"
+#include "guis/arkos4clone/ScreenControl.h"
 #include "components/OptionListComponent.h"
 #include "components/SliderComponent.h"
 #include "components/SwitchComponent.h"
@@ -107,6 +108,13 @@ GuiMenu::GuiMenu(Window* window, bool animate) : GuiComponent(window), mMenu(win
 		
 		addEntry(_("UI SETTINGS"), true, [this] { openUISettings(); }, "iconUI");
 		// addEntry(_("CONFIGURE INPUT"), true, [this] { openConfigInput(); }, "iconControllers");
+
+		// Display + gamma. Lived under ArkOS4Clone Settings; it belongs beside
+		// the other things you adjust while looking at the screen, not buried
+		// with the hardware plumbing.
+		addEntry(_("SCREEN SETTINGS"), true, [this] {
+			ScreenControl::openScreenSettings(mWindow);
+		}, "iconBrightnessctl");
 	}
 
 	addEntry(_("SOUND SETTINGS"), true, [this] { openSoundSettings(); }, "iconSound");
@@ -125,7 +133,10 @@ GuiMenu::GuiMenu(Window* window, bool animate) : GuiComponent(window), mMenu(win
 		// 	break;
 		// }
 		
-		addEntry(_("SCRAPER"), true, [this] { openScraperSettings(); }, "iconScraper");
+		// Scraper - COMMENTED OUT (scraping is done off-device; the menu entry
+		// only offers a slow on-device scrape against sources this build has no
+		// credentials for). openScraperSettings() is left intact.
+		// addEntry(_("SCRAPER"), true, [this] { openScraperSettings(); }, "iconScraper");
 
 #if WIN32
 		addEntry(_("DOWNLOADS AND UPDATES"), true, [this] { openUpdateSettings(); }, "iconUpdates");

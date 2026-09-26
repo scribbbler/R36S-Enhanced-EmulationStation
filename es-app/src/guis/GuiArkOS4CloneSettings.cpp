@@ -11,7 +11,6 @@
 #include "guis/arkos4clone/SystemSettings.h"
 #include "guis/arkos4clone/BatteryPlus.h"
 #include "guis/arkos4clone/GammaControl.h"
-#include "guis/arkos4clone/ScreenControl.h"
 #include "components/SliderComponent.h"
 #include "components/OptionListComponent.h"
 #include "components/SwitchComponent.h"
@@ -92,11 +91,6 @@ GuiArkOS4CloneSettings::GuiArkOS4CloneSettings(Window* window)
             openBatteryPlusSettings();
         }, "");
     }
-
-    // Screen Settings submenu (Display + Gamma)
-    mMenu.addEntry(_("SCREEN SETTINGS"), true, [this] {
-        ScreenControl::openScreenSettings(mWindow);
-    }, "iconBrightnessctl");
 
     // Configure Input
     mMenu.addEntry(_("CONFIGURE INPUT"), true, [this] {
