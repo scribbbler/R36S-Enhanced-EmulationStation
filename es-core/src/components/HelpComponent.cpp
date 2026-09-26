@@ -180,23 +180,32 @@ void HelpComponent::updateGrid()
 	const float screenW = Renderer::getScreenWidth();
 	const float margin  = mStyle.position.x();
 	const float posY    = mStyle.position.y();
-	const float padX    = mStyle.backgroundPadding.x();
+	const float padL    = mStyle.backgroundPadding.x();
+	const float padR    = mStyle.backgroundPadding.z();
 	const float W       = mStyle.backgroundWidth;   // fixed pill width (px); 0 => content
 
-	const float padY = mStyle.backgroundPadding.y();
+	// In content-fit mode pos.x is where the content starts, so the pill's own
+	// margin from the screen edge is that minus the left padding. The right
+	// pill is anchored by its right edge and has to clear the same outer
+	// margin, which with asymmetric padding is no longer just 'margin'.
+	// (In fixed-width mode 'margin' already denotes the pill edge itself.)
+	const float outerMargin = margin - padL;
+
+	const float padT = mStyle.backgroundPadding.y();
+	const float padB = mStyle.backgroundPadding.w();
 	if(mGrid)
 	{
 		mGrid->setOrigin(0.0f, 0.0f);
 		// fixed-pill mode: bottom-anchor so the pill's bottom edge sits at pos.y
-		float y = (W > 0.0f) ? (posY - mGrid->getSize().y() - padY) : posY;
-		mGrid->setPosition(Vector3f((W > 0.0f) ? (margin + padX) : margin, y, 0.0f));
+		float y = (W > 0.0f) ? (posY - mGrid->getSize().y() - padB) : posY;
+		mGrid->setPosition(Vector3f((W > 0.0f) ? (margin + padL) : margin, y, 0.0f));
 	}
 	if(mGridRight)
 	{
 		mGridRight->setOrigin(0.0f, 0.0f);
-		float x = (W > 0.0f) ? (screenW - margin - W + padX)
-		                     : (screenW - margin - mGridRight->getSize().x());
-		float y = (W > 0.0f) ? (posY - mGridRight->getSize().y() - padY) : posY;
+		float x = (W > 0.0f) ? (screenW - margin - W + padL)
+		                     : (screenW - outerMargin - padR - mGridRight->getSize().x());
+		float y = (W > 0.0f) ? (posY - mGridRight->getSize().y() - padB) : posY;
 		mGridRight->setPosition(Vector3f(x, y, 0.0f));
 	}
 }
@@ -245,8 +254,10 @@ void HelpComponent::render(const Transform4x4f& parentTrans)
 	const float screenW = Renderer::getScreenWidth();
 	const float margin  = mStyle.position.x();
 	const float W       = mStyle.backgroundWidth;
-	const float padX    = mStyle.backgroundPadding.x();
-	const float padY    = mStyle.backgroundPadding.y();
+	const float padL    = mStyle.backgroundPadding.x();
+	const float padT    = mStyle.backgroundPadding.y();
+	const float padR    = mStyle.backgroundPadding.z();
+	const float padB    = mStyle.backgroundPadding.w();
 	const bool  haveBg  = (mStyle.backgroundColor & 0xFF) != 0;
 
 	// pill color faded with the bar's own opacity
@@ -262,8 +273,8 @@ void HelpComponent::render(const Transform4x4f& parentTrans)
 		{
 			Vector3f gp = g->getPosition();
 			Vector2f gs = g->getSize();
-			float by = gp.y() - padY;
-			float bh = gs.y() + 2.0f * padY;
+			float by = gp.y() - padT;
+			float bh = gs.y() + padT + padB;
 			float bx, bw;
 			if(W > 0.0f)
 			{
@@ -272,8 +283,8 @@ void HelpComponent::render(const Transform4x4f& parentTrans)
 			}
 			else
 			{
-				bw = gs.x() + 2.0f * padX;
-				bx = gp.x() - padX;
+				bw = gs.x() + padL + padR;
+				bx = gp.x() - padL;
 			}
 			// Round both edges to whole pixels rather than rounding the origin
 			// and the width apart. The grid's width is a float sum of glyph

@@ -71,20 +71,20 @@ The selected row gets a left-hugging white pill with black text.
     <view name="system">
         <helpsystem name="help">
         <fontPath>./fonts/BPreplay-Bold.otf</fontPath><!-- the design sets the help labels bold -->
-	<pos>0.0375 0.9041667</pos><!-- 24px margin; grid top 434 -> pill 426..474 (matches baked art) -->
+	<pos>0.0375 0.9083333</pos><!-- content starts (24,436); pill left 14, top 426..474 (Figma) -->
 	<origin>0 0</origin>
 	<fontSize>0.0334</fontSize><!-- v2: 21px design (16.03 nominal x 1.31 boost) -->
 	<textColor>000000</textColor>
 	<iconColor>FFFFFF</iconColor><!-- no tint: the icons carry their theme's own colour, and the shift multiplies -->
-	<iconSize>0.0666667</iconSize><!-- v2: 32px button icons -->
-	<iconTextSpacing>0.0125</iconTextSpacing><!-- 8px icon-to-label gap (Figma) -->
+	<iconSize>0.0583333</iconSize><!-- 28px button circle (Figma Button 28x28) -->
+	<iconTextSpacing>0.0109375</iconTextSpacing><!-- 7px icon-to-label gap (Figma gap-7) -->
 	<entrySpacing>0.034375</entrySpacing><!-- v2: 22px between entries -->
 	<textUppercase>true</textUppercase><!-- applies to system labels only; overrides below are verbatim -->
 
 	<backgroundColor>CACACAFF</backgroundColor><!-- 10% black on E0E0E0 paper (mirrors Figma 10% white) -->
 	<backgroundWidth>0</backgroundWidth><!-- v2: content-fit pills -->
 	<backgroundRadius>0.05</backgroundRadius><!-- 24px: half of the 48px pill, so it is a true stadium -->
-	<backgroundPadding>0.015625 0.0166667</backgroundPadding><!-- 10px x, 8px y -> 48px pill, top at 426 (Figma On-Screen Help) -->
+	<backgroundPadding>0.015625 0.0208333 0.025 0.0208333</backgroundPadding><!-- l t r b = 10 10 16 10px. Figma's entry is pl8/pr14 inside a 2px container, so the pill is not symmetric -->
 	<iconX>./art/buttons/x.svg</iconX>
 	<iconY>./art/buttons/y.svg</iconY>
 	<iconA>./art/buttons/a.svg</iconA>
@@ -103,20 +103,20 @@ The selected row gets a left-hugging white pill with black text.
     <view name="basic, detailed, video">
         <helpsystem name="help">
         <fontPath>./fonts/BPreplay-Bold.otf</fontPath><!-- the design sets the help labels bold -->
-	<pos>0.0375 0.9041667</pos><!-- 24px margin; grid top 434 -> pill 426..474 (matches baked art) -->
+	<pos>0.0375 0.9083333</pos><!-- content starts (24,436); pill left 14, top 426..474 (Figma) -->
 	<origin>0 0</origin>
 	<fontSize>0.0334</fontSize>
 	<textColor>000000</textColor>
 	<iconColor>FFFFFF</iconColor><!-- no tint: the icons carry their theme's own colour, and the shift multiplies -->
-	<iconSize>0.0666667</iconSize>
-	<iconTextSpacing>0.0125</iconTextSpacing>
+	<iconSize>0.0583333</iconSize><!-- 28px button circle (Figma Button 28x28) -->
+	<iconTextSpacing>0.0109375</iconTextSpacing><!-- 7px icon-to-label gap (Figma gap-7) -->
 	<entrySpacing>0.034375</entrySpacing>
 	<textUppercase>true</textUppercase>
 
 	<backgroundColor>CACACAFF</backgroundColor><!-- 10% black on E0E0E0 paper (mirrors Figma 10% white) -->
 	<backgroundWidth>0</backgroundWidth>
 	<backgroundRadius>0.05</backgroundRadius><!-- 24px: half of the 48px pill, so it is a true stadium -->
-	<backgroundPadding>0.015625 0.0166667</backgroundPadding><!-- 10px x, 8px y -> 48px pill, top at 426 (Figma On-Screen Help) -->
+	<backgroundPadding>0.015625 0.0208333 0.025 0.0208333</backgroundPadding><!-- l t r b = 10 10 16 10px. Figma's entry is pl8/pr14 inside a 2px container, so the pill is not symmetric -->
 	<iconX>./art/buttons/x.svg</iconX>
 	<iconY>./art/buttons/y.svg</iconY>
 	<iconB>./art/buttons/b.svg</iconB>

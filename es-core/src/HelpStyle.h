@@ -3,6 +3,7 @@
 #define ES_CORE_HELP_STYLE_H
 
 #include "math/Vector2f.h"
+#include "math/Vector4f.h"
 #include <memory>
 #include <string>
 #include <map>
@@ -27,7 +28,10 @@ struct HelpStyle
 	bool  uppercase;                // force UPPERCASE labels
 	unsigned int backgroundColor;   // rounded background behind the bar (alpha 0 => none)
 	float backgroundRadius;         // px corner radius of that background
-	Vector2f backgroundPadding;     // px padding (x,y) around the content inside the background
+	// px padding inside the background, left/top/right/bottom. The design's
+	// entries are not horizontally symmetric - 8px before the icon, 14px after
+	// the label - which on the pill reads as 10 left and 16 right.
+	Vector4f backgroundPadding;
 	float backgroundWidth;          // fixed pill width in px (<=0 => size to content)
 	bool  visible;                  // hide the whole help bar for this view when false
 

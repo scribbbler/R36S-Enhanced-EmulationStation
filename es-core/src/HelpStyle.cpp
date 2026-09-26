@@ -18,7 +18,7 @@ HelpStyle::HelpStyle()
 	uppercase = true;
 	backgroundColor = 0x00000000;  // no background
 	backgroundRadius = 0.0f;
-	backgroundPadding = Vector2f(0.0f, 0.0f);
+	backgroundPadding = Vector4f(0.0f, 0.0f, 0.0f, 0.0f);
 	backgroundWidth = 0.0f;        // content width
 	visible = true;
 
@@ -67,8 +67,14 @@ void HelpStyle::applyTheme(const std::shared_ptr<ThemeData>& theme, const std::s
 		backgroundRadius = elem->get<float>("backgroundRadius") * Renderer::getScreenHeight();
 
 	if(elem->has("backgroundPadding"))
-		backgroundPadding = elem->get<Vector2f>("backgroundPadding") *
-			Vector2f((float)Renderer::getScreenWidth(), (float)Renderer::getScreenHeight());
+	{
+		// A two-value form is mirrored into four by the parser, so themes
+		// written before the split keep the padding they had.
+		const float sw = (float)Renderer::getScreenWidth();
+		const float sh = (float)Renderer::getScreenHeight();
+		backgroundPadding = elem->get<Vector4f>("backgroundPadding") *
+			Vector4f(sw, sh, sw, sh);
+	}
 
 	if(elem->has("backgroundWidth"))
 		backgroundWidth = elem->get<float>("backgroundWidth") * Renderer::getScreenWidth();

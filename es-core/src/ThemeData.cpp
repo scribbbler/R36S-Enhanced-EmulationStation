@@ -243,7 +243,7 @@ std::map<std::string, std::map<std::string, ThemeData::ElementPropertyType>> The
 		{ "textUppercase", BOOLEAN },
 		{ "backgroundColor", COLOR },
 		{ "backgroundRadius", FLOAT },
-		{ "backgroundPadding", NORMALIZED_PAIR },
+		{ "backgroundPadding", NORMALIZED_RECT },   // "l t r b", or "x y" mirrored
 		{ "backgroundWidth", FLOAT },
 		{ "visible", BOOLEAN },
 		{ "labelA", STRING },
